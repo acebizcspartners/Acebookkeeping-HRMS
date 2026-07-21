@@ -31,9 +31,21 @@
             <li><a href="{{ url_for('leave_transactions') }}" class="{% if request.endpoint == 'leave_transactions' %}active{% endif %}">
                 <i class="fas fa-exchange-alt"></i> Transactions
             </a></li>
+            <li><a href="{{ url_for('my_salary') }}" class="{% if request.endpoint == 'my_salary' %}active{% endif %}">
+                <i class="fas fa-money-bill"></i> Salary
+            </a></li>
+            <li><a href="{{ url_for('my_invoices') }}" class="{% if request.endpoint == 'my_invoices' %}active{% endif %}">
+                <i class="fas fa-file-invoice-dollar"></i> Invoices
+            </a></li>
             {% if current_user.role in ['admin', 'manager'] %}
             <li><a href="{{ url_for('manage_leaves') }}" class="{% if request.endpoint == 'manage_leaves' %}active{% endif %}">
                 <i class="fas fa-tasks"></i> Manage Leaves
+            </a></li>
+            <li><a href="{{ url_for('view_all_salaries') }}" class="{% if request.endpoint == 'view_all_salaries' %}active{% endif %}">
+                <i class="fas fa-money-bill-wave"></i> Salaries
+            </a></li>
+            <li><a href="{{ url_for('admin_invoices') }}" class="{% if request.endpoint == 'admin_invoices' %}active{% endif %}">
+                <i class="fas fa-file-pdf"></i> All Invoices
             </a></li>
             <li><a href="{{ url_for('employees') }}" class="{% if request.endpoint == 'employees' %}active{% endif %}">
                 <i class="fas fa-users"></i> Employees

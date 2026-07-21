@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Salary - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Salary Management - {{ user.username }}</h2>
+            <p class="text-muted">Email: {{ user.email }}</p>
+            <p class="text-muted">Department: {{ user.department or 'N/A' }}</p>
+
+            <form method="POST" class="mt-4">
+                <div class="mb-3">
+                    <label for="monthly_salary" class="form-label">Monthly Salary (₹)</label>
+                    <input type="number" class="form-control" id="monthly_salary" name="monthly_salary"
+                           value="{{ salary.monthly_salary if salary else '' }}" step="0.01" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="hourly_rate" class="form-label">Hourly Rate (₹/hour)</label>
+                    <input type="number" class="form-control" id="hourly_rate" name="hourly_rate"
+                           value="{{ salary.hourly_rate if salary else '' }}" step="0.01" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="effective_from" class="form-label">Effective From</label>
+                    <input type="date" class="form-control" id="effective_from" name="effective_from"
+                           value="{{ salary.effective_from if salary else '' }}" required>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Salary
+                    </button>
+                    <a href="{{ url_for('view_all_salaries') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            {% if salary %}
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Current Salary Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Monthly Salary</p>
+                            <h4>₹{{ "%.2f"|format(salary.monthly_salary) }}</h4>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Hourly Rate</p>
+                            <h4>₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Effective From</p>
+                            <p>{{ salary.effective_from.strftime('%d %b %Y') }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Last Updated</p>
+                            <p>{{ salary.updated_at.strftime('%d %b %Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle"></i> No salary information set for this employee yet.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

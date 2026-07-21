@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}My Salary{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">My Salary Information</h1>
+
+    {% if salary %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Salary Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Monthly Salary</p>
+                            <h3 class="text-success">₹{{ "%.2f"|format(salary.monthly_salary) }}</h3>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Hourly Rate</p>
+                            <h4>₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</h4>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Effective From</p>
+                            <p>{{ salary.effective_from.strftime('%d %b %Y') }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Annual Salary</p>
+                            <h4>₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('my_invoices') }}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-file-invoice"></i> View My Invoices
+                    </a>
+                    <a href="{{ url_for('leave_balance') }}" class="btn btn-outline-info w-100">
+                        <i class="fas fa-calendar-check"></i> View Leave Balance
+                    </a>
+                </div>
+            </div>
+
+            {% if leave_info %}
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">Leave Balance (Current Year)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Annual Leave</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: {{ (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 }}%">
+                                {{ "%.1f"|format(leave_info.annual_available) }} hrs
+                            </div>
+                        </div>
+                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.annual_used) }} / Accrued: {{ "%.1f"|format(leave_info.annual_accrued) }}</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Sick Leave</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" role="progressbar"
+                                 style="width: {{ (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 }}%">
+                                {{ "%.1f"|format(leave_info.sick_available) }} hrs
+                            </div>
+                        </div>
+                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.sick_used) }} / Accrued: {{ "%.1f"|format(leave_info.sick_accrued) }}</small>
+                    </div>
+
+                    <div>
+                        <p class="text-muted mb-1">LWP Used</p>
+                        <p>{{ "%.1f"|format(leave_info.lwp_used) }} hours</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Salary Information Not Available</strong><br>
+        Your salary information has not been set up in the system yet. Please contact your administrator.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

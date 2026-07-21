@@ -148,6 +148,37 @@ class LeaveTransaction(db.Model):
 
     user = db.relationship('User', backref='leave_transactions')
 
+class Salary(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    monthly_salary = db.Column(db.Float, nullable=False)
+    hourly_rate = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(10), default='INR')
+    effective_from = db.Column(db.Date, nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', backref='salaries')
+
+class PaymentInvoice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    salary_amount = db.Column(db.Float, nullable=False)
+    deductions = db.Column(db.Float, default=0)
+    bonus = db.Column(db.Float, default=0)
+    net_amount = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(10), default='INR')
+    status = db.Column(db.String(20), default='draft')  # draft, generated, paid
+    invoice_number = db.Column(db.String(50), unique=True, nullable=False)
+    generated_on = db.Column(db.DateTime, default=datetime.utcnow)
+    paid_on = db.Column(db.DateTime, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+
+    user = db.relationship('User', backref='invoices')
+
 def record_leave_transaction(user_id, leave_type, transaction_type, days, description, reference_id=None, transaction_date=None):
     """Record a leave transaction (credit or debit)"""
     if transaction_date is None:
@@ -816,6 +847,159 @@ def update_role(user_id):
         flash(f'Role updated for {user.username}', 'success')
 
     return redirect(url_for('employees'))
+
+@app.route('/employee/<int:user_id>/salary', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def manage_employee_salary(user_id):
+    user = User.query.get_or_404(user_id)
+    salary = Salary.query.filter_by(user_id=user_id, is_active=True).first()
+
+    if request.method == 'POST':
+        monthly_salary = float(request.form.get('monthly_salary'))
+        hourly_rate = float(request.form.get('hourly_rate'))
+        effective_from = datetime.strptime(request.form.get('effective_from'), '%Y-%m-%d').date()
+
+        if salary:
+            salary.monthly_salary = monthly_salary
+            salary.hourly_rate = hourly_rate
+            salary.effective_from = effective_from
+            salary.updated_at = datetime.utcnow()
+        else:
+            salary = Salary(
+                user_id=user_id,
+                monthly_salary=monthly_salary,
+                hourly_rate=hourly_rate,
+                effective_from=effective_from
+            )
+            db.session.add(salary)
+
+        db.session.commit()
+        flash(f'Salary updated for {user.username}', 'success')
+        return redirect(url_for('view_all_salaries'))
+
+    return render_template('manage_salary.html', user=user, salary=salary)
+
+@app.route('/admin/salaries')
+@login_required
+@admin_required
+def view_all_salaries():
+    users = User.query.all()
+    employees_data = []
+
+    for user in users:
+        salary = Salary.query.filter_by(user_id=user.id, is_active=True).first()
+        balance = LeaveBalance.query.filter_by(
+            user_id=user.id,
+            year=datetime.now().year
+        ).first()
+        leave_info = balance.get_available_leave() if balance else None
+
+        employees_data.append({
+            'user': user,
+            'salary': salary,
+            'leave_info': leave_info
+        })
+
+    return render_template('admin_salaries.html', employees_data=employees_data)
+
+@app.route('/my-salary')
+@login_required
+def my_salary():
+    salary = Salary.query.filter_by(user_id=current_user.id, is_active=True).first()
+    balance = LeaveBalance.query.filter_by(
+        user_id=current_user.id,
+        year=datetime.now().year
+    ).first()
+    leave_info = balance.get_available_leave() if balance else None
+
+    return render_template('employee_salary.html', salary=salary, leave_info=leave_info)
+
+@app.route('/invoice/generate/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def generate_invoice(user_id):
+    user = User.query.get_or_404(user_id)
+    salary = Salary.query.filter_by(user_id=user_id, is_active=True).first()
+
+    if not salary:
+        flash('Salary not set for this employee.', 'error')
+        return redirect(url_for('view_all_salaries'))
+
+    if request.method == 'POST':
+        month = int(request.form.get('month'))
+        year = int(request.form.get('year'))
+        deductions = float(request.form.get('deductions', 0))
+        bonus = float(request.form.get('bonus', 0))
+        notes = request.form.get('notes', '')
+
+        salary_amount = salary.monthly_salary
+        net_amount = salary_amount + bonus - deductions
+
+        invoice_number = f'INV-{user_id}-{year}-{month:02d}-{datetime.now().strftime("%H%M%S")}'
+
+        invoice = PaymentInvoice(
+            user_id=user_id,
+            month=month,
+            year=year,
+            salary_amount=salary_amount,
+            deductions=deductions,
+            bonus=bonus,
+            net_amount=net_amount,
+            invoice_number=invoice_number,
+            status='generated',
+            notes=notes
+        )
+        db.session.add(invoice)
+        db.session.commit()
+
+        flash(f'Invoice generated: {invoice_number}', 'success')
+        return redirect(url_for('view_invoice', invoice_id=invoice.id))
+
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    return render_template('generate_invoice.html', user=user, salary=salary,
+                         current_month=current_month, current_year=current_year)
+
+@app.route('/invoice/<int:invoice_id>')
+@login_required
+def view_invoice(invoice_id):
+    invoice = PaymentInvoice.query.get_or_404(invoice_id)
+
+    if current_user.role != 'admin' and current_user.id != invoice.user_id:
+        flash('Access denied.', 'error')
+        return redirect(url_for('dashboard'))
+
+    user = User.query.get(invoice.user_id)
+    salary = Salary.query.filter_by(user_id=invoice.user_id, is_active=True).first()
+
+    return render_template('view_invoice.html', invoice=invoice, user=user, salary=salary)
+
+@app.route('/invoices')
+@login_required
+def my_invoices():
+    invoices = PaymentInvoice.query.filter_by(user_id=current_user.id)\
+        .order_by(PaymentInvoice.generated_on.desc()).all()
+    return render_template('my_invoices.html', invoices=invoices)
+
+@app.route('/admin/invoices')
+@login_required
+@admin_required
+def admin_invoices():
+    invoices = PaymentInvoice.query.order_by(PaymentInvoice.generated_on.desc()).all()
+    return render_template('admin_invoices.html', invoices=invoices)
+
+@app.route('/invoice/<int:invoice_id>/mark-paid', methods=['POST'])
+@login_required
+@admin_required
+def mark_invoice_paid(invoice_id):
+    invoice = PaymentInvoice.query.get_or_404(invoice_id)
+    invoice.status = 'paid'
+    invoice.paid_on = datetime.utcnow()
+    db.session.commit()
+    flash(f'Invoice {invoice.invoice_number} marked as paid.', 'success')
+    return redirect(url_for('view_invoice', invoice_id=invoice.id))
 
 @app.route('/leave-balance')
 @login_required

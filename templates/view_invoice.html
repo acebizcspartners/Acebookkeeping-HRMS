@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice #{{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Payment Invoice</h2>
+        </div>
+        <div class="col-auto">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_invoices') }}{% else %}{{ url_for('my_invoices') }}{% endif %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-6">
+                    <h5>Acebiz Consultants</h5>
+                    <p class="text-muted mb-0">Payment Invoice</p>
+                </div>
+                <div class="col-6 text-end">
+                    <h6>Invoice #{{ invoice.invoice_number }}</h6>
+                    <p class="text-muted mb-0">Date: {{ invoice.generated_on.strftime('%d %b %Y') }}</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Employee Details -->
+            <div class="row mb-4">
+                <div class="col-6">
+                    <h6 class="text-muted mb-2">Bill To:</h6>
+                    <p class="mb-0"><strong>{{ user.username }}</strong></p>
+                    <p class="mb-0">{{ user.email }}</p>
+                    <p class="mb-0">Department: {{ user.department or 'N/A' }}</p>
+                </div>
+                <div class="col-6 text-end">
+                    <h6 class="text-muted mb-2">Invoice Details:</h6>
+                    <p class="mb-0"><strong>Month:</strong> {{ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][invoice.month-1] }} {{ invoice.year }}</p>
+                    <p class="mb-0"><strong>Status:</strong>
+                        {% if invoice.status == 'paid' %}
+                            <span class="badge bg-success">Paid</span>
+                        {% elif invoice.status == 'generated' %}
+                            <span class="badge bg-warning">Generated</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ invoice.status }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Salary Details Table -->
+            <div class="table-responsive mb-4">
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted">Monthly Salary</td>
+                            <td class="text-end">₹{{ "%.2f"|format(invoice.salary_amount) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Bonus</td>
+                            <td class="text-end">₹{{ "%.2f"|format(invoice.bonus) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Deductions</td>
+                            <td class="text-end">- ₹{{ "%.2f"|format(invoice.deductions) }}</td>
+                        </tr>
+                        <tr class="border-top border-bottom">
+                            <td><strong>Net Amount Payable</strong></td>
+                            <td class="text-end"><strong class="text-success h5">₹{{ "%.2f"|format(invoice.net_amount) }}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="row mb-4">
+                <div class="col-6">
+                    {% if salary %}
+                    <h6 class="text-muted mb-2">Salary Information:</h6>
+                    <p class="mb-1"><strong>Hourly Rate:</strong> ₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</p>
+                    <p class="mb-1"><strong>Annual Salary:</strong> ₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-6 text-end">
+                    {% if invoice.paid_on %}
+                    <h6 class="text-muted mb-2">Payment Info:</h6>
+                    <p class="mb-1"><strong>Paid On:</strong> {{ invoice.paid_on.strftime('%d %b %Y') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if invoice.notes %}
+            <hr>
+            <div class="alert alert-light">
+                <h6 class="text-muted mb-2">Notes:</h6>
+                <p class="mb-0">{{ invoice.notes }}</p>
+            </div>
+            {% endif %}
+
+            <hr>
+
+            <!-- Footer -->
+            <div class="text-center text-muted mt-4">
+                <p class="small mb-1">This is a computer generated invoice and needs no signature.</p>
+                <p class="small">Acebiz Consultants - Employee Payment System</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons for Admin -->
+    {% if current_user.role == 'admin' and invoice.status == 'generated' %}
+    <div class="mt-4 d-flex gap-2">
+        <form method="POST" class="d-inline" action="{{ url_for('mark_invoice_paid', invoice_id=invoice.id) }}">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i> Mark as Paid
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<style media="print">
+    .btn, .btn-group, a { display: none !important; }
+    .card { border: none !important; }
+</style>
+{% endblock %}
