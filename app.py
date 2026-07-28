@@ -1089,6 +1089,63 @@ def view_employee_profile(user_id):
         current_year=current_year
     )
 
+@app.route('/admin/employee/<int:user_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_employee_profile(user_id):
+    """Edit employee details"""
+    user = User.query.get_or_404(user_id)
+    profile = EmployeeProfile.query.filter_by(user_id=user_id).first()
+
+    if request.method == 'POST':
+        # Update user info
+        user.username = request.form.get('username')
+        user.email = request.form.get('email')
+        user.department = request.form.get('department')
+
+        # Create or update profile
+        if not profile:
+            profile = EmployeeProfile(user_id=user_id)
+            db.session.add(profile)
+
+        profile.phone = request.form.get('phone')
+        profile.address = request.form.get('address')
+        profile.city = request.form.get('city')
+        profile.state = request.form.get('state')
+        profile.postal_code = request.form.get('postal_code')
+        profile.country = request.form.get('country')
+
+        dob_str = request.form.get('date_of_birth')
+        if dob_str:
+            profile.date_of_birth = datetime.strptime(dob_str, '%Y-%m-%d').date()
+
+        profile.gender = request.form.get('gender')
+        profile.blood_group = request.form.get('blood_group')
+
+        joining_date_str = request.form.get('joining_date')
+        if joining_date_str:
+            profile.joining_date = datetime.strptime(joining_date_str, '%Y-%m-%d').date()
+
+        profile.employment_type = request.form.get('employment_type')
+        profile.pan_number = request.form.get('pan_number')
+        profile.aadhar_number = request.form.get('aadhar_number')
+        profile.bank_account = request.form.get('bank_account')
+        profile.ifsc_code = request.form.get('ifsc_code')
+
+        db.session.commit()
+        flash(f'Employee details updated for {user.username}!', 'success')
+        return redirect(url_for('view_employee_profile', user_id=user_id))
+
+    departments = Department.query.all()
+    designations = Designation.query.all()
+
+    return render_template('edit_employee_profile.html',
+        user=user,
+        profile=profile,
+        departments=departments,
+        designations=designations
+    )
+
 @app.route('/admin/salaries')
 @login_required
 @admin_required

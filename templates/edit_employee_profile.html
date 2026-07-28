@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Employee Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-edit"></i> Edit Employee Profile</h1>
+            <p class="text-muted">Update employee information</p>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('view_employee_profile', user_id=user.id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+
+    <form method="POST" class="needs-validation">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-6">
+                <!-- User Account Info -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-user"></i> Account Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   value="{{ user.username }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   value="{{ user.email }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department" name="department"
+                                   value="{{ user.department or '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-id-card"></i> Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                   value="{{ profile.phone or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
+                                   value="{% if profile and profile.date_of_birth %}{{ profile.date_of_birth.strftime('%Y-%m-%d') }}{% endif %}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="gender" class="form-label">Gender</label>
+                            <select class="form-select" id="gender" name="gender">
+                                <option value="">-- Select --</option>
+                                <option value="Male" {% if profile and profile.gender == 'Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if profile and profile.gender == 'Female' %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if profile and profile.gender == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="blood_group" class="form-label">Blood Group</label>
+                            <select class="form-select" id="blood_group" name="blood_group">
+                                <option value="">-- Select --</option>
+                                <option value="O+" {% if profile and profile.blood_group == 'O+' %}selected{% endif %}>O+</option>
+                                <option value="O-" {% if profile and profile.blood_group == 'O-' %}selected{% endif %}>O-</option>
+                                <option value="A+" {% if profile and profile.blood_group == 'A+' %}selected{% endif %}>A+</option>
+                                <option value="A-" {% if profile and profile.blood_group == 'A-' %}selected{% endif %}>A-</option>
+                                <option value="B+" {% if profile and profile.blood_group == 'B+' %}selected{% endif %}>B+</option>
+                                <option value="B-" {% if profile and profile.blood_group == 'B-' %}selected{% endif %}>B-</option>
+                                <option value="AB+" {% if profile and profile.blood_group == 'AB+' %}selected{% endif %}>AB+</option>
+                                <option value="AB-" {% if profile and profile.blood_group == 'AB-' %}selected{% endif %}>AB-</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-6">
+                <!-- Address Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Street Address</label>
+                            <input type="text" class="form-control" id="address" name="address"
+                                   value="{{ profile.address or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" name="city"
+                                   value="{{ profile.city or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" name="state"
+                                   value="{{ profile.state or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="postal_code" class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" id="postal_code" name="postal_code"
+                                   value="{{ profile.postal_code or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country" name="country"
+                                   value="{{ profile.country or '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employment Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-briefcase"></i> Employment</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="joining_date" class="form-label">Joining Date</label>
+                            <input type="date" class="form-control" id="joining_date" name="joining_date"
+                                   value="{% if profile and profile.joining_date %}{{ profile.joining_date.strftime('%Y-%m-%d') }}{% endif %}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="employment_type" class="form-label">Employment Type</label>
+                            <select class="form-select" id="employment_type" name="employment_type">
+                                <option value="">-- Select --</option>
+                                <option value="Full-time" {% if profile and profile.employment_type == 'Full-time' %}selected{% endif %}>Full-time</option>
+                                <option value="Part-time" {% if profile and profile.employment_type == 'Part-time' %}selected{% endif %}>Part-time</option>
+                                <option value="Contract" {% if profile and profile.employment_type == 'Contract' %}selected{% endif %}>Contract</option>
+                                <option value="Intern" {% if profile and profile.employment_type == 'Intern' %}selected{% endif %}>Intern</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-credit-card"></i> Financial</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="pan_number" class="form-label">PAN Number</label>
+                            <input type="text" class="form-control" id="pan_number" name="pan_number"
+                                   placeholder="e.g., ABCDE1234F" value="{{ profile.pan_number or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="aadhar_number" class="form-label">Aadhar Number</label>
+                            <input type="text" class="form-control" id="aadhar_number" name="aadhar_number"
+                                   placeholder="e.g., 1234 5678 9012" value="{{ profile.aadhar_number or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bank_account" class="form-label">Bank Account Number</label>
+                            <input type="text" class="form-control" id="bank_account" name="bank_account"
+                                   value="{{ profile.bank_account or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ifsc_code" class="form-label">IFSC Code</label>
+                            <input type="text" class="form-control" id="ifsc_code" name="ifsc_code"
+                                   placeholder="e.g., SBIN0001234" value="{{ profile.ifsc_code or '' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="row mt-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a href="{{ url_for('view_employee_profile', user_id=user.id) }}" class="btn btn-secondary btn-lg ms-2">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+    }
+</style>
+{% endblock %}
