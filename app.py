@@ -1641,6 +1641,22 @@ def init_db():
                 db.session.execute(text('ALTER TABLE leave ADD COLUMN hours FLOAT DEFAULT 0'))
                 db.session.commit()
 
+            # Add new columns to payment_invoice table if missing
+            try:
+                invoice_columns = [col['name'] for col in inspector.get_columns('payment_invoice')]
+
+                if 'leave_deduction' not in invoice_columns:
+                    db.session.execute(text('ALTER TABLE payment_invoice ADD COLUMN leave_deduction FLOAT DEFAULT 0'))
+                    db.session.commit()
+                    print('Added leave_deduction column to payment_invoice table')
+
+                if 'manual_deduction' not in invoice_columns:
+                    db.session.execute(text('ALTER TABLE payment_invoice ADD COLUMN manual_deduction FLOAT DEFAULT 0'))
+                    db.session.commit()
+                    print('Added manual_deduction column to payment_invoice table')
+            except Exception as e:
+                print(f'PaymentInvoice table migration: {e}')
+
             # Add new columns to training table if missing
             try:
                 training_columns = [col['name'] for col in inspector.get_columns('training')]
