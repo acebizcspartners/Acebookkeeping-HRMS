@@ -82,6 +82,23 @@ class User(UserMixin, db.Model):
     department = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def get_leave_balance(self, leave_type):
+        """Get leave balance for a specific leave type"""
+        balance = LeaveBalance.query.filter_by(
+            user_id=self.id,
+            year=datetime.now().year
+        ).first()
+
+        if not balance:
+            return 0
+
+        leave_info = balance.get_available_leave()
+        if leave_type == 'annual':
+            return leave_info['annual_available']
+        elif leave_type == 'sick':
+            return leave_info['sick_available']
+        return 0
+
 class Leave(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -1734,7 +1751,8 @@ def delete_training(training_id):
 def manage_deductions():
     employees = User.query.filter_by(role='employee').all()
     deductions = Deduction.query.filter_by(status='active').order_by(Deduction.created_at.desc()).all()
-    return render_template('manage_deductions.html', employees=employees, deductions=deductions)
+    today = datetime.now().date()
+    return render_template('manage_deductions.html', employees=employees, deductions=deductions, today=today)
 
 @app.route('/admin/deduction/add', methods=['POST'])
 @login_required

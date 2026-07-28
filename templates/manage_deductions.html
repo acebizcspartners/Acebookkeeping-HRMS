@@ -192,7 +192,7 @@
                                     {% set days = (deduction.applied_to - deduction.applied_from).days + 1 %}
                                     {{ days }} days
                                 {% else %}
-                                    {% set days = (now() - deduction.applied_from).days + 1 %}
+                                    {% set days = (today - deduction.applied_from).days + 1 %}
                                     {{ days }} days (ongoing)
                                 {% endif %}
                             </td>
