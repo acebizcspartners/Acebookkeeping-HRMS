@@ -61,14 +61,12 @@
                                 {% if emp_data.action_taken %}
                                     <span class="badge bg-success"><i class="fas fa-check-circle"></i> {{ emp_data.action_taken }}</span>
                                 {% else %}
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deductModal{{ emp_data.user.id }}">
-                                            <i class="fas fa-money-bill-wave"></i> Deduct Salary
-                                        </button>
-                                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#carryModal{{ emp_data.user.id }}">
-                                            <i class="fas fa-arrow-right"></i> Carry Forward
-                                        </button>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-warning me-2" data-bs-toggle="modal" data-bs-target="#deductModal{{ emp_data.user.id }}" style="cursor: pointer;">
+                                        <i class="fas fa-money-bill-wave"></i> Deduct
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#carryModal{{ emp_data.user.id }}" style="cursor: pointer;">
+                                        <i class="fas fa-arrow-right"></i> Carry
+                                    </button>
                                 {% endif %}
                             </td>
                         </tr>
