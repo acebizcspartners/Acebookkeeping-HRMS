@@ -141,6 +141,10 @@
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span>My Invoices</span>
                     </a>
+                    <a href="{{ url_for('leave_transactions') }}" class="quick-action-btn">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
                     {% if current_user.role in ['admin', 'manager'] %}
                     <a href="{{ url_for('manage_leaves') }}" class="quick-action-btn">
                         <i class="fas fa-tasks"></i>
