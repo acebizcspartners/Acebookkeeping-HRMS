@@ -1245,7 +1245,6 @@ def process_salary():
         ).all()
 
         present_days = len([a for a in attendance if a.status == 'present'])
-        total_hours = sum(a.hours_worked for a in attendance if a.hours_worked)
 
         # Get leaves
         leaves = Leave.query.filter(
@@ -1276,7 +1275,6 @@ def process_salary():
             'user': emp,
             'salary': salary,
             'present_days': present_days,
-            'total_hours': total_hours,
             'total_leave_hours': total_leave_hours,
             'leave_deduction': leave_deduction,
             'manual_deduction': total_manual_deduction,

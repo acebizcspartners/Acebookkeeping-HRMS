@@ -120,8 +120,7 @@
                                 <strong class="text-success">₹{{ "%.2f"|format(emp_data.monthly_salary) }}</strong>
                             </td>
                             <td>
-                                <span class="badge bg-info">{{ emp_data.present_days }} days</span><br>
-                                <small>{{ "%.1f"|format(emp_data.total_hours) }} hrs</small>
+                                <span class="badge bg-info">{{ emp_data.present_days }} days</span>
                             </td>
                             <td>
                                 {% if emp_data.total_leave_hours > 0 %}
