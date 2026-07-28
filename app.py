@@ -653,11 +653,16 @@ def dashboard():
     if current_user.role in ['admin', 'manager']:
         pending_count = Leave.query.filter_by(status='pending').count()
 
+    # Get active trainings for dashboard
+    active_trainings = Training.query.filter_by(status='ongoing')\
+        .order_by(Training.start_date).limit(3).all()
+
     return render_template('dashboard.html',
                          balance=balance,
                          leave_info=leave_info,
                          recent_leaves=recent_leaves,
-                         pending_count=pending_count)
+                         pending_count=pending_count,
+                         active_trainings=active_trainings)
 
 @app.route('/apply-leave', methods=['GET', 'POST'])
 @login_required

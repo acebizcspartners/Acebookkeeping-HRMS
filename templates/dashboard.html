@@ -159,5 +159,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Active Trainings Section -->
+    {% if active_trainings %}
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-graduation-cap"></i> Active Training Programs</h2>
+                <a href="{{ url_for('training_list') }}" class="btn btn-outline btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for training in active_trainings %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header bg-light">
+                                <span class="badge bg-primary">
+                                    <i class="fas {{ training.icon }}"></i> {{ training.training_type|replace('-', ' ')|title }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">{{ training.title }}</h6>
+
+                                {% if training.video_url %}
+                                <div class="mb-2">
+                                    <a href="{{ training.video_url }}" target="_blank" class="btn btn-sm btn-primary w-100">
+                                        <i class="fas fa-play-circle"></i> Watch Video
+                                    </a>
+                                </div>
+                                {% endif %}
+
+                                <p class="text-sm text-muted mb-2">
+                                    <i class="fas fa-calendar"></i> {{ training.start_date.strftime('%d %b') }} - {{ training.end_date.strftime('%d %b %Y') }}
+                                </p>
+
+                                {% if training.trainer %}
+                                <p class="text-sm text-muted mb-0">
+                                    <i class="fas fa-user-tie"></i> {{ training.trainer }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
