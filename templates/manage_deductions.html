@@ -136,7 +136,7 @@
                     The amount will be auto-calculated as: Hours × Hourly Rate
                 </div>
 
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success" onclick="setLeaveReason()">
                     <i class="fas fa-plus"></i> Add Leave Deduction
                 </button>
             </form>
@@ -230,20 +230,29 @@
 </style>
 
 <script>
+function setLeaveReason() {
+    const leaveTypeSelect = document.getElementById('leave_type');
+    const leaveHoursInput = document.getElementById('leave_hours');
+    const leaveReasonInput = document.getElementById('leave_reason');
+
+    const leaveType = leaveTypeSelect.value;
+    const hours = leaveHoursInput.value || '0';
+    const typeMap = {
+        'personal': 'Personal Leave',
+        'short': 'Short Leave',
+        'sick': 'Sick Leave',
+        'annual': 'Annual Leave'
+    };
+
+    leaveReasonInput.value = `Leave Without Pay - ${typeMap[leaveType]} (${hours} hrs)`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const leaveHoursInput = document.getElementById('leave_hours');
     const leaveTypeSelect = document.getElementById('leave_type');
     const leaveAmountInput = document.getElementById('leave_amount');
     const leaveReasonInput = document.getElementById('leave_reason');
     const userIdSelect = document.getElementById('user_id_leave');
-
-    // Mock hourly rates - in real app, fetch from API
-    const mockRates = {
-        'personal': 'Personal Leave Without Pay',
-        'short': 'Short Leave Without Pay',
-        'sick': 'Sick Leave Without Pay',
-        'annual': 'Annual Leave Without Pay'
-    };
 
     leaveHoursInput.addEventListener('input', calculateLeaveAmount);
     leaveTypeSelect.addEventListener('change', updateLeaveReason);

@@ -1551,12 +1551,26 @@ def manage_deductions():
 @admin_required
 def add_deduction():
     user_id = int(request.form.get('user_id'))
-    reason = request.form.get('reason')
-    amount = float(request.form.get('amount'))
-    applied_from = datetime.strptime(request.form.get('applied_from'), '%Y-%m-%d').date()
+    reason = request.form.get('reason', '')
+    amount = float(request.form.get('amount', 0))
+    applied_from_str = request.form.get('applied_from')
     applied_to_str = request.form.get('applied_to')
-    applied_to = datetime.strptime(applied_to_str, '%Y-%m-%d').date() if applied_to_str else None
-    description = request.form.get('description')
+    description = request.form.get('description', '')
+
+    # Parse dates
+    if applied_from_str:
+        applied_from = datetime.strptime(applied_from_str, '%Y-%m-%d').date()
+    else:
+        applied_from = datetime.now().date()
+
+    if applied_to_str:
+        applied_to = datetime.strptime(applied_to_str, '%Y-%m-%d').date()
+    else:
+        applied_to = None
+
+    # If reason is empty (from Leave Deduction tab), leave it as is
+    if not reason:
+        reason = 'Deduction'
 
     deduction = Deduction(
         user_id=user_id,
