@@ -1082,7 +1082,7 @@ def view_employee_profile(user_id):
     reviews = PerformanceReview.query.filter_by(user_id=user_id).order_by(PerformanceReview.period_start.desc()).limit(5).all()
 
     # Training records
-    training_records = EmployeeTraining.query.filter_by(user_id=user_id).order_by(EmployeeTraining.completion_date.desc()).limit(10).all()
+    training_records = EmployeeTraining.query.filter_by(user_id=user_id).order_by(EmployeeTraining.created_at.desc()).limit(10).all()
 
     current_year = datetime.now().year
 
