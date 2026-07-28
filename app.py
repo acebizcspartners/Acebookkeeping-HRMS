@@ -1836,6 +1836,76 @@ def manage_leave_balance():
 
     return render_template('manage_leave_balance.html', employees=employees_with_minus, all_employees=User.query.filter_by(role='employee').all())
 
+@app.route('/admin/deduct-minus-leave/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def deduct_minus_leave(user_id):
+    """Deduct salary for negative leave balance"""
+    user = User.query.get_or_404(user_id)
+    salary = Salary.query.filter_by(user_id=user_id, is_active=True).first()
+
+    if not salary:
+        flash('Salary not configured for this employee.', 'error')
+        return redirect(url_for('manage_leave_balance'))
+
+    annual_balance = user.get_leave_balance('annual')
+    sick_balance = user.get_leave_balance('sick')
+
+    created_deductions = False
+
+    if annual_balance < 0:
+        minus_hours = abs(annual_balance)
+        deduction_amount = salary.hourly_rate * minus_hours
+
+        deduction = Deduction(
+            user_id=user_id,
+            reason=f'Salary Deduction - Negative Annual Leave ({minus_hours} hrs)',
+            amount=deduction_amount,
+            status='active',
+            applied_from=datetime.now().date(),
+            description=f'Deduction for negative annual leave: {minus_hours} hours',
+            created_by=current_user.id
+        )
+        db.session.add(deduction)
+        created_deductions = True
+
+    if sick_balance < 0:
+        minus_hours = abs(sick_balance)
+        deduction_amount = salary.hourly_rate * minus_hours
+
+        deduction = Deduction(
+            user_id=user_id,
+            reason=f'Salary Deduction - Negative Sick Leave ({minus_hours} hrs)',
+            amount=deduction_amount,
+            status='active',
+            applied_from=datetime.now().date(),
+            description=f'Deduction for negative sick leave: {minus_hours} hours',
+            created_by=current_user.id
+        )
+        db.session.add(deduction)
+        created_deductions = True
+
+    if created_deductions:
+        db.session.commit()
+        flash(f'Salary deduction created for {user.username} negative leave balance.', 'success')
+    else:
+        flash(f'No negative balance found for this employee.', 'info')
+
+    return redirect(url_for('manage_leave_balance'))
+
+@app.route('/admin/carry-forward-leave/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def carry_forward_leave(user_id):
+    """Carry forward negative leave balance to next month (no salary deduction)"""
+    user = User.query.get_or_404(user_id)
+
+    annual_balance = user.get_leave_balance('annual')
+    sick_balance = user.get_leave_balance('sick')
+
+    flash(f'Negative leave balance for {user.username} will carry forward to next month. No salary deduction applied.', 'info')
+    return redirect(url_for('manage_leave_balance'))
+
 
 # Admin: HR Reports & Analytics
 @app.route('/admin/hr-analytics')

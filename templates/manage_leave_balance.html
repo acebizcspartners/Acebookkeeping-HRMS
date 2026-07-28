@@ -22,8 +22,8 @@
     <!-- Alert for negative balances -->
     {% if employees %}
     <div class="card mb-4">
-        <div class="card-header bg-warning text-dark">
-            <h5 class="card-title mb-0"><i class="fas fa-exclamation-triangle"></i> Employees with Negative Leave Balance</h5>
+        <div class="card-header bg-danger text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-exclamation-circle"></i> Employees with Negative Leave Balance</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -33,6 +33,7 @@
                             <th>Employee</th>
                             <th>Annual Leave</th>
                             <th>Sick Leave</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,6 +56,16 @@
                                 {% else %}
                                     <span class="badge bg-success">{{ emp_data.sick_balance|round(2) }} hrs</span>
                                 {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deductModal{{ emp_data.user.id }}">
+                                        <i class="fas fa-money-bill-wave"></i> Deduct Salary
+                                    </button>
+                                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#carryModal{{ emp_data.user.id }}">
+                                        <i class="fas fa-arrow-right"></i> Carry Forward
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -121,6 +132,83 @@
     </div>
 </div>
 
+
+<!-- MODALS - OUTSIDE TABLE -->
+{% for emp_data in employees %}
+
+<!-- Deduct Salary Modal -->
+<div class="modal fade" id="deductModal{{ emp_data.user.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">Deduct Salary for Negative Leave</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('deduct_minus_leave', user_id=emp_data.user.id) }}">
+                <div class="modal-body">
+                    <p><strong>Employee:</strong> {{ emp_data.user.username }}</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> This will create salary deduction entries for the negative leave hours.
+                    </div>
+                    {% if emp_data.annual_balance < 0 %}
+                    <div class="alert alert-danger">
+                        <strong>Annual Leave:</strong> {{ emp_data.annual_balance|round(2) }} hrs will be deducted
+                    </div>
+                    {% endif %}
+                    {% if emp_data.sick_balance < 0 %}
+                    <div class="alert alert-danger">
+                        <strong>Sick Leave:</strong> {{ emp_data.sick_balance|round(2) }} hrs will be deducted
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-check"></i> Deduct from Salary
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Carry Forward Modal -->
+<div class="modal fade" id="carryModal{{ emp_data.user.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Carry Forward Negative Leave</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('carry_forward_leave', user_id=emp_data.user.id) }}">
+                <div class="modal-body">
+                    <p><strong>Employee:</strong> {{ emp_data.user.username }}</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No salary deduction will be applied. The negative balance will carry to next month.
+                    </div>
+                    {% if emp_data.annual_balance < 0 %}
+                    <div class="alert alert-warning">
+                        <strong>Annual Leave:</strong> {{ emp_data.annual_balance|round(2) }} hrs (carried forward)
+                    </div>
+                    {% endif %}
+                    {% if emp_data.sick_balance < 0 %}
+                    <div class="alert alert-warning">
+                        <strong>Sick Leave:</strong> {{ emp_data.sick_balance|round(2) }} hrs (carried forward)
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-check"></i> Carry Forward
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
 
 <style>
     .table-hover tbody tr:hover {
