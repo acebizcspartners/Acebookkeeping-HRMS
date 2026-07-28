@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}All Payment Invoices - Admin{% endblock %}
+{% block title %}All Salary Slips - Admin{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col">
-            <h1>All Payment Invoices</h1>
+            <h1>All Salary Slips</h1>
         </div>
         <div class="col-auto">
             <a href="{{ url_for('view_all_salaries') }}" class="btn btn-primary">
@@ -20,7 +20,7 @@
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>Invoice #</th>
+                    <th>Salary Slip #</th>
                     <th>Employee</th>
                     <th>Month / Year</th>
                     <th>Salary</th>
@@ -35,7 +35,7 @@
             <tbody>
                 {% for invoice in invoices %}
                 <tr>
-                    <td><strong>{{ invoice.invoice_number }}</strong></td>
+                    <td><strong>{{ invoice.user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</strong></td>
                     <td>
                         {{ invoice.user.username }}<br>
                         <small class="text-muted">{{ invoice.user.email }}</small>

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}My Payment Invoices{% endblock %}
+{% block title %}My Salary Slip{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col">
-            <h1>My Payment Invoices</h1>
+            <h1>My Salary Slip</h1>
         </div>
         <div class="col-auto">
             <a href="{{ url_for('my_salary') }}" class="btn btn-primary">
@@ -20,7 +20,7 @@
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>Invoice #</th>
+                    <th>Salary Slip #</th>
                     <th>Month / Year</th>
                     <th>Salary</th>
                     <th>Bonus</th>
@@ -34,7 +34,7 @@
             <tbody>
                 {% for invoice in invoices %}
                 <tr>
-                    <td><strong>{{ invoice.invoice_number }}</strong></td>
+                    <td><strong>{{ current_user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</strong></td>
                     <td>{{ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][invoice.month-1] }} {{ invoice.year }}</td>
                     <td>₹{{ "%.2f"|format(invoice.salary_amount) }}</td>
                     <td>
