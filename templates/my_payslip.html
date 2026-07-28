@@ -18,9 +18,9 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="row">
+            <div class="row g-0">
                 <!-- Salary Information Column -->
-                <div class="col-md-6 border-end border-light">
+                <div class="col-6 border-end border-light pe-4">
                     <h6 class="mb-3 text-primary"><i class="fas fa-money-bill-wave"></i> Salary Information</h6>
 
                     <div class="mb-3">
@@ -45,7 +45,7 @@
                 </div>
 
                 <!-- Leave Balance Column -->
-                <div class="col-md-6 ps-4">
+                <div class="col-6 ps-4">
                     <h6 class="mb-3 text-warning"><i class="fas fa-calendar-check"></i> Leave Balance (Current Year)</h6>
 
                     {% if leave_info %}
@@ -255,6 +255,17 @@
         letter-spacing: 0.3px;
     }
 
+    .card-body .row {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .card-body [class*="col-"] {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
     @media (max-width: 768px) {
         .card {
             margin-bottom: 1rem;
@@ -262,6 +273,22 @@
 
         .page-header h1 {
             font-size: 1.5rem;
+        }
+
+        .card-body .row {
+            flex-direction: column;
+        }
+
+        .card-body [class*="col-"] {
+            flex-basis: 100% !important;
+            margin-bottom: 2rem;
+        }
+
+        .card-body .border-end {
+            border-end: none !important;
+            border-bottom: 2px solid #f0f0f0 !important;
+            padding-bottom: 2rem !important;
+            padding-end: 0 !important;
         }
     }
 </style>
