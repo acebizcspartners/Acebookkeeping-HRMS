@@ -9,24 +9,82 @@
             <h2>Generate Salary Slip</h2>
             <p class="text-muted mb-4">Employee: <strong>{{ user.username }}</strong></p>
 
-            {% if active_deductions %}
-            <div class="alert alert-warning mb-4">
-                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Active Deductions</h6>
-                <p class="mb-2">The following deductions are active for this employee:</p>
-                <ul class="mb-0">
-                    {% for deduction in active_deductions %}
-                    <li>
-                        <strong>{{ deduction.reason }}</strong>: ₹{{ "%.2f"|format(deduction.amount) }}
-                        {% if deduction.description %}
-                        <small class="text-muted d-block ms-3">({{ deduction.description }})</small>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-                <hr class="my-2">
-                <p class="mb-0"><strong>Total Deductions: ₹{{ "%.2f"|format(total_deductions) }}</strong></p>
+            <!-- Deductions Breakdown -->
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0"><i class="fas fa-calculator"></i> Deductions Breakdown</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Leave Deduction -->
+                    {% if total_leave_hours > 0 %}
+                    <div class="mb-3 p-3 bg-light border-start border-warning border-4">
+                        <h6 class="mb-2"><i class="fas fa-calendar-times"></i> Leave Deduction</h6>
+                        <p class="mb-1"><strong>Approved Leaves this month:</strong></p>
+                        <ul class="mb-2 small">
+                            {% for leave in approved_leaves %}
+                            <li>
+                                {{ leave.leave_type|capitalize }} -
+                                {{ leave.start_date.strftime('%d %b') }} to {{ leave.end_date.strftime('%d %b %Y') }}
+                                ({{ leave.hours }} hrs)
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Total Leave Hours:</strong></p>
+                                <p class="h5 text-danger">{{ total_leave_hours }} hrs</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Hourly Rate:</strong></p>
+                                <p>₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</p>
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                        <p class="mb-0"><strong>Leave Deduction:</strong> <span class="text-danger h6">- ₹{{ "%.2f"|format(leave_deduction) }}</span></p>
+                    </div>
+                    {% else %}
+                    <div class="mb-3 p-3 bg-light border-start border-success border-4">
+                        <h6 class="mb-0"><i class="fas fa-check-circle text-success"></i> No leaves this month</h6>
+                    </div>
+                    {% endif %}
+
+                    <!-- Manual Deductions -->
+                    {% if active_deductions %}
+                    <div class="mb-3 p-3 bg-light border-start border-danger border-4">
+                        <h6 class="mb-2"><i class="fas fa-hand-holding-usd"></i> Manual Deductions</h6>
+                        <ul class="mb-2 small">
+                            {% for deduction in active_deductions %}
+                            <li>
+                                <strong>{{ deduction.reason }}</strong>: ₹{{ "%.2f"|format(deduction.amount) }}
+                                {% if deduction.description %}
+                                <small class="text-muted d-block ms-3">({{ deduction.description }})</small>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <hr class="my-2">
+                        <p class="mb-0"><strong>Manual Deductions Total:</strong> <span class="text-danger h6">- ₹{{ "%.2f"|format(total_deductions) }}</span></p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Summary -->
+                    <div class="p-3 bg-warning bg-opacity-10 border border-warning rounded">
+                        <p class="mb-1"><strong>Total Deductions Summary:</strong></p>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="small text-muted mb-1">Leave Deduction:</p>
+                                <p class="h6">₹{{ "%.2f"|format(leave_deduction) }}</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="small text-muted mb-1">Manual Deductions:</p>
+                                <p class="h6">₹{{ "%.2f"|format(total_deductions) }}</p>
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                        <p class="mb-0"><strong class="text-danger h5">Total: ₹{{ "%.2f"|format(leave_deduction + total_deductions) }}</strong></p>
+                    </div>
+                </div>
             </div>
-            {% endif %}
 
             <form method="POST" class="card">
                 <div class="card-body">
@@ -67,10 +125,10 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="deductions" class="form-label">Deductions (₹)</label>
+                            <label for="deductions" class="form-label">Total Deductions (₹)</label>
                             <input type="number" class="form-control" id="deductions" name="deductions"
-                                   value="{{ total_deductions }}" step="0.01" min="0">
-                            <small class="text-muted">Auto-filled from active deductions</small>
+                                   value="{{ leave_deduction + total_deductions }}" step="0.01" min="0">
+                            <small class="text-muted">Auto-calculated: Leave (₹{{ "%.2f"|format(leave_deduction) }}) + Manual (₹{{ "%.2f"|format(total_deductions) }})</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="net_amount" class="form-label">Net Amount (₹)</label>

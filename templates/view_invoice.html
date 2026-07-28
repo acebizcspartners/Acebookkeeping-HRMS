@@ -71,11 +71,37 @@
                             <td class="text-muted">Bonus</td>
                             <td class="text-end">₹{{ "%.2f"|format(invoice.bonus) }}</td>
                         </tr>
-                        <tr>
-                            <td class="text-muted">Deductions</td>
-                            <td class="text-end">- ₹{{ "%.2f"|format(invoice.deductions) }}</td>
+
+                        <!-- Leave Deduction Breakdown -->
+                        {% if invoice.leave_deduction > 0 %}
+                        <tr class="border-top">
+                            <td class="text-muted"><strong>Leave Deduction</strong></td>
+                            <td class="text-end"></td>
                         </tr>
+                        <tr>
+                            <td class="ms-4 text-muted small">(Approved leaves this month)</td>
+                            <td class="text-end">- ₹{{ "%.2f"|format(invoice.leave_deduction) }}</td>
+                        </tr>
+                        {% endif %}
+
+                        <!-- Manual Deduction Breakdown -->
+                        {% if invoice.manual_deduction > 0 %}
+                        <tr class="border-top">
+                            <td class="text-muted"><strong>Other Deductions</strong></td>
+                            <td class="text-end"></td>
+                        </tr>
+                        <tr>
+                            <td class="ms-4 text-muted small">(Loan, Penalty, Tax, etc.)</td>
+                            <td class="text-end">- ₹{{ "%.2f"|format(invoice.manual_deduction) }}</td>
+                        </tr>
+                        {% endif %}
+
                         <tr class="border-top border-bottom">
+                            <td><strong>Total Deductions</strong></td>
+                            <td class="text-end"><strong class="text-danger">- ₹{{ "%.2f"|format(invoice.deductions) }}</strong></td>
+                        </tr>
+
+                        <tr class="border-bottom">
                             <td><strong>Net Amount Payable</strong></td>
                             <td class="text-end"><strong class="text-success h5">₹{{ "%.2f"|format(invoice.net_amount) }}</strong></td>
                         </tr>

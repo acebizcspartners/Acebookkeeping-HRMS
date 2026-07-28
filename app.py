@@ -168,6 +168,8 @@ class PaymentInvoice(db.Model):
     year = db.Column(db.Integer, nullable=False)
     salary_amount = db.Column(db.Float, nullable=False)
     deductions = db.Column(db.Float, default=0)
+    leave_deduction = db.Column(db.Float, default=0)  # Auto-calculated from approved leaves
+    manual_deduction = db.Column(db.Float, default=0)  # Manual deductions (loan, penalty, etc.)
     bonus = db.Column(db.Float, default=0)
     net_amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(10), default='INR')
@@ -1081,12 +1083,30 @@ def generate_invoice(user_id):
     if request.method == 'POST':
         month = int(request.form.get('month'))
         year = int(request.form.get('year'))
-        deductions = float(request.form.get('deductions', 0))
+        total_deductions = float(request.form.get('deductions', 0))
         bonus = float(request.form.get('bonus', 0))
         notes = request.form.get('notes', '')
 
+        # Calculate leave deduction for this month
+        from dateutil.relativedelta import relativedelta
+        month_start = date(year, month, 1)
+        month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+
+        approved_leaves = Leave.query.filter(
+            Leave.user_id == user_id,
+            Leave.status == 'approved',
+            Leave.start_date >= month_start,
+            Leave.end_date <= month_end
+        ).all()
+
+        total_leave_hours = sum(leave.hours if leave.hours else 0 for leave in approved_leaves)
+        leave_deduction = salary.hourly_rate * total_leave_hours if total_leave_hours > 0 else 0
+
+        # Manual deduction = total deductions - leave deduction
+        manual_deduction = max(0, total_deductions - leave_deduction)
+
         salary_amount = salary.monthly_salary
-        net_amount = salary_amount + bonus - deductions
+        net_amount = salary_amount + bonus - total_deductions
 
         invoice_number = f'INV-{user_id}-{year}-{month:02d}-{datetime.now().strftime("%H%M%S")}'
 
@@ -1095,7 +1115,9 @@ def generate_invoice(user_id):
             month=month,
             year=year,
             salary_amount=salary_amount,
-            deductions=deductions,
+            deductions=total_deductions,
+            leave_deduction=leave_deduction,
+            manual_deduction=manual_deduction,
             bonus=bonus,
             net_amount=net_amount,
             invoice_number=invoice_number,
@@ -1122,10 +1144,34 @@ def generate_invoice(user_id):
 
     total_deductions = sum(d.amount for d in active_deductions)
 
+    # Calculate leave deduction for current month
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+
+    month_start = date(current_year, current_month, 1)
+    month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+
+    # Get approved leaves for this month
+    approved_leaves = Leave.query.filter(
+        Leave.user_id == user_id,
+        Leave.status == 'approved',
+        Leave.start_date >= month_start,
+        Leave.end_date <= month_end
+    ).all()
+
+    # Calculate total leave hours
+    total_leave_hours = sum(leave.hours if leave.hours else 0 for leave in approved_leaves)
+
+    # Calculate leave deduction (hourly rate * leave hours)
+    leave_deduction = salary.hourly_rate * total_leave_hours if total_leave_hours > 0 else 0
+
     return render_template('generate_invoice.html', user=user, salary=salary,
                          current_month=current_month, current_year=current_year,
                          active_deductions=active_deductions,
-                         total_deductions=total_deductions)
+                         total_deductions=total_deductions,
+                         approved_leaves=approved_leaves,
+                         total_leave_hours=total_leave_hours,
+                         leave_deduction=leave_deduction)
 
 @app.route('/invoice/<int:invoice_id>')
 @login_required
