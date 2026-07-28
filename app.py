@@ -291,10 +291,7 @@ class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    check_in = db.Column(db.DateTime)
-    check_out = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default='present')  # present, absent, half-day, wfh
-    hours_worked = db.Column(db.Float)
+    status = db.Column(db.String(50), default='present')  # present, absent, annual, sick, lwp
     remarks = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -357,6 +354,40 @@ class Announcement(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime)
     visibility = db.Column(db.String(20), default='all')  # all, department, specific
+
+def auto_mark_attendance():
+    """Auto-mark all employees as present for current month (Mon-Fri only)"""
+    from datetime import date as dateclass
+    from dateutil.relativedelta import relativedelta
+
+    today = datetime.now().date()
+    month_start = dateclass(today.year, today.month, 1)
+    month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+
+    employees = User.query.filter_by(role='employee').all()
+
+    for emp in employees:
+        current_date = month_start
+        while current_date <= month_end:
+            # Only Mon-Fri (weekday 0-4)
+            if current_date.weekday() < 5:
+                # Check if attendance already exists
+                existing = Attendance.query.filter_by(
+                    user_id=emp.id,
+                    date=current_date
+                ).first()
+
+                if not existing:
+                    attendance = Attendance(
+                        user_id=emp.id,
+                        date=current_date,
+                        status='present'
+                    )
+                    db.session.add(attendance)
+
+            current_date += timedelta(days=1)
+
+    db.session.commit()
 
 def record_leave_transaction(user_id, leave_type, transaction_type, days, description, reference_id=None, transaction_date=None):
     """Record a leave transaction (credit or debit)"""
@@ -840,6 +871,28 @@ def approve_leave(leave_id):
             reference_id=leave.id,
             transaction_date=leave.start_date
         )
+
+    # Mark attendance as leave for all days in leave period
+    current_date = leave.start_date
+    while current_date <= leave.end_date:
+        # Skip weekends (Saturday=5, Sunday=6)
+        if current_date.weekday() < 5:
+            attendance = Attendance.query.filter_by(
+                user_id=leave.user_id,
+                date=current_date
+            ).first()
+
+            if not attendance:
+                attendance = Attendance(
+                    user_id=leave.user_id,
+                    date=current_date,
+                    status=leave.leave_type
+                )
+                db.session.add(attendance)
+            else:
+                attendance.status = leave.leave_type
+
+        current_date += timedelta(days=1)
 
     db.session.commit()
 
@@ -1535,6 +1588,19 @@ def leave_stats():
 # HRMS FEATURES
 
 # Attendance Management
+@app.route('/admin/auto-mark-attendance', methods=['POST'])
+@login_required
+@admin_required
+def auto_mark_attendance_route():
+    """Auto-mark all employees as present for current month (Mon-Fri)"""
+    try:
+        auto_mark_attendance()
+        flash('Attendance auto-marked for all employees (Mon-Fri only) for current month!', 'success')
+    except Exception as e:
+        flash(f'Error marking attendance: {str(e)}', 'error')
+
+    return redirect(url_for('view_all_salaries'))
+
 @app.route('/attendance')
 @login_required
 def attendance():
