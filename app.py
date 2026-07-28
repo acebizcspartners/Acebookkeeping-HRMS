@@ -1822,16 +1822,35 @@ def manage_leave_balance():
     employees = User.query.filter_by(role='employee').all()
     employees_with_minus = []
 
+    current_month_start = datetime.now().replace(day=1).date()
+    if datetime.now().month == 12:
+        current_month_end = datetime.now().replace(year=datetime.now().year + 1, month=1, day=1).date() - timedelta(days=1)
+    else:
+        current_month_end = datetime.now().replace(month=datetime.now().month + 1, day=1).date() - timedelta(days=1)
+
     for emp in employees:
         annual_balance = emp.get_leave_balance('annual')
         sick_balance = emp.get_leave_balance('sick')
 
         if annual_balance < 0 or sick_balance < 0:
+            # Check if deduction was already created this month for negative leave
+            recent_deduction = Deduction.query.filter(
+                Deduction.user_id == emp.id,
+                Deduction.reason.like('%Negative%'),
+                Deduction.applied_from >= current_month_start,
+                Deduction.applied_from <= current_month_end
+            ).first()
+
+            action_taken = None
+            if recent_deduction:
+                action_taken = 'Deducted'
+
             employees_with_minus.append({
                 'user': emp,
                 'annual_balance': annual_balance,
                 'sick_balance': sick_balance,
-                'has_minus': annual_balance < 0 or sick_balance < 0
+                'has_minus': annual_balance < 0 or sick_balance < 0,
+                'action_taken': action_taken
             })
 
     return render_template('manage_leave_balance.html', employees=employees_with_minus, all_employees=User.query.filter_by(role='employee').all())

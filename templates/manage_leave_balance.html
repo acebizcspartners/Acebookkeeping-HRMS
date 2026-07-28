@@ -58,14 +58,18 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deductModal{{ emp_data.user.id }}">
-                                        <i class="fas fa-money-bill-wave"></i> Deduct Salary
-                                    </button>
-                                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#carryModal{{ emp_data.user.id }}">
-                                        <i class="fas fa-arrow-right"></i> Carry Forward
-                                    </button>
-                                </div>
+                                {% if emp_data.action_taken %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> {{ emp_data.action_taken }}</span>
+                                {% else %}
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deductModal{{ emp_data.user.id }}">
+                                            <i class="fas fa-money-bill-wave"></i> Deduct Salary
+                                        </button>
+                                        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#carryModal{{ emp_data.user.id }}">
+                                            <i class="fas fa-arrow-right"></i> Carry Forward
+                                        </button>
+                                    </div>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
