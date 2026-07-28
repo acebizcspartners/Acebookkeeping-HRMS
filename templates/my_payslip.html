@@ -9,34 +9,35 @@
         <p class="text-muted">View salary information and all your salary slips</p>
     </div>
 
-    <!-- Salary Information Card -->
+    <!-- Salary Information & Leave Balance Row -->
     {% if salary %}
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
+    <div class="row mb-4 g-4">
+        <!-- Salary Information Card -->
+        <div class="col-lg-6 col-md-12">
+            <div class="card h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">💼 Salary Information</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-money-bill-wave"></i> Salary Information</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-6">
-                            <p class="text-muted mb-1">Monthly Salary</p>
+                            <p class="text-muted mb-1 small fw-bold">Monthly Salary</p>
                             <h3 class="text-success">₹{{ "%.2f"|format(salary.monthly_salary) }}</h3>
                         </div>
                         <div class="col-6">
-                            <p class="text-muted mb-1">Hourly Rate</p>
-                            <h4>₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</h4>
+                            <p class="text-muted mb-1 small fw-bold">Hourly Rate</p>
+                            <h4 class="text-info">₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</h4>
                         </div>
                     </div>
-                    <hr>
+                    <hr class="my-2">
                     <div class="row">
                         <div class="col-6">
-                            <p class="text-muted mb-1">Effective From</p>
-                            <p>{{ salary.effective_from.strftime('%d %b %Y') }}</p>
+                            <p class="text-muted mb-1 small fw-bold">Effective From</p>
+                            <p class="mb-0">{{ salary.effective_from.strftime('%d %b %Y') }}</p>
                         </div>
                         <div class="col-6">
-                            <p class="text-muted mb-1">Annual Salary</p>
-                            <h4>₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</h4>
+                            <p class="text-muted mb-1 small fw-bold">Annual Salary</p>
+                            <h5 class="text-success mb-0">₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</h5>
                         </div>
                     </div>
                 </div>
@@ -44,38 +45,40 @@
         </div>
 
         <!-- Leave Balance Card -->
-        <div class="col-md-6">
+        <div class="col-lg-6 col-md-12">
             {% if leave_info %}
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header bg-warning text-white">
-                    <h5 class="card-title mb-0">📅 Leave Balance (Current Year)</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-calendar-check"></i> Leave Balance (Current Year)</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <p class="text-muted mb-1">Annual Leave</p>
-                        <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar"
-                                 style="width: {{ (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 }}%">
+                        <p class="text-muted mb-2 small fw-bold">Annual Leave</p>
+                        <div class="progress" style="height: 24px;">
+                            <div class="progress-bar bg-success d-flex align-items-center justify-content-center text-white"
+                                 role="progressbar"
+                                 style="width: {{ (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 }}%; font-size: 12px; font-weight: bold;">
                                 {{ "%.1f"|format(leave_info.annual_available) }} hrs
                             </div>
                         </div>
-                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.annual_used) }} / Accrued: {{ "%.1f"|format(leave_info.annual_accrued) }}</small>
+                        <small class="text-muted d-block mt-1">Used: {{ "%.1f"|format(leave_info.annual_used) }} / Accrued: {{ "%.1f"|format(leave_info.annual_accrued) }}</small>
                     </div>
 
                     <div class="mb-3">
-                        <p class="text-muted mb-1">Sick Leave</p>
-                        <div class="progress">
-                            <div class="progress-bar bg-info" role="progressbar"
-                                 style="width: {{ (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 }}%">
+                        <p class="text-muted mb-2 small fw-bold">Sick Leave</p>
+                        <div class="progress" style="height: 24px;">
+                            <div class="progress-bar bg-info d-flex align-items-center justify-content-center text-white"
+                                 role="progressbar"
+                                 style="width: {{ (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 }}%; font-size: 12px; font-weight: bold;">
                                 {{ "%.1f"|format(leave_info.sick_available) }} hrs
                             </div>
                         </div>
-                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.sick_used) }} / Accrued: {{ "%.1f"|format(leave_info.sick_accrued) }}</small>
+                        <small class="text-muted d-block mt-1">Used: {{ "%.1f"|format(leave_info.sick_used) }} / Accrued: {{ "%.1f"|format(leave_info.sick_accrued) }}</small>
                     </div>
 
-                    <div>
-                        <p class="text-muted mb-1">LWP Used</p>
-                        <p>{{ "%.1f"|format(leave_info.lwp_used) }} hours</p>
+                    <div class="p-2 bg-light rounded">
+                        <p class="text-muted mb-1 small fw-bold">LWP Used</p>
+                        <p class="h5 mb-0 text-danger">{{ "%.1f"|format(leave_info.lwp_used) }} hours</p>
                     </div>
                 </div>
             </div>
@@ -168,19 +171,97 @@
     .page-header {
         border-bottom: 2px solid #f0f0f0;
         padding-bottom: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        font-size: 0.95rem;
+        color: #6c757d;
+    }
+
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        padding: 1.25rem;
+    }
+
+    .card-header h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .progress {
+        background-color: #e9ecef;
+        border-radius: 4px;
+    }
+
+    .h-100 {
+        height: 100% !important;
+    }
+
+    .g-4 {
+        gap: 1.5rem;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+        font-weight: 600;
+    }
+
+    .text-info {
+        color: #17a2b8 !important;
+        font-weight: 600;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+        font-weight: 600;
     }
 
     .table-hover tbody tr:hover {
         background-color: rgba(0, 0, 0, 0.02);
     }
 
-    .card {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border: none;
+    .badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        font-weight: 500;
     }
 
-    .card-header {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    small.fw-bold {
+        font-weight: 600 !important;
+        letter-spacing: 0.3px;
+    }
+
+    @media (max-width: 768px) {
+        .card {
+            margin-bottom: 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 {% endblock %}
