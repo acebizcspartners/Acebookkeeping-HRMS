@@ -8,6 +8,14 @@
         <div class="col">
             <h1 class="mb-4">Employee Salaries & Leave Management</h1>
         </div>
+        <div class="col-auto">
+            <a href="{{ url_for('manage_leave_balance') }}" class="btn btn-warning">
+                <i class="fas fa-calendar-times"></i> Manage Leave Balance
+            </a>
+            <a href="{{ url_for('manage_deductions') }}" class="btn btn-info ms-2">
+                <i class="fas fa-money-bill-wave"></i> Manage Deductions
+            </a>
+        </div>
     </div>
 
     <div class="table-responsive">
