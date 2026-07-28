@@ -179,6 +179,22 @@ class PaymentInvoice(db.Model):
 
     user = db.relationship('User', backref='invoices')
 
+class Deduction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reason = db.Column(db.String(200), nullable=False)  # Loan, Penalty, Tax, etc.
+    amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), default='active')  # active, inactive, removed
+    applied_from = db.Column(db.Date, nullable=False)
+    applied_to = db.Column(db.Date, nullable=True)  # NULL means ongoing
+    description = db.Column(db.Text)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', foreign_keys=[user_id], backref='deductions')
+    admin = db.relationship('User', foreign_keys=[created_by])
+
 class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -1095,8 +1111,21 @@ def generate_invoice(user_id):
     current_month = datetime.now().month
     current_year = datetime.now().year
 
+    # Get active deductions for this employee
+    today = datetime.now().date()
+    active_deductions = Deduction.query.filter(
+        Deduction.user_id == user_id,
+        Deduction.status == 'active',
+        Deduction.applied_from <= today,
+        (Deduction.applied_to.is_(None) | (Deduction.applied_to >= today))
+    ).all()
+
+    total_deductions = sum(d.amount for d in active_deductions)
+
     return render_template('generate_invoice.html', user=user, salary=salary,
-                         current_month=current_month, current_year=current_year)
+                         current_month=current_month, current_year=current_year,
+                         active_deductions=active_deductions,
+                         total_deductions=total_deductions)
 
 @app.route('/invoice/<int:invoice_id>')
 @login_required
@@ -1454,6 +1483,58 @@ def delete_training(training_id):
     db.session.commit()
     flash(f'Training "{title}" deleted successfully!', 'success')
     return redirect(url_for('training_list'))
+
+# Admin: Salary Deductions Management
+@app.route('/admin/deductions')
+@login_required
+@admin_required
+def manage_deductions():
+    employees = User.query.filter_by(role='employee').all()
+    deductions = Deduction.query.filter_by(status='active').order_by(Deduction.created_at.desc()).all()
+    return render_template('manage_deductions.html', employees=employees, deductions=deductions)
+
+@app.route('/admin/deduction/add', methods=['POST'])
+@login_required
+@admin_required
+def add_deduction():
+    user_id = int(request.form.get('user_id'))
+    reason = request.form.get('reason')
+    amount = float(request.form.get('amount'))
+    applied_from = datetime.strptime(request.form.get('applied_from'), '%Y-%m-%d').date()
+    applied_to_str = request.form.get('applied_to')
+    applied_to = datetime.strptime(applied_to_str, '%Y-%m-%d').date() if applied_to_str else None
+    description = request.form.get('description')
+
+    deduction = Deduction(
+        user_id=user_id,
+        reason=reason,
+        amount=amount,
+        applied_from=applied_from,
+        applied_to=applied_to,
+        description=description,
+        created_by=current_user.id,
+        status='active'
+    )
+    db.session.add(deduction)
+    db.session.commit()
+
+    employee = User.query.get(user_id)
+    flash(f'Deduction of ₹{amount} added for {employee.username}!', 'success')
+    return redirect(url_for('manage_deductions'))
+
+@app.route('/admin/deduction/<int:deduction_id>/remove', methods=['POST'])
+@login_required
+@admin_required
+def remove_deduction(deduction_id):
+    deduction = Deduction.query.get_or_404(deduction_id)
+    employee = deduction.user
+    amount = deduction.amount
+
+    deduction.status = 'removed'
+    db.session.commit()
+
+    flash(f'Deduction of ₹{amount} removed for {employee.username}!', 'success')
+    return redirect(url_for('manage_deductions'))
 
 # Admin: HR Reports & Analytics
 @app.route('/admin/hr-analytics')

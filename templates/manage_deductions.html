@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Salary Deductions - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-money-bill-wave"></i> Manage Salary Deductions</h1>
+            <p class="text-muted">Add, view, and remove salary deductions for employees</p>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('view_all_salaries') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Salaries
+            </a>
+        </div>
+    </div>
+
+    <!-- Add Deduction Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-plus-circle"></i> Add New Deduction</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('add_deduction') }}">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="user_id" class="form-label">Select Employee *</label>
+                        <select class="form-select" id="user_id" name="user_id" required>
+                            <option value="">-- Choose Employee --</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">{{ emp.username }} ({{ emp.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label for="reason" class="form-label">Deduction Reason *</label>
+                        <input type="text" class="form-control" id="reason" name="reason"
+                               placeholder="e.g., Loan, Penalty, Tax" required>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="amount" class="form-label">Amount (₹) *</label>
+                        <input type="number" class="form-control" id="amount" name="amount"
+                               placeholder="500" step="0.01" min="0" required>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="applied_from" class="form-label">From Date *</label>
+                        <input type="date" class="form-control" id="applied_from" name="applied_from" required>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="applied_to" class="form-label">To Date (Optional)</label>
+                        <input type="date" class="form-control" id="applied_to" name="applied_to">
+                        <small class="text-muted">Leave blank for ongoing deduction</small>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description (Optional)</label>
+                    <textarea class="form-control" id="description" name="description" rows="2"
+                              placeholder="Additional details about this deduction..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add Deduction
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Deductions -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-list"></i> Active Deductions</h5>
+        </div>
+        <div class="card-body">
+            {% if deductions %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Reason</th>
+                            <th>Amount</th>
+                            <th>Applied From</th>
+                            <th>Applied To</th>
+                            <th>Duration</th>
+                            <th>Description</th>
+                            <th>Added By</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for deduction in deductions %}
+                        <tr>
+                            <td>
+                                <strong>{{ deduction.user.username }}</strong><br>
+                                <small class="text-muted">{{ deduction.user.email }}</small>
+                            </td>
+                            <td>{{ deduction.reason }}</td>
+                            <td><strong class="text-danger">₹{{ "%.2f"|format(deduction.amount) }}</strong></td>
+                            <td>{{ deduction.applied_from.strftime('%d %b %Y') }}</td>
+                            <td>
+                                {% if deduction.applied_to %}
+                                    {{ deduction.applied_to.strftime('%d %b %Y') }}
+                                {% else %}
+                                    <span class="badge bg-warning">Ongoing</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if deduction.applied_to %}
+                                    {% set days = (deduction.applied_to - deduction.applied_from).days + 1 %}
+                                    {{ days }} days
+                                {% else %}
+                                    {% set days = (now() - deduction.applied_from).days + 1 %}
+                                    {{ days }} days (ongoing)
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if deduction.description %}
+                                    <small>{{ deduction.description }}</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ deduction.admin.username }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('remove_deduction', deduction_id=deduction.id) }}"
+                                      onsubmit="return confirm('Remove this deduction?');" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle"></i> No active deductions found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+</style>
+{% endblock %}

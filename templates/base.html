@@ -64,6 +64,9 @@
             <li><a href="{{ url_for('view_all_salaries') }}" class="{% if request.endpoint == 'view_all_salaries' %}active{% endif %}">
                 <i class="fas fa-money-bill-wave"></i> Salaries
             </a></li>
+            <li><a href="{{ url_for('manage_deductions') }}" class="{% if request.endpoint == 'manage_deductions' %}active{% endif %}">
+                <i class="fas fa-hand-holding-usd"></i> Deductions
+            </a></li>
             <li><a href="{{ url_for('admin_invoices') }}" class="{% if request.endpoint == 'admin_invoices' %}active{% endif %}">
                 <i class="fas fa-file-pdf"></i> All Invoices
             </a></li>
