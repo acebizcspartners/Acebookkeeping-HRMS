@@ -3,14 +3,15 @@
 {% block title %}Salary Slip - {{ user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-lg mt-4 mb-4">
+    <!-- Action Buttons -->
     <div class="row mb-4">
         <div class="col">
-            <h2>Salary Slip</h2>
+            <h2><i class="fas fa-file-invoice-dollar"></i> Salary Slip</h2>
         </div>
         <div class="col-auto">
             <button onclick="window.print()" class="btn btn-primary">
-                <i class="fas fa-print"></i> Print
+                <i class="fas fa-print"></i> Print / Save as PDF
             </button>
             <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_invoices') }}{% else %}{{ url_for('my_invoices') }}{% endif %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back
@@ -18,131 +19,194 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <!-- Header -->
-            <div class="row mb-4">
-                <div class="col-6">
-                    <h5>Acebiz Consultants</h5>
-                    <p class="text-muted mb-0">Salary Slip</p>
+    <!-- Salary Slip Card -->
+    <div class="salary-slip-container">
+        <!-- Professional Header -->
+        <div class="slip-header">
+            <div class="company-header">
+                <div class="company-info">
+                    <h2 class="company-name">📊 ACE BOOKKEEPING PVT LTD</h2>
+                    <p class="company-subtitle">Employee Salary Slip</p>
                 </div>
-                <div class="col-6 text-end">
-                    <h6>{{ user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</h6>
-                    <p class="text-muted mb-0">Date: {{ invoice.generated_on.strftime('%d %b %Y') }}</p>
-                </div>
-            </div>
-
-            <hr>
-
-            <!-- Employee Details -->
-            <div class="row mb-4">
-                <div class="col-6">
-                    <h6 class="text-muted mb-2">Bill To:</h6>
-                    <p class="mb-0"><strong>{{ user.username }}</strong></p>
-                    <p class="mb-0">{{ user.email }}</p>
-                    <p class="mb-0">Department: {{ user.department or 'N/A' }}</p>
-                </div>
-                <div class="col-6 text-end">
-                    <h6 class="text-muted mb-2">Invoice Details:</h6>
-                    <p class="mb-0"><strong>Month:</strong> {{ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][invoice.month-1] }} {{ invoice.year }}</p>
-                    <p class="mb-0"><strong>Status:</strong>
-                        {% if invoice.status == 'paid' %}
-                            <span class="badge bg-success">Paid</span>
-                        {% elif invoice.status == 'generated' %}
-                            <span class="badge bg-warning">Generated</span>
-                        {% else %}
-                            <span class="badge bg-secondary">{{ invoice.status }}</span>
-                        {% endif %}
-                    </p>
+                <div class="slip-number">
+                    <p class="slip-id"><strong>{{ user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</strong></p>
+                    <p class="slip-date">{{ invoice.generated_on.strftime('%d %b %Y') }}</p>
                 </div>
             </div>
+        </div>
 
-            <hr>
-
-            <!-- Salary Details Table -->
-            <div class="table-responsive mb-4">
-                <table class="table table-borderless">
-                    <tbody>
-                        <tr>
-                            <td class="text-muted">Monthly Salary</td>
-                            <td class="text-end">₹{{ "%.2f"|format(invoice.salary_amount) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Bonus</td>
-                            <td class="text-end">₹{{ "%.2f"|format(invoice.bonus) }}</td>
-                        </tr>
-
-                        <!-- Leave Deduction Breakdown -->
-                        {% if invoice.leave_deduction > 0 %}
-                        <tr class="border-top">
-                            <td class="text-muted"><strong>Leave Deduction</strong></td>
-                            <td class="text-end"></td>
-                        </tr>
-                        <tr>
-                            <td class="ms-4 text-muted small">(Approved leaves this month)</td>
-                            <td class="text-end">- ₹{{ "%.2f"|format(invoice.leave_deduction) }}</td>
-                        </tr>
-                        {% endif %}
-
-                        <!-- Manual Deduction Breakdown -->
-                        {% if invoice.manual_deduction > 0 %}
-                        <tr class="border-top">
-                            <td class="text-muted"><strong>Other Deductions</strong></td>
-                            <td class="text-end"></td>
-                        </tr>
-                        <tr>
-                            <td class="ms-4 text-muted small">(Loan, Penalty, Tax, etc.)</td>
-                            <td class="text-end">- ₹{{ "%.2f"|format(invoice.manual_deduction) }}</td>
-                        </tr>
-                        {% endif %}
-
-                        <tr class="border-top border-bottom">
-                            <td><strong>Total Deductions</strong></td>
-                            <td class="text-end"><strong class="text-danger">- ₹{{ "%.2f"|format(invoice.deductions) }}</strong></td>
-                        </tr>
-
-                        <tr class="border-bottom">
-                            <td><strong>Net Amount Payable</strong></td>
-                            <td class="text-end"><strong class="text-success h5">₹{{ "%.2f"|format(invoice.net_amount) }}</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Payment Details -->
-            <div class="row mb-4">
-                <div class="col-6">
-                    {% if salary %}
-                    <h6 class="text-muted mb-2">Salary Information:</h6>
-                    <p class="mb-1"><strong>Hourly Rate:</strong> ₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</p>
-                    <p class="mb-1"><strong>Annual Salary:</strong> ₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</p>
-                    {% endif %}
+        <!-- Employee Information Section -->
+        <div class="slip-section employee-section">
+            <div class="section-title">Employee Information</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-item">
+                        <span class="label">Employee Name:</span>
+                        <span class="value"><strong>{{ user.username }}</strong></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Email:</span>
+                        <span class="value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Department:</span>
+                        <span class="value">{{ user.department or 'N/A' }}</span>
+                    </div>
                 </div>
-                <div class="col-6 text-end">
-                    {% if invoice.paid_on %}
-                    <h6 class="text-muted mb-2">Payment Info:</h6>
-                    <p class="mb-1"><strong>Paid On:</strong> {{ invoice.paid_on.strftime('%d %b %Y') }}</p>
-                    {% endif %}
+                <div class="col-md-6 text-end">
+                    <div class="info-item">
+                        <span class="label">Salary Month:</span>
+                        <span class="value"><strong>{{ ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][invoice.month-1] }} {{ invoice.year }}</strong></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Status:</span>
+                        <span class="value">
+                            {% if invoice.status == 'paid' %}
+                                <span class="badge badge-success">✓ Paid</span>
+                            {% elif invoice.status == 'generated' %}
+                                <span class="badge badge-warning">⊙ Generated</span>
+                            {% else %}
+                                <span class="badge badge-secondary">{{ invoice.status }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            {% if invoice.notes %}
-            <hr>
-            <div class="alert alert-light">
-                <h6 class="text-muted mb-2">Notes:</h6>
-                <p class="mb-0">{{ invoice.notes }}</p>
+        <!-- Earnings Section -->
+        <div class="slip-section earnings-section">
+            <div class="section-title">Earnings</div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="earnings-item">
+                        <span class="label">Monthly Salary</span>
+                        <span class="amount">₹{{ "%.2f"|format(invoice.salary_amount) }}</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="earnings-item">
+                        <span class="label">Bonus</span>
+                        <span class="amount">{% if invoice.bonus > 0 %}+ ₹{{ "%.2f"|format(invoice.bonus) }}{% else %}₹0.00{% endif %}</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="earnings-item">
+                        <span class="label">Total Earnings</span>
+                        <span class="amount text-success">₹{{ "%.2f"|format(invoice.salary_amount + invoice.bonus) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deductions Section -->
+        <div class="slip-section deductions-section">
+            <div class="section-title">Deductions</div>
+
+            <!-- Leave Deduction Breakdown -->
+            {% if invoice.leave_deduction > 0 %}
+            <div class="deduction-item">
+                <div class="deduction-header">
+                    <span class="label"><i class="fas fa-calendar"></i> Leave Deduction</span>
+                    <span class="amount text-danger">- ₹{{ "%.2f"|format(invoice.leave_deduction) }}</span>
+                </div>
+                <div class="deduction-detail">(Approved leaves deducted from salary)</div>
             </div>
             {% endif %}
 
-            <hr>
+            <!-- Manual Deduction Breakdown -->
+            {% if invoice.manual_deduction > 0 %}
+            <div class="deduction-item">
+                <div class="deduction-header">
+                    <span class="label"><i class="fas fa-minus-circle"></i> Other Deductions</span>
+                    <span class="amount text-danger">- ₹{{ "%.2f"|format(invoice.manual_deduction) }}</span>
+                </div>
+                <div class="deduction-detail">(Loan, Penalty, Tax, etc.)</div>
+            </div>
+            {% endif %}
 
-            <!-- Footer -->
-            <div class="text-center text-muted mt-4">
-                <p class="small mb-1">This is a computer generated invoice and needs no signature.</p>
-                <p class="small">Acebiz Consultants - Employee Payment System</p>
+            <!-- Total Deductions -->
+            <div class="deduction-total">
+                <div class="deduction-header">
+                    <span class="label"><strong>Total Deductions</strong></span>
+                    <span class="amount"><strong class="text-danger">- ₹{{ "%.2f"|format(invoice.deductions) }}</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Net Salary Section -->
+        <div class="slip-section net-salary-section">
+            <div class="net-salary-box">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="label">Total Earnings:</span>
+                        <span class="value">₹{{ "%.2f"|format(invoice.salary_amount + invoice.bonus) }}</span>
+                    </div>
+                    <div class="col-6 text-end">
+                        <span class="label">Total Deductions:</span>
+                        <span class="value">₹{{ "%.2f"|format(invoice.deductions) }}</span>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <span class="label"><strong>NET AMOUNT PAYABLE</strong></span>
+                        <h3 class="net-amount">₹{{ "%.2f"|format(invoice.net_amount) }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salary Information Section -->
+        <div class="slip-section salary-info-section">
+            <div class="section-title">Salary Information</div>
+            <div class="row">
+                <div class="col-md-6">
+                    {% if salary %}
+                    <div class="info-item">
+                        <span class="label">Hourly Rate:</span>
+                        <span class="value">₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Annual Salary:</span>
+                        <span class="value"><strong>₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</strong></span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {% if invoice.paid_on %}
+                    <div class="info-item">
+                        <span class="label">Payment Status:</span>
+                        <span class="value"><span class="badge badge-success">✓ Paid on {{ invoice.paid_on.strftime('%d %b %Y') }}</span></span>
+                    </div>
+                    {% else %}
+                    <div class="info-item">
+                        <span class="label">Payment Status:</span>
+                        <span class="value"><span class="badge badge-warning">⊙ Pending</span></span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        {% if invoice.notes %}
+        <div class="slip-section">
+            <div class="section-title">Notes</div>
+            <p class="notes-text">{{ invoice.notes }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Footer Section -->
+        <div class="slip-footer">
+            <hr class="footer-divider">
+            <div class="footer-text">
+                <p class="small mb-1">✓ This is a computer-generated salary slip and requires no signature.</p>
+                <p class="small mb-0"><strong>Ace Bookkeeping Pvt Ltd</strong> • Employee Payment & Management System</p>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Action Buttons for Admin -->
     {% if current_user.role == 'admin' and invoice.status == 'generated' %}
@@ -156,8 +220,302 @@
     {% endif %}
 </div>
 
-<style media="print">
-    .btn, .btn-group, a { display: none !important; }
-    .card { border: none !important; }
+<style>
+    .salary-slip-container {
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .slip-header {
+        border-bottom: 3px solid #6366f1;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    .company-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .company-info h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .company-subtitle {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 5px 0 0 0;
+    }
+
+    .slip-number {
+        text-align: right;
+    }
+
+    .slip-id {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .slip-date {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 5px 0 0 0;
+    }
+
+    .slip-section {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #f9fafb;
+        border-radius: 6px;
+        border-left: 4px solid #6366f1;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1f2937;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .employee-section {
+        border-left-color: #3b82f6;
+    }
+
+    .earnings-section {
+        border-left-color: #10b981;
+    }
+
+    .deductions-section {
+        border-left-color: #ef4444;
+    }
+
+    .net-salary-section {
+        border-left-color: #8b5cf6;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .info-item .label {
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .info-item .value {
+        color: #1f2937;
+        font-size: 13px;
+    }
+
+    .earnings-item {
+        text-align: center;
+        padding: 15px;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .earnings-item .label {
+        display: block;
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .earnings-item .amount {
+        display: block;
+        font-size: 20px;
+        font-weight: 700;
+        color: #10b981;
+    }
+
+    .deduction-item {
+        background: white;
+        padding: 12px 0;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .deduction-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+
+    .deduction-header .label {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 13px;
+    }
+
+    .deduction-header .amount {
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .deduction-detail {
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    .deduction-total {
+        background: white;
+        padding: 12px 0;
+        margin-top: 15px;
+        border-top: 2px solid #fed7aa;
+    }
+
+    .net-salary-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+
+    .net-salary-box .label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.9;
+    }
+
+    .net-salary-box .value {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
+    .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.3);
+        margin: 15px 0;
+    }
+
+    .net-amount {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 10px 0 0 0;
+    }
+
+    .salary-info-section {
+        border-left-color: #f59e0b;
+    }
+
+    .notes-text {
+        color: #1f2937;
+        font-size: 13px;
+        line-height: 1.6;
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+    }
+
+    .slip-footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    .footer-divider {
+        border: none;
+        border-top: 2px solid #e5e7eb;
+        margin: 0 0 15px 0;
+    }
+
+    .footer-text p {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .badge-success {
+        background-color: #10b981;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .badge-warning {
+        background-color: #f59e0b;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .badge-secondary {
+        background-color: #6b7280;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    /* Print Styles */
+    @media print {
+        .btn, .btn-group, a {
+            display: none !important;
+        }
+
+        .container-lg {
+            max-width: 100% !important;
+        }
+
+        .salary-slip-container {
+            box-shadow: none;
+            padding: 20px;
+        }
+
+        body {
+            background: white;
+        }
+
+        .page-header {
+            display: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .salary-slip-container {
+            padding: 20px;
+        }
+
+        .company-header {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .slip-number {
+            text-align: left;
+        }
+
+        .earnings-item {
+            margin-bottom: 10px;
+        }
+    }
 </style>
 {% endblock %}
