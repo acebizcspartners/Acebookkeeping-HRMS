@@ -1426,7 +1426,7 @@ def add_training():
         start_date=datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date(),
         end_date=datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date(),
         trainer=request.form.get('trainer'),
-        cost=float(request.form.get('cost', 0))
+        cost=0.0
     )
     db.session.add(training)
     db.session.commit()
@@ -1491,6 +1491,32 @@ def init_db():
             if 'hours' not in leave_columns:
                 db.session.execute(text('ALTER TABLE leave ADD COLUMN hours FLOAT DEFAULT 0'))
                 db.session.commit()
+
+            # Add new columns to training table if missing
+            try:
+                training_columns = [col['name'] for col in inspector.get_columns('training')]
+
+                if 'html_content' not in training_columns:
+                    db.session.execute(text('ALTER TABLE training ADD COLUMN html_content TEXT'))
+                    db.session.commit()
+                    print('Added html_content column to training table')
+
+                if 'training_type' not in training_columns:
+                    db.session.execute(text('ALTER TABLE training ADD COLUMN training_type VARCHAR(50) DEFAULT "video"'))
+                    db.session.commit()
+                    print('Added training_type column to training table')
+
+                if 'video_url' not in training_columns:
+                    db.session.execute(text('ALTER TABLE training ADD COLUMN video_url VARCHAR(500)'))
+                    db.session.commit()
+                    print('Added video_url column to training table')
+
+                if 'icon' not in training_columns:
+                    db.session.execute(text('ALTER TABLE training ADD COLUMN icon VARCHAR(50) DEFAULT "fa-graduation-cap"'))
+                    db.session.commit()
+                    print('Added icon column to training table')
+            except Exception as e:
+                print(f'Training table migration: {e}')
         except Exception:
             pass
 
