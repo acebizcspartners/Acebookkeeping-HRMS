@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Acebookking Leave Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Edit Profile</h1>
+
+    <form method="POST" class="card">
+        <div class="card-body">
+            <h5 class="mb-3">Personal Information</h5>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phone" name="phone"
+                           value="{{ profile.phone if profile else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="date_of_birth" class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
+                           value="{{ profile.date_of_birth if profile else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select class="form-select" id="gender" name="gender">
+                        <option value="">Select Gender</option>
+                        <option value="Male" {% if profile and profile.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if profile and profile.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if profile and profile.gender == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="blood_group" class="form-label">Blood Group</label>
+                    <input type="text" class="form-control" id="blood_group" name="blood_group"
+                           value="{{ profile.blood_group if profile else '' }}" placeholder="e.g., O+, A-">
+                </div>
+            </div>
+
+            <h5 class="mb-3 mt-4">Address</h5>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control" id="address" name="address" rows="2">{{ profile.address if profile else '' }}</textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city" name="city"
+                           value="{{ profile.city if profile else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="state" class="form-label">State</label>
+                    <input type="text" class="form-control" id="state" name="state"
+                           value="{{ profile.state if profile else '' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="postal_code" class="form-label">Postal Code</label>
+                    <input type="text" class="form-control" id="postal_code" name="postal_code"
+                           value="{{ profile.postal_code if profile else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" class="form-control" id="country" name="country"
+                           value="{{ profile.country if profile else '' }}">
+                </div>
+            </div>
+
+            <h5 class="mb-3 mt-4">Financial Information</h5>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="pan_number" class="form-label">PAN Number</label>
+                    <input type="text" class="form-control" id="pan_number" name="pan_number"
+                           value="{{ profile.pan_number if profile else '' }}" placeholder="e.g., AAAPA1234A">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="aadhar_number" class="form-label">Aadhar Number</label>
+                    <input type="text" class="form-control" id="aadhar_number" name="aadhar_number"
+                           value="{{ profile.aadhar_number if profile else '' }}" placeholder="12-digit number">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="bank_account" class="form-label">Bank Account Number</label>
+                    <input type="text" class="form-control" id="bank_account" name="bank_account"
+                           value="{{ profile.bank_account if profile else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="ifsc_code" class="form-label">IFSC Code</label>
+                    <input type="text" class="form-control" id="ifsc_code" name="ifsc_code"
+                           value="{{ profile.ifsc_code if profile else '' }}" placeholder="e.g., SBIN0001234">
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Profile
+                </button>
+                <a href="{{ url_for('profile') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

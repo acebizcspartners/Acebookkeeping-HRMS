@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Acebookking Leave Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>My Profile</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+
+    {% if profile %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Email</p>
+                            <p>{{ current_user.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Phone</p>
+                            <p>{{ profile.phone or 'Not provided' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Date of Birth</p>
+                            <p>{{ profile.date_of_birth.strftime('%d %b %Y') if profile.date_of_birth else 'Not provided' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Gender</p>
+                            <p>{{ profile.gender or 'Not provided' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Blood Group</p>
+                            <p>{{ profile.blood_group or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Address</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ profile.address or 'Not provided' }}</p>
+                    <p>{{ profile.city }}, {{ profile.state }} {{ profile.postal_code }}</p>
+                    <p>{{ profile.country }}</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Financial Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">PAN Number</p>
+                            <p>{{ profile.pan_number or 'Not provided' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Aadhar Number</p>
+                            <p>{{ profile.aadhar_number or 'Not provided' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Bank Account</p>
+                            <p>{{ profile.bank_account or 'Not provided' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">IFSC Code</p>
+                            <p>{{ profile.ifsc_code or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h5 class="card-title mb-0">Employment Details</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Joining Date:</strong><br> {{ profile.joining_date.strftime('%d %b %Y') if profile.joining_date else 'N/A' }}</p>
+                    <p class="mb-2"><strong>Employment Type:</strong><br> {{ profile.employment_type or 'N/A' }}</p>
+                    <p class="mb-2"><strong>Manager:</strong><br> {{ profile.manager.username if profile.manager else 'N/A' }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Emergency Contacts</h5>
+                </div>
+                <div class="card-body">
+                    {% if emergency_contacts %}
+                        {% for contact in emergency_contacts %}
+                        <div class="mb-3 pb-3 border-bottom">
+                            <p class="mb-1"><strong>{{ contact.name }}</strong></p>
+                            <p class="mb-1 text-muted">{{ contact.relationship }}</p>
+                            <p class="mb-0"><i class="fas fa-phone"></i> {{ contact.phone }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-muted">No emergency contacts added</p>
+                    {% endif %}
+                    <a href="{{ url_for('emergency_contacts') }}" class="btn btn-sm btn-outline-primary w-100">
+                        Manage Contacts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Profile not found. <a href="{{ url_for('edit_profile') }}">Create your profile</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

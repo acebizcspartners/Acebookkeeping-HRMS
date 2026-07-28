@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance - Acebookking Leave Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Attendance</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-3">Today's Attendance</h5>
+                    <p class="text-muted mb-3">Date: {{ today.strftime('%d %b %Y') }}</p>
+                    <form method="POST" class="d-flex gap-2 justify-content-center">
+                        <button type="submit" formaction="{{ url_for('checkin') }}" class="btn btn-success">
+                            <i class="fas fa-sign-in-alt"></i> Check In
+                        </button>
+                        <button type="submit" formaction="{{ url_for('checkout') }}" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Check Out
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Summary</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Present Days:</strong> <span class="badge bg-success">{{ attendance|selectattr('status', 'equalto', 'present')|list|length }}</span></p>
+                    <p class="mb-2"><strong>Absent Days:</strong> <span class="badge bg-danger">{{ attendance|selectattr('status', 'equalto', 'absent')|list|length }}</span></p>
+                    <p class="mb-2"><strong>Half Days:</strong> <span class="badge bg-warning">{{ attendance|selectattr('status', 'equalto', 'half-day')|list|length }}</span></p>
+                    <p class="mb-0"><strong>WFH Days:</strong> <span class="badge bg-primary">{{ attendance|selectattr('status', 'equalto', 'wfh')|list|length }}</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Attendance History</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Hours Worked</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance %}
+                    <tr>
+                        <td><strong>{{ record.date.strftime('%d %b %Y') }}</strong></td>
+                        <td>
+                            {% if record.status == 'present' %}
+                                <span class="badge bg-success">Present</span>
+                            {% elif record.status == 'absent' %}
+                                <span class="badge bg-danger">Absent</span>
+                            {% elif record.status == 'half-day' %}
+                                <span class="badge bg-warning">Half Day</span>
+                            {% elif record.status == 'wfh' %}
+                                <span class="badge bg-primary">WFH</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ record.check_in.strftime('%H:%M') if record.check_in else '-' }}</td>
+                        <td>{{ record.check_out.strftime('%H:%M') if record.check_out else '-' }}</td>
+                        <td>{{ "%.2f"|format(record.hours_worked) if record.hours_worked else '-' }} hrs</td>
+                        <td>{{ record.remarks or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if not attendance %}
+        <div class="card-body text-center text-muted">
+            No attendance records yet.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

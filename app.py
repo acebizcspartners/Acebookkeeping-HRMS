@@ -179,6 +179,133 @@ class PaymentInvoice(db.Model):
 
     user = db.relationship('User', backref='invoices')
 
+class Department(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.Text)
+    manager_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Designation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class EmployeeProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    phone = db.Column(db.String(20))
+    address = db.Column(db.Text)
+    city = db.Column(db.String(100))
+    state = db.Column(db.String(100))
+    postal_code = db.Column(db.String(20))
+    country = db.Column(db.String(100))
+    date_of_birth = db.Column(db.Date)
+    gender = db.Column(db.String(20))
+    designation_id = db.Column(db.Integer, db.ForeignKey('designation.id'))
+    department_id = db.Column(db.Integer, db.ForeignKey('department.id'))
+    joining_date = db.Column(db.Date)
+    employment_type = db.Column(db.String(50))  # Full-time, Part-time, Contract
+    manager_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    blood_group = db.Column(db.String(5))
+    pan_number = db.Column(db.String(20))
+    aadhar_number = db.Column(db.String(20))
+    bank_account = db.Column(db.String(50))
+    ifsc_code = db.Column(db.String(20))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', foreign_keys=[user_id], backref='profile')
+    designation = db.relationship('Designation', backref='employees')
+    department = db.relationship('Department', backref='employees')
+    manager = db.relationship('User', foreign_keys=[manager_id])
+
+class EmergencyContact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    relationship = db.Column(db.String(50))
+    phone = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(120))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class EmployeeDocument(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    document_type = db.Column(db.String(50), nullable=False)  # Resume, Certificate, etc
+    file_name = db.Column(db.String(255))
+    file_path = db.Column(db.String(500))
+    expiry_date = db.Column(db.Date)
+    uploaded_on = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Attendance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    check_in = db.Column(db.DateTime)
+    check_out = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default='present')  # present, absent, half-day, wfh
+    hours_worked = db.Column(db.Float)
+    remarks = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class PerformanceReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    review_date = db.Column(db.Date, nullable=False)
+    period_start = db.Column(db.Date)
+    period_end = db.Column(db.Date)
+    performance_rating = db.Column(db.Float)  # 1-5
+    technical_skills = db.Column(db.Float)
+    communication = db.Column(db.Float)
+    teamwork = db.Column(db.Float)
+    comments = db.Column(db.Text)
+    goals = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Training(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    trainer = db.Column(db.String(100))
+    cost = db.Column(db.Float)
+    status = db.Column(db.String(20), default='planned')  # planned, ongoing, completed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class EmployeeTraining(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    training_id = db.Column(db.Integer, db.ForeignKey('training.id'), nullable=False)
+    status = db.Column(db.String(20), default='enrolled')  # enrolled, completed, dropped
+    score = db.Column(db.Float)
+    certificate_issued = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class EmployeeAsset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    asset_type = db.Column(db.String(100))  # Laptop, Phone, etc
+    asset_name = db.Column(db.String(255))
+    serial_number = db.Column(db.String(100))
+    issue_date = db.Column(db.Date)
+    return_date = db.Column(db.Date)
+    status = db.Column(db.String(20), default='active')  # active, returned, damaged
+    remarks = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Announcement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime)
+    visibility = db.Column(db.String(20), default='all')  # all, department, specific
+
 def record_leave_transaction(user_id, leave_type, transaction_type, days, description, reference_id=None, transaction_date=None):
     """Record a leave transaction (credit or debit)"""
     if transaction_date is None:
@@ -1106,6 +1233,224 @@ def leave_stats():
             'lwp': {'used': leave_info['lwp_used']}
         })
     return jsonify({})
+
+# HRMS FEATURES
+
+# Attendance Management
+@app.route('/attendance')
+@login_required
+def attendance():
+    today = datetime.now().date()
+    user_attendance = Attendance.query.filter_by(user_id=current_user.id).order_by(Attendance.date.desc()).all()
+    return render_template('attendance.html', attendance=user_attendance, today=today)
+
+@app.route('/attendance/checkin', methods=['POST'])
+@login_required
+def checkin():
+    today = datetime.now().date()
+    existing = Attendance.query.filter_by(user_id=current_user.id, date=today).first()
+
+    if existing and existing.check_in:
+        flash('Already checked in today', 'warning')
+    else:
+        if not existing:
+            attendance = Attendance(user_id=current_user.id, date=today)
+            db.session.add(attendance)
+        else:
+            attendance = existing
+        attendance.check_in = datetime.utcnow()
+        attendance.status = 'present'
+        db.session.commit()
+        flash('Check-in successful!', 'success')
+
+    return redirect(url_for('attendance'))
+
+@app.route('/attendance/checkout', methods=['POST'])
+@login_required
+def checkout():
+    today = datetime.now().date()
+    attendance = Attendance.query.filter_by(user_id=current_user.id, date=today).first()
+
+    if not attendance:
+        flash('No check-in found for today', 'error')
+    elif attendance.check_out:
+        flash('Already checked out today', 'warning')
+    else:
+        attendance.check_out = datetime.utcnow()
+        if attendance.check_in:
+            hours = (attendance.check_out - attendance.check_in).total_seconds() / 3600
+            attendance.hours_worked = round(hours, 2)
+        db.session.commit()
+        flash('Check-out successful!', 'success')
+
+    return redirect(url_for('attendance'))
+
+# Employee Profile
+@app.route('/profile')
+@login_required
+def profile():
+    profile = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+    emergency_contacts = EmergencyContact.query.filter_by(user_id=current_user.id).all()
+    return render_template('profile.html', profile=profile, emergency_contacts=emergency_contacts)
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    profile = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
+
+    if request.method == 'POST':
+        if not profile:
+            profile = EmployeeProfile(user_id=current_user.id)
+            db.session.add(profile)
+
+        profile.phone = request.form.get('phone')
+        profile.address = request.form.get('address')
+        profile.city = request.form.get('city')
+        profile.state = request.form.get('state')
+        profile.postal_code = request.form.get('postal_code')
+        profile.country = request.form.get('country')
+        profile.date_of_birth = datetime.strptime(request.form.get('date_of_birth'), '%Y-%m-%d').date() if request.form.get('date_of_birth') else None
+        profile.gender = request.form.get('gender')
+        profile.blood_group = request.form.get('blood_group')
+        profile.pan_number = request.form.get('pan_number')
+        profile.aadhar_number = request.form.get('aadhar_number')
+        profile.bank_account = request.form.get('bank_account')
+        profile.ifsc_code = request.form.get('ifsc_code')
+
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile'))
+
+    return render_template('edit_profile.html', profile=profile)
+
+# Emergency Contacts
+@app.route('/emergency-contacts')
+@login_required
+def emergency_contacts():
+    contacts = EmergencyContact.query.filter_by(user_id=current_user.id).all()
+    return render_template('emergency_contacts.html', contacts=contacts)
+
+@app.route('/emergency-contact/add', methods=['POST'])
+@login_required
+def add_emergency_contact():
+    contact = EmergencyContact(
+        user_id=current_user.id,
+        name=request.form.get('name'),
+        relationship=request.form.get('relationship'),
+        phone=request.form.get('phone'),
+        email=request.form.get('email')
+    )
+    db.session.add(contact)
+    db.session.commit()
+    flash('Emergency contact added!', 'success')
+    return redirect(url_for('emergency_contacts'))
+
+@app.route('/emergency-contact/<int:contact_id>/delete', methods=['POST'])
+@login_required
+def delete_emergency_contact(contact_id):
+    contact = EmergencyContact.query.get_or_404(contact_id)
+    if contact.user_id != current_user.id:
+        flash('Unauthorized', 'error')
+        return redirect(url_for('emergency_contacts'))
+
+    db.session.delete(contact)
+    db.session.commit()
+    flash('Emergency contact deleted!', 'success')
+    return redirect(url_for('emergency_contacts'))
+
+# Admin: Performance Reviews
+@app.route('/admin/performance-reviews')
+@login_required
+@admin_required
+def performance_reviews():
+    reviews = PerformanceReview.query.order_by(PerformanceReview.review_date.desc()).all()
+    users = User.query.all()
+    return render_template('performance_reviews.html', reviews=reviews, users=users)
+
+@app.route('/admin/performance-review/add', methods=['POST'])
+@login_required
+@admin_required
+def add_performance_review():
+    review = PerformanceReview(
+        user_id=int(request.form.get('user_id')),
+        reviewer_id=current_user.id,
+        review_date=datetime.now().date(),
+        period_start=datetime.strptime(request.form.get('period_start'), '%Y-%m-%d').date(),
+        period_end=datetime.strptime(request.form.get('period_end'), '%Y-%m-%d').date(),
+        performance_rating=float(request.form.get('performance_rating')),
+        technical_skills=float(request.form.get('technical_skills')),
+        communication=float(request.form.get('communication')),
+        teamwork=float(request.form.get('teamwork')),
+        comments=request.form.get('comments'),
+        goals=request.form.get('goals')
+    )
+    db.session.add(review)
+    db.session.commit()
+    flash('Performance review added!', 'success')
+    return redirect(url_for('performance_reviews'))
+
+# Admin: Training Management
+@app.route('/admin/training')
+@login_required
+@admin_required
+def training_list():
+    trainings = Training.query.all()
+    return render_template('training.html', trainings=trainings)
+
+@app.route('/admin/training/add', methods=['POST'])
+@login_required
+@admin_required
+def add_training():
+    training = Training(
+        title=request.form.get('title'),
+        description=request.form.get('description'),
+        start_date=datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date(),
+        end_date=datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date(),
+        trainer=request.form.get('trainer'),
+        cost=float(request.form.get('cost', 0))
+    )
+    db.session.add(training)
+    db.session.commit()
+    flash('Training added!', 'success')
+    return redirect(url_for('training_list'))
+
+# Admin: HR Reports & Analytics
+@app.route('/admin/hr-analytics')
+@login_required
+@admin_required
+def hr_analytics():
+    total_employees = User.query.count()
+    total_departments = Department.query.count()
+    today_present = Attendance.query.filter_by(date=datetime.now().date(), status='present').count()
+    total_leaves = Leave.query.filter_by(status='approved').count()
+
+    return render_template('hr_analytics.html',
+        total_employees=total_employees,
+        total_departments=total_departments,
+        today_present=today_present,
+        total_leaves=total_leaves
+    )
+
+# Admin: Announcements
+@app.route('/announcements')
+@login_required
+def announcements():
+    announcements = Announcement.query.order_by(Announcement.created_at.desc()).all()
+    return render_template('announcements.html', announcements=announcements)
+
+@app.route('/admin/announcement/add', methods=['POST'])
+@login_required
+@admin_required
+def add_announcement():
+    announcement = Announcement(
+        title=request.form.get('title'),
+        content=request.form.get('content'),
+        created_by=current_user.id
+    )
+    db.session.add(announcement)
+    db.session.commit()
+    flash('Announcement posted!', 'success')
+    return redirect(url_for('announcements'))
 
 def init_db():
     with app.app_context():
