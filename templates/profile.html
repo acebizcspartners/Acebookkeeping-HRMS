@@ -4,9 +4,19 @@
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Profile Header -->
     <div class="row mb-4">
         <div class="col">
-            <h1>My Profile</h1>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                     style="width: 60px; height: 60px; font-size: 24px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h2 class="mb-0">{{ current_user.username }}</h2>
+                    <p class="text-muted mb-0">Employee Profile</p>
+                </div>
+            </div>
         </div>
         <div class="col-auto">
             <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
@@ -18,77 +28,98 @@
     {% if profile %}
     <div class="row">
         <div class="col-md-8">
+            <!-- Personal Information Card -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Personal Information</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-user-circle"></i> Personal Information</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">Email</p>
-                            <p>{{ current_user.email }}</p>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Email Address</label>
+                            <p class="mb-0">{{ current_user.email }}</p>
                         </div>
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">Phone</p>
-                            <p>{{ profile.phone or 'Not provided' }}</p>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Phone Number</label>
+                            <p class="mb-0">{{ profile.phone or '—' }}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">Date of Birth</p>
-                            <p>{{ profile.date_of_birth.strftime('%d %b %Y') if profile.date_of_birth else 'Not provided' }}</p>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Date of Birth</label>
+                            <p class="mb-0">{{ profile.date_of_birth.strftime('%d %b %Y') if profile.date_of_birth else '—' }}</p>
                         </div>
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">Gender</p>
-                            <p>{{ profile.gender or 'Not provided' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">Blood Group</p>
-                            <p>{{ profile.blood_group or 'Not provided' }}</p>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Gender</label>
+                            <p class="mb-0">{{ profile.gender or '—' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Address Card -->
             <div class="card mb-4">
                 <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">Address</h5>
-                </div>
-                <div class="card-body">
-                    <p>{{ profile.address or 'Not provided' }}</p>
-                    <p>{{ profile.city }}, {{ profile.state }} {{ profile.postal_code }}</p>
-                    <p>{{ profile.country }}</p>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">Financial Information</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-map-marker-alt"></i> Address</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">PAN Number</p>
-                            <p>{{ profile.pan_number or 'Not provided' }}</p>
+                        <div class="col-md-12 mb-3">
+                            <label class="text-muted small fw-bold">Street Address</label>
+                            <p class="mb-0">{{ profile.address or '—' }}</p>
                         </div>
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">Aadhar Number</p>
-                            <p>{{ profile.aadhar_number or 'Not provided' }}</p>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">City</label>
+                            <p class="mb-0">{{ profile.city or '—' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">State</label>
+                            <p class="mb-0">{{ profile.state or '—' }}</p>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">Bank Account</p>
-                            <p>{{ profile.bank_account or 'Not provided' }}</p>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Postal Code</label>
+                            <p class="mb-0">{{ profile.postal_code or '—' }}</p>
                         </div>
-                        <div class="col-md-6">
-                            <p class="text-muted mb-1">IFSC Code</p>
-                            <p>{{ profile.ifsc_code or 'Not provided' }}</p>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Country</label>
+                            <p class="mb-0">{{ profile.country or '—' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0"><i class="fas fa-credit-card"></i> Financial Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">PAN Number</label>
+                            <p class="mb-0">{{ profile.pan_number or '—' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Aadhar Number</label>
+                            <p class="mb-0">{{ profile.aadhar_number or '—' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">Bank Account</label>
+                            <p class="mb-0">{{ profile.bank_account or '—' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small fw-bold">IFSC Code</label>
+                            <p class="mb-0">{{ profile.ifsc_code or '—' }}</p>
                         </div>
                     </div>
                 </div>
@@ -96,35 +127,66 @@
         </div>
 
         <div class="col-md-4">
+            <!-- Employment Details Card -->
             <div class="card mb-4">
-                <div class="card-header bg-warning">
-                    <h5 class="card-title mb-0">Employment Details</h5>
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0"><i class="fas fa-briefcase"></i> Employment Details</h5>
                 </div>
                 <div class="card-body">
-                    <p class="mb-2"><strong>Joining Date:</strong><br> {{ profile.joining_date.strftime('%d %b %Y') if profile.joining_date else 'N/A' }}</p>
-                    <p class="mb-2"><strong>Employment Type:</strong><br> {{ profile.employment_type or 'N/A' }}</p>
-                    <p class="mb-2"><strong>Manager:</strong><br> {{ profile.manager.username if profile.manager else 'N/A' }}</p>
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Joining Date</label>
+                        <p class="mb-0">{{ profile.joining_date.strftime('%d %b %Y') if profile.joining_date else '—' }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Employment Type</label>
+                        <p class="mb-0">
+                            {% if profile.employment_type %}
+                            <span class="badge bg-info">{{ profile.employment_type }}</span>
+                            {% else %}
+                            —
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Designation</label>
+                        <p class="mb-0">{{ profile.designation.name if profile.designation else '—' }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Department</label>
+                        <p class="mb-0">{{ profile.department.name if profile.department else '—' }}</p>
+                    </div>
+
+                    <div>
+                        <label class="text-muted small fw-bold">Reporting Manager</label>
+                        <p class="mb-0">{{ profile.manager.username if profile.manager else '—' }}</p>
+                    </div>
                 </div>
             </div>
 
+            <!-- Emergency Contacts Card -->
             <div class="card">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="card-title mb-0">Emergency Contacts</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-phone"></i> Emergency Contacts</h5>
                 </div>
                 <div class="card-body">
                     {% if emergency_contacts %}
                         {% for contact in emergency_contacts %}
                         <div class="mb-3 pb-3 border-bottom">
                             <p class="mb-1"><strong>{{ contact.name }}</strong></p>
-                            <p class="mb-1 text-muted">{{ contact.relationship }}</p>
+                            <p class="mb-1">
+                                <span class="badge bg-light text-dark">{{ contact.relationship }}</span>
+                            </p>
                             <p class="mb-0"><i class="fas fa-phone"></i> {{ contact.phone }}</p>
                         </div>
                         {% endfor %}
                     {% else %}
-                    <p class="text-muted">No emergency contacts added</p>
+                    <p class="text-muted text-center py-3">No emergency contacts added</p>
                     {% endif %}
-                    <a href="{{ url_for('emergency_contacts') }}" class="btn btn-sm btn-outline-primary w-100">
-                        Manage Contacts
+                    <a href="{{ url_for('emergency_contacts') }}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                        <i class="fas fa-plus"></i> Manage Contacts
                     </a>
                 </div>
             </div>
@@ -136,4 +198,45 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body label {
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+    }
+
+    .card-body p {
+        font-size: 1rem;
+        color: #212529;
+    }
+
+    .d-flex.gap-3 {
+        gap: 1rem;
+    }
+
+    .text-muted.small {
+        font-size: 0.9rem;
+    }
+
+    .badge {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.85rem;
+    }
+</style>
 {% endblock %}
