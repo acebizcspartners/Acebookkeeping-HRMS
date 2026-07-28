@@ -54,6 +54,9 @@
             <li><a href="{{ url_for('announcements') }}" class="{% if request.endpoint == 'announcements' %}active{% endif %}">
                 <i class="fas fa-bell"></i> Announcements
             </a></li>
+            <li><a href="{{ url_for('training_list') }}" class="{% if request.endpoint == 'training_list' %}active{% endif %}">
+                <i class="fas fa-graduation-cap"></i> Training
+            </a></li>
             {% if current_user.role in ['admin', 'manager'] %}
             <li><a href="{{ url_for('manage_leaves') }}" class="{% if request.endpoint == 'manage_leaves' %}active{% endif %}">
                 <i class="fas fa-tasks"></i> Manage Leaves
@@ -72,9 +75,6 @@
             </a></li>
             <li><a href="{{ url_for('performance_reviews') }}" class="{% if request.endpoint == 'performance_reviews' %}active{% endif %}">
                 <i class="fas fa-star"></i> Reviews
-            </a></li>
-            <li><a href="{{ url_for('training_list') }}" class="{% if request.endpoint == 'training_list' %}active{% endif %}">
-                <i class="fas fa-graduation-cap"></i> Training
             </a></li>
             {% endif %}
         </ul>

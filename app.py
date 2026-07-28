@@ -1396,9 +1396,14 @@ def add_performance_review():
 # Admin: Training Management
 @app.route('/admin/training')
 @login_required
-@admin_required
 def training_list():
-    trainings = Training.query.all()
+    """View training programs - accessible to all users"""
+    trainings = Training.query.filter_by(status='ongoing').order_by(Training.start_date).all()
+
+    # For admins, show all trainings including planned ones
+    if current_user.role in ['admin', 'manager']:
+        trainings = Training.query.all()
+
     return render_template('training.html', trainings=trainings)
 
 @app.route('/admin/training/add', methods=['POST'])
