@@ -1937,6 +1937,21 @@ def adjust_leave_balance(user_id):
     flash(f'Successfully transferred {hours} hours from {from_type} to {to_type} leave.', 'success')
     return redirect(url_for('manage_leave_balance'))
 
+@app.route('/admin/carry-forward-leave/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def carry_forward_leave(user_id):
+    """Carry forward minus leave balance to next month (no salary deduction)"""
+    user = User.query.get_or_404(user_id)
+
+    annual_balance = user.get_leave_balance('annual')
+    sick_balance = user.get_leave_balance('sick')
+
+    note = f'Minus leave balance carried forward: Annual {annual_balance} hrs, Sick {sick_balance} hrs'
+
+    flash(f'Minus leave balance for {user.username} will carry forward to next month. No salary deduction applied.', 'info')
+    return redirect(url_for('manage_leave_balance'))
+
 # Admin: HR Reports & Analytics
 @app.route('/admin/hr-analytics')
 @login_required

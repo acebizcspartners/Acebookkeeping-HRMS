@@ -58,12 +58,17 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#deductModal{{ emp_data.user.id }}">
-                                    <i class="fas fa-money-bill-wave"></i> Deduct Salary
-                                </button>
-                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#adjustModal{{ emp_data.user.id }}">
-                                    <i class="fas fa-exchange-alt"></i> Adjust Leave
-                                </button>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#deductModal{{ emp_data.user.id }}">
+                                        <i class="fas fa-money-bill-wave"></i> Deduct Salary
+                                    </button>
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#carryModal{{ emp_data.user.id }}">
+                                        <i class="fas fa-arrow-right"></i> Carry Forward
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#adjustModal{{ emp_data.user.id }}">
+                                        <i class="fas fa-exchange-alt"></i> Adjust Leave
+                                    </button>
+                                </div>
                             </td>
                         </tr>
 
@@ -104,6 +109,51 @@
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                             <button type="submit" class="btn btn-warning">
                                                 <i class="fas fa-check"></i> Confirm Deduction
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carry Forward Modal -->
+                        <div class="modal fade" id="carryModal{{ emp_data.user.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-info text-white">
+                                        <h5 class="modal-title">Carry Forward Minus Leave</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="{{ url_for('carry_forward_leave', user_id=emp_data.user.id) }}">
+                                        <div class="modal-body">
+                                            <p><strong>Employee:</strong> {{ emp_data.user.username }}</p>
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle"></i>
+                                                <strong>This action will:</strong>
+                                                <ul class="mb-0 mt-2">
+                                                    <li>NOT deduct any salary</li>
+                                                    <li>Leave balance remains minus</li>
+                                                    <li>Minus balance carries to next month</li>
+                                                    <li>Employee must take positive leave to offset</li>
+                                                </ul>
+                                            </div>
+
+                                            {% if emp_data.annual_balance < 0 %}
+                                            <div class="alert alert-warning">
+                                                <strong>Annual Leave:</strong> {{ emp_data.annual_balance|round(2) }} hrs (minus)
+                                            </div>
+                                            {% endif %}
+
+                                            {% if emp_data.sick_balance < 0 %}
+                                            <div class="alert alert-warning">
+                                                <strong>Sick Leave:</strong> {{ emp_data.sick_balance|round(2) }} hrs (minus)
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-info">
+                                                <i class="fas fa-check"></i> Carry Forward
                                             </button>
                                         </div>
                                     </form>
