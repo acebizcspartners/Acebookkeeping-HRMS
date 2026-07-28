@@ -1047,6 +1047,57 @@ def manage_employee_salary(user_id):
 
     return render_template('manage_salary.html', user=user, salary=salary)
 
+@app.route('/admin/employee/<int:user_id>/profile')
+@login_required
+@admin_required
+def view_employee_profile(user_id):
+    """View comprehensive employee profile with all details"""
+    user = User.query.get_or_404(user_id)
+    profile = EmployeeProfile.query.filter_by(user_id=user_id).first()
+    salary = Salary.query.filter_by(user_id=user_id, is_active=True).first()
+
+    # Leave info
+    leave_balance = LeaveBalance.query.filter_by(
+        user_id=user_id,
+        year=datetime.now().year
+    ).first()
+    leave_info = leave_balance.get_available_leave() if leave_balance else None
+
+    # Attendance records
+    attendance_records = Attendance.query.filter_by(user_id=user_id).order_by(Attendance.date.desc()).limit(30).all()
+
+    # Leave records
+    leave_records = Leave.query.filter_by(user_id=user_id).order_by(Leave.start_date.desc()).limit(20).all()
+
+    # Deductions
+    deductions = Deduction.query.filter_by(user_id=user_id, status='active').all()
+
+    # Emergency contacts
+    emergency_contacts = EmergencyContact.query.filter_by(user_id=user_id).all()
+
+    # Documents
+    documents = EmployeeDocument.query.filter_by(user_id=user_id).all()
+
+    # Performance reviews
+    reviews = PerformanceReview.query.filter_by(user_id=user_id).order_by(PerformanceReview.period_start.desc()).limit(5).all()
+
+    # Training records
+    training_records = EmployeeTraining.query.filter_by(user_id=user_id).order_by(EmployeeTraining.completion_date.desc()).limit(10).all()
+
+    return render_template('admin_employee_profile.html',
+        user=user,
+        profile=profile,
+        salary=salary,
+        leave_info=leave_info,
+        attendance_records=attendance_records,
+        leave_records=leave_records,
+        deductions=deductions,
+        emergency_contacts=emergency_contacts,
+        documents=documents,
+        reviews=reviews,
+        training_records=training_records
+    )
+
 @app.route('/admin/salaries')
 @login_required
 @admin_required
