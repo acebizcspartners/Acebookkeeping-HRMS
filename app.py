@@ -1057,17 +1057,24 @@ def view_all_salaries():
 
     return render_template('admin_salaries.html', employees_data=employees_data)
 
-@app.route('/my-salary')
+@app.route('/my-payslip')
 @login_required
-def my_salary():
+def my_payslip():
     salary = Salary.query.filter_by(user_id=current_user.id, is_active=True).first()
     balance = LeaveBalance.query.filter_by(
         user_id=current_user.id,
         year=datetime.now().year
     ).first()
     leave_info = balance.get_available_leave() if balance else None
+    invoices = PaymentInvoice.query.filter_by(user_id=current_user.id).order_by(PaymentInvoice.generated_on.desc()).all()
 
-    return render_template('employee_salary.html', salary=salary, leave_info=leave_info)
+    return render_template('my_payslip.html', salary=salary, leave_info=leave_info, invoices=invoices)
+
+@app.route('/my-salary')
+@login_required
+def my_salary():
+    # Redirect to new combined payslip page
+    return redirect(url_for('my_payslip'))
 
 @app.route('/invoice/generate/<int:user_id>', methods=['GET', 'POST'])
 @login_required

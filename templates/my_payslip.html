@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}My Pay Slip{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="page-header mb-4">
+        <h1><i class="fas fa-file-invoice-dollar"></i> My Pay Slip</h1>
+        <p class="text-muted">View salary information and all your salary slips</p>
+    </div>
+
+    <!-- Salary Information Card -->
+    {% if salary %}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">💼 Salary Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Monthly Salary</p>
+                            <h3 class="text-success">₹{{ "%.2f"|format(salary.monthly_salary) }}</h3>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Hourly Rate</p>
+                            <h4>₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</h4>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Effective From</p>
+                            <p>{{ salary.effective_from.strftime('%d %b %Y') }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Annual Salary</p>
+                            <h4>₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Balance Card -->
+        <div class="col-md-6">
+            {% if leave_info %}
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">📅 Leave Balance (Current Year)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Annual Leave</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: {{ (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 }}%">
+                                {{ "%.1f"|format(leave_info.annual_available) }} hrs
+                            </div>
+                        </div>
+                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.annual_used) }} / Accrued: {{ "%.1f"|format(leave_info.annual_accrued) }}</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Sick Leave</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" role="progressbar"
+                                 style="width: {{ (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 }}%">
+                                {{ "%.1f"|format(leave_info.sick_available) }} hrs
+                            </div>
+                        </div>
+                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.sick_used) }} / Accrued: {{ "%.1f"|format(leave_info.sick_accrued) }}</small>
+                    </div>
+
+                    <div>
+                        <p class="text-muted mb-1">LWP Used</p>
+                        <p>{{ "%.1f"|format(leave_info.lwp_used) }} hours</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning mb-4" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Salary Information Not Available</strong><br>
+        Your salary information has not been set up in the system yet. Please contact your administrator.
+    </div>
+    {% endif %}
+
+    <!-- Salary Slips / Invoices Section -->
+    <div class="card">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="fas fa-list"></i> My Salary Slips</h5>
+            <span class="badge bg-light text-dark">{{ invoices|length }} Slips</span>
+        </div>
+        <div class="card-body p-0">
+            {% if invoices %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Salary Slip #</th>
+                            <th>Month / Year</th>
+                            <th>Salary</th>
+                            <th>Bonus</th>
+                            <th>Deductions</th>
+                            <th>Net Amount</th>
+                            <th>Status</th>
+                            <th>Generated On</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td><strong>{{ current_user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</strong></td>
+                            <td>{{ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][invoice.month-1] }} {{ invoice.year }}</td>
+                            <td>₹{{ "%.2f"|format(invoice.salary_amount) }}</td>
+                            <td>
+                                {% if invoice.bonus > 0 %}
+                                    <span class="text-success">+ ₹{{ "%.2f"|format(invoice.bonus) }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if invoice.deductions > 0 %}
+                                    <span class="text-danger">- ₹{{ "%.2f"|format(invoice.deductions) }}</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td><strong class="text-success">₹{{ "%.2f"|format(invoice.net_amount) }}</strong></td>
+                            <td>
+                                {% if invoice.status == 'paid' %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% elif invoice.status == 'generated' %}
+                                    <span class="badge bg-warning">Generated</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ invoice.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ invoice.generated_on.strftime('%d %b %Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-sm btn-info" title="View Slip">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center">
+                <i class="fas fa-inbox text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                <p class="text-muted mt-3">No salary slips generated yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 1rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

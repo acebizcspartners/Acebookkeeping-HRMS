@@ -39,11 +39,8 @@
             <li><a href="{{ url_for('leave_transactions') }}" class="{% if request.endpoint == 'leave_transactions' %}active{% endif %}">
                 <i class="fas fa-exchange-alt"></i> Transactions
             </a></li>
-            <li><a href="{{ url_for('my_salary') }}" class="{% if request.endpoint == 'my_salary' %}active{% endif %}">
-                <i class="fas fa-money-bill"></i> Salary
-            </a></li>
-            <li><a href="{{ url_for('my_invoices') }}" class="{% if request.endpoint == 'my_invoices' %}active{% endif %}">
-                <i class="fas fa-file-invoice-dollar"></i> Invoices
+            <li><a href="{{ url_for('my_payslip') }}" class="{% if request.endpoint == 'my_payslip' or request.endpoint == 'my_salary' or request.endpoint == 'my_invoices' %}active{% endif %}">
+                <i class="fas fa-file-invoice-dollar"></i> My Pay Slip
             </a></li>
             <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
                 <i class="fas fa-user"></i> My Profile
