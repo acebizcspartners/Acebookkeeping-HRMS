@@ -45,9 +45,10 @@
                 </div>
 
                 <!-- Leave Balance Column -->
-                <div class="col-md-6">
+                <div class="col-md-6 ps-4">
                     <h6 class="mb-3 text-warning"><i class="fas fa-calendar-check"></i> Leave Balance (Current Year)</h6>
 
+                    {% if leave_info %}
                     <div class="mb-3">
                         <p class="text-muted mb-2 small fw-bold">Annual Leave</p>
                         <div class="progress" style="height: 26px;">
@@ -76,6 +77,11 @@
                         <p class="text-muted mb-1 small fw-bold">LWP Used</p>
                         <p class="h5 mb-0 text-danger">{{ "%.1f"|format(leave_info.lwp_used) }} hours</p>
                     </div>
+                    {% else %}
+                    <div class="alert alert-info alert-sm mb-0">
+                        <i class="fas fa-info-circle"></i> Leave balance information not available yet.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
