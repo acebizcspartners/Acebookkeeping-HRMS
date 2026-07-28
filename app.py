@@ -1886,8 +1886,22 @@ def deduct_minus_leave(user_id):
         created_deductions = True
 
     if created_deductions:
+        # Reset leave balance back to 0 after deducting salary
+        balance = LeaveBalance.query.filter_by(
+            user_id=user_id,
+            year=datetime.now().year
+        ).first()
+
+        if balance:
+            if annual_balance < 0:
+                # Reset annual leave back to 0
+                balance.annual_balance = 0
+            if sick_balance < 0:
+                # Reset sick leave back to 0
+                balance.sick_balance = 0
+
         db.session.commit()
-        flash(f'✅ Salary deduction successfully created for {user.username}!', 'success')
+        flash(f'✅ Salary deduction created for {user.username}! Leave balance reset to 0.', 'success')
     else:
         flash(f'No negative balance found for this employee.', 'info')
 
