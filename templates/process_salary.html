@@ -102,8 +102,6 @@
                             <th>Employee</th>
                             <th>Monthly Salary</th>
                             <th>Attendance</th>
-                            <th>Leave Hours</th>
-                            <th>Leave Deduction</th>
                             <th>Manual Deduction</th>
                             <th>Total Deduction</th>
                             <th>Net Salary</th>
@@ -121,20 +119,6 @@
                             </td>
                             <td>
                                 <span class="badge bg-info">{{ emp_data.present_days }} days</span>
-                            </td>
-                            <td>
-                                {% if emp_data.total_leave_hours > 0 %}
-                                    <span class="badge bg-warning">{{ "%.1f"|format(emp_data.total_leave_hours) }} hrs</span>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if emp_data.leave_deduction > 0 %}
-                                    <span class="text-danger">₹{{ "%.2f"|format(emp_data.leave_deduction) }}</span>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
                             </td>
                             <td>
                                 {% if emp_data.manual_deduction > 0 %}
@@ -160,8 +144,7 @@
                         <tr>
                             <td>TOTAL</td>
                             <td class="text-success">₹{{ "%.2f"|format(employees_data|sum(attribute='monthly_salary')) }}</td>
-                            <td colspan="2">-</td>
-                            <td class="text-danger">₹{{ "%.2f"|format(employees_data|sum(attribute='leave_deduction')) }}</td>
+                            <td>-</td>
                             <td class="text-danger">₹{{ "%.2f"|format(employees_data|sum(attribute='manual_deduction')) }}</td>
                             <td class="text-danger">₹{{ "%.2f"|format(employees_data|sum(attribute='total_deduction')) }}</td>
                             <td class="text-success">₹{{ "%.2f"|format(employees_data|sum(attribute='net_salary')) }}</td>
@@ -208,7 +191,7 @@ function downloadAsExcel() {
     const year = document.getElementById('year').value;
 
     let csv = 'Employee Salary Payroll Report - ' + getMonthName(month) + ' ' + year + '\n\n';
-    csv += 'Employee,Email,Monthly Salary,Attendance Days,Leave Hours,Leave Deduction,Manual Deduction,Total Deduction,Net Salary\n';
+    csv += 'Employee,Email,Monthly Salary,Attendance Days,Manual Deduction,Total Deduction,Net Salary\n';
 
     const table = document.querySelector('table');
     const rows = table.querySelectorAll('tbody tr');
@@ -220,13 +203,11 @@ function downloadAsExcel() {
             const email = cells[0].querySelector('small')?.textContent || '';
             const salary = cells[1].textContent.replace('₹', '').trim();
             const attendance = cells[2].textContent.split('\n')[0];
-            const leave = cells[3].textContent.replace('hrs', '').trim() || '0';
-            const leaveDeduction = cells[4].textContent.replace('₹', '').trim() || '0';
-            const manualDeduction = cells[5].textContent.replace('₹', '').trim() || '0';
-            const totalDeduction = cells[6].textContent.replace('₹', '').trim() || '0';
-            const netSalary = cells[7].textContent.replace('₹', '').trim();
+            const manualDeduction = cells[3].textContent.replace('₹', '').trim() || '0';
+            const totalDeduction = cells[4].textContent.replace('₹', '').trim() || '0';
+            const netSalary = cells[5].textContent.replace('₹', '').trim();
 
-            csv += `"${emp}","${email}","${salary}","${attendance}","${leave}","${leaveDeduction}","${manualDeduction}","${totalDeduction}","${netSalary}"\n`;
+            csv += `"${emp}","${email}","${salary}","${attendance}","${manualDeduction}","${totalDeduction}","${netSalary}"\n`;
         }
     });
 

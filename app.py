@@ -1246,38 +1246,24 @@ def process_salary():
 
         present_days = len([a for a in attendance if a.status == 'present'])
 
-        # Get leaves
-        leaves = Leave.query.filter(
-            Leave.user_id == emp.id,
-            Leave.status == 'approved',
-            Leave.start_date >= month_start,
-            Leave.end_date <= month_end
-        ).all()
-        total_leave_hours = sum(leave.hours for leave in leaves if leave.hours)
-
         # Calculate salary
         monthly_salary = salary.monthly_salary
-        leave_deduction = salary.hourly_rate * total_leave_hours if total_leave_hours > 0 else 0
 
-        # Get active deductions
+        # Get active deductions (manual only - leave deductions are handled separately)
         deductions = Deduction.query.filter(
             Deduction.user_id == emp.id,
             Deduction.status == 'active',
             Deduction.applied_from <= month_end,
             (Deduction.applied_to.is_(None) | (Deduction.applied_to >= month_start))
         ).all()
-        total_manual_deduction = sum(d.amount for d in deductions)
-
-        total_deduction = leave_deduction + total_manual_deduction
+        total_deduction = sum(d.amount for d in deductions)
         net_salary = monthly_salary - total_deduction
 
         employees_data.append({
             'user': emp,
             'salary': salary,
             'present_days': present_days,
-            'total_leave_hours': total_leave_hours,
-            'leave_deduction': leave_deduction,
-            'manual_deduction': total_manual_deduction,
+            'manual_deduction': total_deduction,
             'total_deduction': total_deduction,
             'net_salary': net_salary,
             'monthly_salary': monthly_salary
@@ -1850,123 +1836,6 @@ def manage_leave_balance():
 
     return render_template('manage_leave_balance.html', employees=employees_with_minus, all_employees=User.query.filter_by(role='employee').all())
 
-@app.route('/admin/deduct-minus-leave/<int:user_id>', methods=['POST'])
-@login_required
-@admin_required
-def deduct_minus_leave(user_id):
-    """Deduct salary for minus leave and reset balance to 0"""
-    user = User.query.get_or_404(user_id)
-    salary = Salary.query.filter_by(user_id=user_id, is_active=True).first()
-
-    if not salary:
-        flash('Salary not configured for this employee.', 'error')
-        return redirect(url_for('manage_leave_balance'))
-
-    annual_balance = user.get_leave_balance('annual')
-    sick_balance = user.get_leave_balance('sick')
-
-    created_deductions = False
-
-    # Handle Annual Leave minus
-    if annual_balance < 0:
-        minus_hours = abs(annual_balance)
-        deduction_amount = salary.hourly_rate * minus_hours
-
-        deduction = Deduction(
-            user_id=user_id,
-            reason=f'Leave Without Pay - Annual Leave ({minus_hours} hrs)',
-            amount=deduction_amount,
-            status='active',
-            applied_from=datetime.now().date(),
-            description=f'Auto-deducted for negative annual leave balance: {minus_hours} hours',
-            created_by=current_user.id
-        )
-        db.session.add(deduction)
-        created_deductions = True
-
-    # Handle Sick Leave minus
-    if sick_balance < 0:
-        minus_hours = abs(sick_balance)
-        deduction_amount = salary.hourly_rate * minus_hours
-
-        deduction = Deduction(
-            user_id=user_id,
-            reason=f'Leave Without Pay - Sick Leave ({minus_hours} hrs)',
-            amount=deduction_amount,
-            status='active',
-            applied_from=datetime.now().date(),
-            description=f'Auto-deducted for negative sick leave balance: {minus_hours} hours',
-            created_by=current_user.id
-        )
-        db.session.add(deduction)
-        created_deductions = True
-
-    db.session.commit()
-
-    if created_deductions:
-        flash(f'Salary deductions created for minus leave balance. Balances reset to 0.', 'success')
-    else:
-        flash(f'No minus balance found for this employee.', 'info')
-
-    return redirect(url_for('manage_leave_balance'))
-
-@app.route('/admin/adjust-leave-balance/<int:user_id>', methods=['POST'])
-@login_required
-@admin_required
-def adjust_leave_balance(user_id):
-    """Adjust/Set-off leave from one type to another"""
-    user = User.query.get_or_404(user_id)
-
-    from_type = request.form.get('from_type')  # 'annual' or 'sick'
-    to_type = request.form.get('to_type')      # 'annual' or 'sick'
-    hours = float(request.form.get('hours', 0))
-
-    if from_type == to_type:
-        flash('Cannot transfer leave to the same type.', 'error')
-        return redirect(url_for('manage_leave_balance'))
-
-    if hours <= 0:
-        flash('Hours must be greater than 0.', 'error')
-        return redirect(url_for('manage_leave_balance'))
-
-    from_balance = user.get_leave_balance(from_type)
-
-    if from_balance < hours:
-        flash(f'{from_type.capitalize()} leave balance insufficient. Available: {from_balance} hrs', 'error')
-        return redirect(url_for('manage_leave_balance'))
-
-    # Create adjustment entries
-    adjustment_note = f'Leave adjustment: {hours} hrs transferred from {from_type} to {to_type}'
-
-    adjustment = LeaveAdjustment(
-        user_id=user_id,
-        from_type=from_type,
-        to_type=to_type,
-        hours=hours,
-        reason=adjustment_note,
-        created_by=current_user.id,
-        created_at=datetime.now()
-    )
-    db.session.add(adjustment)
-    db.session.commit()
-
-    flash(f'Successfully transferred {hours} hours from {from_type} to {to_type} leave.', 'success')
-    return redirect(url_for('manage_leave_balance'))
-
-@app.route('/admin/carry-forward-leave/<int:user_id>', methods=['POST'])
-@login_required
-@admin_required
-def carry_forward_leave(user_id):
-    """Carry forward minus leave balance to next month (no salary deduction)"""
-    user = User.query.get_or_404(user_id)
-
-    annual_balance = user.get_leave_balance('annual')
-    sick_balance = user.get_leave_balance('sick')
-
-    note = f'Minus leave balance carried forward: Annual {annual_balance} hrs, Sick {sick_balance} hrs'
-
-    flash(f'Minus leave balance for {user.username} will carry forward to next month. No salary deduction applied.', 'info')
-    return redirect(url_for('manage_leave_balance'))
 
 # Admin: HR Reports & Analytics
 @app.route('/admin/hr-analytics')
