@@ -9,9 +9,11 @@
             <h1>Training & Development Programs</h1>
         </div>
         <div class="col-auto">
+            {% if current_user.role == 'admin' %}
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTrainingModal">
                 <i class="fas fa-plus"></i> Add Training
             </button>
+            {% endif %}
         </div>
     </div>
 
@@ -22,12 +24,22 @@
                 <div class="card h-100">
                     <!-- Training Type Badge & Status -->
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary">
-                            <i class="fas {{ training.icon }}"></i> {{ training.training_type|replace('-', ' ')|title }}
-                        </span>
-                        <span class="badge {% if training.status == 'completed' %}bg-success{% elif training.status == 'ongoing' %}bg-warning{% else %}bg-secondary{% endif %}">
-                            {{ training.status|capitalize }}
-                        </span>
+                        <div>
+                            <span class="badge bg-primary">
+                                <i class="fas {{ training.icon }}"></i> {{ training.training_type|replace('-', ' ')|title }}
+                            </span>
+                            <span class="badge {% if training.status == 'completed' %}bg-success{% elif training.status == 'ongoing' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                {{ training.status|capitalize }}
+                            </span>
+                        </div>
+                        {% if current_user.role == 'admin' %}
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-danger" onclick="if(confirm('Delete this training?')) { document.getElementById('delete-form-{{ training.id }}').submit(); }">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                        <form id="delete-form-{{ training.id }}" method="POST" action="{{ url_for('delete_training', training_id=training.id) }}" style="display: none;"></form>
+                        {% endif %}
                     </div>
 
                     <div class="card-body">
@@ -111,15 +123,25 @@
                         </div>
 
                         <!-- Training Type -->
-                        <div class="mb-3">
-                            <label for="training_type" class="form-label">Training Type *</label>
-                            <select class="form-select" id="training_type" name="training_type" required>
-                                <option value="video">📹 Video Training</option>
-                                <option value="document">📄 Document/Course</option>
-                                <option value="webinar">🎤 Webinar</option>
-                                <option value="live-session">👥 Live Session</option>
-                                <option value="workshop">🔧 Workshop</option>
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="training_type" class="form-label">Training Type *</label>
+                                <select class="form-select" id="training_type" name="training_type" required>
+                                    <option value="video">📹 Video Training</option>
+                                    <option value="document">📄 Document/Course</option>
+                                    <option value="webinar">🎤 Webinar</option>
+                                    <option value="live-session">👥 Live Session</option>
+                                    <option value="workshop">🔧 Workshop</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Status *</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="planned">📋 Planned</option>
+                                    <option value="ongoing" selected>🚀 Ongoing</option>
+                                    <option value="completed">✅ Completed</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Description -->

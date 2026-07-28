@@ -1436,11 +1436,23 @@ def add_training():
         start_date=datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date(),
         end_date=datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date(),
         trainer=request.form.get('trainer'),
+        status=request.form.get('status', 'ongoing'),
         cost=0.0
     )
     db.session.add(training)
     db.session.commit()
     flash('Training added successfully!', 'success')
+    return redirect(url_for('training_list'))
+
+@app.route('/admin/training/<int:training_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_training(training_id):
+    training = Training.query.get_or_404(training_id)
+    title = training.title
+    db.session.delete(training)
+    db.session.commit()
+    flash(f'Training "{title}" deleted successfully!', 'success')
     return redirect(url_for('training_list'))
 
 # Admin: HR Reports & Analytics
