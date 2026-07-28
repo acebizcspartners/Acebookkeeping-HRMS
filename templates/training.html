@@ -18,22 +18,74 @@
     <div class="row">
         {% if trainings %}
             {% for training in trainings %}
-            <div class="col-md-6 mb-3">
-                <div class="card">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <!-- Training Type Badge & Status -->
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">
+                            <i class="fas {{ training.icon }}"></i> {{ training.training_type|replace('-', ' ')|title }}
+                        </span>
+                        <span class="badge {% if training.status == 'completed' %}bg-success{% elif training.status == 'ongoing' %}bg-warning{% else %}bg-secondary{% endif %}">
+                            {{ training.status|capitalize }}
+                        </span>
+                    </div>
+
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h5 class="card-title">{{ training.title }}</h5>
+                        <h5 class="card-title mb-2">{{ training.title }}</h5>
+
+                        <!-- Video Embed if URL exists -->
+                        {% if training.video_url %}
+                        <div class="mb-3">
+                            <div class="ratio ratio-16x9">
+                                <iframe src="{{ training.video_url }}" allowfullscreen></iframe>
                             </div>
-                            <span class="badge {% if training.status == 'completed' %}bg-success{% elif training.status == 'ongoing' %}bg-warning{% else %}bg-secondary{% endif %}">
-                                {{ training.status|capitalize }}
-                            </span>
                         </div>
-                        <p class="card-text text-muted">{{ training.description }}</p>
+                        {% endif %}
+
+                        <!-- HTML Content -->
+                        {% if training.html_content %}
+                        <div class="mb-3 p-3 bg-light rounded">
+                            {{ training.html_content|safe }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Description -->
+                        {% if training.description %}
+                        <p class="card-text text-muted mb-3">{{ training.description }}</p>
+                        {% endif %}
+
                         <hr>
-                        <p class="mb-1"><strong>Dates:</strong> {{ training.start_date.strftime('%d %b %Y') }} - {{ training.end_date.strftime('%d %b %Y') }}</p>
-                        <p class="mb-1"><strong>Trainer:</strong> {{ training.trainer }}</p>
-                        <p class="mb-0"><strong>Cost:</strong> ₹{{ "%.2f"|format(training.cost) }}</p>
+
+                        <!-- Training Details -->
+                        <div class="row text-sm">
+                            <div class="col-6 mb-2">
+                                <p class="mb-1"><i class="fas fa-calendar"></i> <strong>Start:</strong></p>
+                                <p class="small">{{ training.start_date.strftime('%d %b %Y') }}</p>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <p class="mb-1"><i class="fas fa-calendar-check"></i> <strong>End:</strong></p>
+                                <p class="small">{{ training.end_date.strftime('%d %b %Y') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row text-sm">
+                            <div class="col-6 mb-2">
+                                <p class="mb-1"><i class="fas fa-user-tie"></i> <strong>Trainer:</strong></p>
+                                <p class="small">{{ training.trainer or 'N/A' }}</p>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <p class="mb-1"><i class="fas fa-tag"></i> <strong>Cost:</strong></p>
+                                <p class="small text-success font-weight-bold">₹{{ "%.2f"|format(training.cost) }}</p>
+                            </div>
+                        </div>
+
+                        {% if training.video_url %}
+                        <div class="mt-2">
+                            <a href="{{ training.video_url }}" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fas fa-external-link-alt"></i> Watch Full Video
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -49,7 +101,7 @@
 
     <!-- Add Training Modal -->
     <div class="modal fade" id="addTrainingModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add Training Program</h5>
@@ -57,16 +109,49 @@
                 </div>
                 <form method="POST" action="{{ url_for('add_training') }}">
                     <div class="modal-body">
+                        <!-- Title -->
                         <div class="mb-3">
-                            <label for="title" class="form-label">Title *</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
+                            <label for="title" class="form-label">Training Title *</label>
+                            <input type="text" class="form-control" id="title" name="title"
+                                   placeholder="e.g., Advanced Python Programming" required>
                         </div>
 
+                        <!-- Training Type -->
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            <label for="training_type" class="form-label">Training Type *</label>
+                            <select class="form-select" id="training_type" name="training_type" required>
+                                <option value="video">📹 Video Training</option>
+                                <option value="document">📄 Document/Course</option>
+                                <option value="webinar">🎤 Webinar</option>
+                                <option value="live-session">👥 Live Session</option>
+                                <option value="workshop">🔧 Workshop</option>
+                            </select>
                         </div>
 
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Short Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="2"
+                                      placeholder="Brief overview of the training..."></textarea>
+                        </div>
+
+                        <!-- HTML Content -->
+                        <div class="mb-3">
+                            <label for="html_content" class="form-label">Detailed Content (HTML)</label>
+                            <textarea class="form-control" id="html_content" name="html_content" rows="4"
+                                      placeholder="Enter HTML content or rich text (supports &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, etc.)"></textarea>
+                            <small class="text-muted">You can use HTML tags like &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;, etc.</small>
+                        </div>
+
+                        <!-- Video URL -->
+                        <div class="mb-3">
+                            <label for="video_url" class="form-label">Video URL</label>
+                            <input type="url" class="form-control" id="video_url" name="video_url"
+                                   placeholder="e.g., https://www.youtube.com/embed/dQw4w9WgXcQ">
+                            <small class="text-muted">Use embed URLs for YouTube videos (youtube.com/embed/VIDEO_ID)</small>
+                        </div>
+
+                        <!-- Dates -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="start_date" class="form-label">Start Date *</label>
@@ -78,20 +163,32 @@
                             </div>
                         </div>
 
+                        <!-- Trainer & Cost -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="trainer" class="form-label">Trainer Name</label>
-                                <input type="text" class="form-control" id="trainer" name="trainer">
+                                <input type="text" class="form-control" id="trainer" name="trainer"
+                                       placeholder="Name of the trainer/instructor">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="cost" class="form-label">Cost (₹)</label>
-                                <input type="number" class="form-control" id="cost" name="cost" step="0.01" min="0">
+                                <input type="number" class="form-control" id="cost" name="cost"
+                                       step="0.01" min="0" placeholder="0.00">
                             </div>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Tip:</strong> You can add HTML formatting in the content field for better visual presentation.
+                            Use video URLs to embed training videos directly!
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Training</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Training
+                        </button>
                     </div>
                 </form>
             </div>

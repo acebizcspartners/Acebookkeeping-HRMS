@@ -269,11 +269,15 @@ class Training(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
+    html_content = db.Column(db.Text)  # Rich HTML description
+    training_type = db.Column(db.String(50), default='video')  # video, document, webinar, live-session
+    video_url = db.Column(db.String(500))  # YouTube or other video platform URL
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     trainer = db.Column(db.String(100))
     cost = db.Column(db.Float)
     status = db.Column(db.String(20), default='planned')  # planned, ongoing, completed
+    icon = db.Column(db.String(50), default='fa-graduation-cap')  # Font Awesome icon
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class EmployeeTraining(db.Model):
@@ -1401,9 +1405,24 @@ def training_list():
 @login_required
 @admin_required
 def add_training():
+    training_type = request.form.get('training_type', 'video')
+
+    # Map training type to icon
+    type_icons = {
+        'video': 'fa-video',
+        'document': 'fa-file-pdf',
+        'webinar': 'fa-webcam',
+        'live-session': 'fa-users',
+        'workshop': 'fa-tools'
+    }
+
     training = Training(
         title=request.form.get('title'),
         description=request.form.get('description'),
+        html_content=request.form.get('html_content'),
+        training_type=training_type,
+        video_url=request.form.get('video_url'),
+        icon=type_icons.get(training_type, 'fa-graduation-cap'),
         start_date=datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date(),
         end_date=datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date(),
         trainer=request.form.get('trainer'),
@@ -1411,7 +1430,7 @@ def add_training():
     )
     db.session.add(training)
     db.session.commit()
-    flash('Training added!', 'success')
+    flash('Training added successfully!', 'success')
     return redirect(url_for('training_list'))
 
 # Admin: HR Reports & Analytics
