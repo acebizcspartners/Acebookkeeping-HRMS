@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block title %}Process Salary - {{ month_name }} {{ year }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-calculator"></i> Salary Processing</h1>
+            <p class="text-muted">Calculate and process salaries for {{ month_name }} {{ year }}</p>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('view_all_salaries') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Month/Year Selector -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Select Month</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <select class="form-select" name="month" id="month">
+                        {% for m in range(1, 13) %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>
+                            {{ ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][m] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="year" id="year">
+                        {% for y in range(2024, 2030) %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Load Salaries
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Employees</h6>
+                    <h3 class="mb-0">{{ employees_data|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Salary</h6>
+                    <h3 class="text-success mb-0">₹{{ "%.2f"|format(employees_data|sum(attribute='monthly_salary')) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Deductions</h6>
+                    <h3 class="text-danger mb-0">₹{{ "%.2f"|format(employees_data|sum(attribute='total_deduction')) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="text-muted">Net Payable</h6>
+                    <h3 class="text-info mb-0">₹{{ "%.2f"|format(employees_data|sum(attribute='net_salary')) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Salary Table -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-table"></i> Employee Salary Breakdown</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if employees_data %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Monthly Salary</th>
+                            <th>Attendance</th>
+                            <th>Leave Hours</th>
+                            <th>Leave Deduction</th>
+                            <th>Manual Deduction</th>
+                            <th>Total Deduction</th>
+                            <th>Net Salary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp_data in employees_data %}
+                        <tr>
+                            <td>
+                                <strong>{{ emp_data.user.username }}</strong><br>
+                                <small class="text-muted">{{ emp_data.user.email }}</small>
+                            </td>
+                            <td>
+                                <strong class="text-success">₹{{ "%.2f"|format(emp_data.monthly_salary) }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ emp_data.present_days }} days</span><br>
+                                <small>{{ "%.1f"|format(emp_data.total_hours) }} hrs</small>
+                            </td>
+                            <td>
+                                {% if emp_data.total_leave_hours > 0 %}
+                                    <span class="badge bg-warning">{{ "%.1f"|format(emp_data.total_leave_hours) }} hrs</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if emp_data.leave_deduction > 0 %}
+                                    <span class="text-danger">₹{{ "%.2f"|format(emp_data.leave_deduction) }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if emp_data.manual_deduction > 0 %}
+                                    <span class="text-danger">₹{{ "%.2f"|format(emp_data.manual_deduction) }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if emp_data.total_deduction > 0 %}
+                                    <strong class="text-danger">₹{{ "%.2f"|format(emp_data.total_deduction) }}</strong>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong class="text-success">₹{{ "%.2f"|format(emp_data.net_salary) }}</strong>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td>TOTAL</td>
+                            <td class="text-success">₹{{ "%.2f"|format(employees_data|sum(attribute='monthly_salary')) }}</td>
+                            <td colspan="2">-</td>
+                            <td class="text-danger">₹{{ "%.2f"|format(employees_data|sum(attribute='leave_deduction')) }}</td>
+                            <td class="text-danger">₹{{ "%.2f"|format(employees_data|sum(attribute='manual_deduction')) }}</td>
+                            <td class="text-danger">₹{{ "%.2f"|format(employees_data|sum(attribute='total_deduction')) }}</td>
+                            <td class="text-success">₹{{ "%.2f"|format(employees_data|sum(attribute='net_salary')) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center">
+                <i class="fas fa-inbox text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                <p class="text-muted mt-3">No employees with configured salary found for this month.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    {% if employees_data %}
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Download Payroll</h5>
+                    <button class="btn btn-success btn-lg" onclick="downloadAsExcel()">
+                        <i class="fas fa-file-excel"></i> Download as Excel
+                    </button>
+                    <button class="btn btn-danger btn-lg ms-2" onclick="downloadAsPDF()">
+                        <i class="fas fa-file-pdf"></i> Download as PDF
+                    </button>
+                    <button class="btn btn-primary btn-lg ms-2" onclick="printPayroll()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function downloadAsExcel() {
+    // Create a simple CSV that Excel can read
+    const month = document.getElementById('month').value;
+    const year = document.getElementById('year').value;
+
+    let csv = 'Employee Salary Payroll Report - ' + getMonthName(month) + ' ' + year + '\n\n';
+    csv += 'Employee,Email,Monthly Salary,Attendance Days,Leave Hours,Leave Deduction,Manual Deduction,Total Deduction,Net Salary\n';
+
+    const table = document.querySelector('table');
+    const rows = table.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+            const emp = cells[0].textContent.split('\n')[0];
+            const email = cells[0].querySelector('small')?.textContent || '';
+            const salary = cells[1].textContent.replace('₹', '').trim();
+            const attendance = cells[2].textContent.split('\n')[0];
+            const leave = cells[3].textContent.replace('hrs', '').trim() || '0';
+            const leaveDeduction = cells[4].textContent.replace('₹', '').trim() || '0';
+            const manualDeduction = cells[5].textContent.replace('₹', '').trim() || '0';
+            const totalDeduction = cells[6].textContent.replace('₹', '').trim() || '0';
+            const netSalary = cells[7].textContent.replace('₹', '').trim();
+
+            csv += `"${emp}","${email}","${salary}","${attendance}","${leave}","${leaveDeduction}","${manualDeduction}","${totalDeduction}","${netSalary}"\n`;
+        }
+    });
+
+    downloadFile(csv, 'text/csv', `Payroll_${getMonthName(month)}_${year}.csv`);
+}
+
+function downloadAsPDF() {
+    alert('PDF download coming soon! For now, use Print feature and save as PDF.');
+}
+
+function printPayroll() {
+    window.print();
+}
+
+function getMonthName(month) {
+    const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[parseInt(month)];
+}
+
+function downloadFile(data, type, filename) {
+    const blob = new Blob([data], { type: type });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+</script>
+
+<style>
+    .table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .card-header {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    @media print {
+        .btn, .card-header, .container-fluid > .row:last-child {
+            display: none !important;
+        }
+
+        .table {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -9,7 +9,10 @@
             <h1 class="mb-4">Employee Salaries & Leave Management</h1>
         </div>
         <div class="col-auto">
-            <a href="{{ url_for('manage_leave_balance') }}" class="btn btn-warning">
+            <a href="{{ url_for('process_salary') }}" class="btn btn-success">
+                <i class="fas fa-calculator"></i> Process Salary
+            </a>
+            <a href="{{ url_for('manage_leave_balance') }}" class="btn btn-warning ms-2">
                 <i class="fas fa-calendar-times"></i> Manage Leave Balance
             </a>
             <a href="{{ url_for('manage_deductions') }}" class="btn btn-info ms-2">

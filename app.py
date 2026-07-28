@@ -1146,6 +1146,85 @@ def edit_employee_profile(user_id):
         designations=designations
     )
 
+@app.route('/admin/process-salary', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def process_salary():
+    """Bulk salary calculation and processing page"""
+    month = request.args.get('month', datetime.now().month, type=int)
+    year = request.args.get('year', datetime.now().year, type=int)
+
+    employees = User.query.filter_by(role='employee').all()
+    employees_data = []
+
+    for emp in employees:
+        salary = Salary.query.filter_by(user_id=emp.id, is_active=True).first()
+        if not salary:
+            continue
+
+        # Get attendance for this month
+        from datetime import date as dateclass
+        from dateutil.relativedelta import relativedelta
+        month_start = dateclass(year, month, 1)
+        month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+
+        attendance = Attendance.query.filter(
+            Attendance.user_id == emp.id,
+            Attendance.date >= month_start,
+            Attendance.date <= month_end
+        ).all()
+
+        present_days = len([a for a in attendance if a.status == 'present'])
+        total_hours = sum(a.hours_worked for a in attendance if a.hours_worked)
+
+        # Get leaves
+        leaves = Leave.query.filter(
+            Leave.user_id == emp.id,
+            Leave.status == 'approved',
+            Leave.start_date >= month_start,
+            Leave.end_date <= month_end
+        ).all()
+        total_leave_hours = sum(leave.hours for leave in leaves if leave.hours)
+
+        # Calculate salary
+        monthly_salary = salary.monthly_salary
+        leave_deduction = salary.hourly_rate * total_leave_hours if total_leave_hours > 0 else 0
+
+        # Get active deductions
+        deductions = Deduction.query.filter(
+            Deduction.user_id == emp.id,
+            Deduction.status == 'active',
+            Deduction.applied_from <= month_end,
+            (Deduction.applied_to.is_(None) | (Deduction.applied_to >= month_start))
+        ).all()
+        total_manual_deduction = sum(d.amount for d in deductions)
+
+        total_deduction = leave_deduction + total_manual_deduction
+        net_salary = monthly_salary - total_deduction
+
+        employees_data.append({
+            'user': emp,
+            'salary': salary,
+            'present_days': present_days,
+            'total_hours': total_hours,
+            'total_leave_hours': total_leave_hours,
+            'leave_deduction': leave_deduction,
+            'manual_deduction': total_manual_deduction,
+            'total_deduction': total_deduction,
+            'net_salary': net_salary,
+            'monthly_salary': monthly_salary
+        })
+
+    month_name = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December'][month]
+
+    return render_template('process_salary.html',
+        employees_data=employees_data,
+        month=month,
+        year=year,
+        month_name=month_name
+    )
+
 @app.route('/admin/salaries')
 @login_required
 @admin_required
