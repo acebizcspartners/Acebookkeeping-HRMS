@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from functools import wraps
 import random
 import os
@@ -1152,7 +1152,6 @@ def generate_invoice(user_id):
     total_deductions = sum(d.amount for d in active_deductions)
 
     # Calculate leave deduction for current month
-    from datetime import date
     from dateutil.relativedelta import relativedelta
 
     month_start = date(current_year, current_month, 1)
