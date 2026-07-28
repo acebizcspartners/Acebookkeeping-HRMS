@@ -9,52 +9,48 @@
         <p class="text-muted">View salary information and all your salary slips</p>
     </div>
 
-    <!-- Salary Information & Leave Balance Row -->
+    <!-- Combined Salary Information & Leave Balance Card -->
     {% if salary %}
-    <div class="row mb-4 g-4">
-        <!-- Salary Information Card -->
-        <div class="col-lg-6 col-md-12">
-            <div class="card h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0"><i class="fas fa-money-bill-wave"></i> Salary Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <p class="text-muted mb-1 small fw-bold">Monthly Salary</p>
-                            <h3 class="text-success">₹{{ "%.2f"|format(salary.monthly_salary) }}</h3>
-                        </div>
-                        <div class="col-6">
-                            <p class="text-muted mb-1 small fw-bold">Hourly Rate</p>
-                            <h4 class="text-info">₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</h4>
-                        </div>
-                    </div>
-                    <hr class="my-2">
-                    <div class="row">
-                        <div class="col-6">
-                            <p class="text-muted mb-1 small fw-bold">Effective From</p>
-                            <p class="mb-0">{{ salary.effective_from.strftime('%d %b %Y') }}</p>
-                        </div>
-                        <div class="col-6">
-                            <p class="text-muted mb-1 small fw-bold">Annual Salary</p>
-                            <h5 class="text-success mb-0">₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</h5>
-                        </div>
-                    </div>
-                </div>
+    <div class="card mb-4">
+        <div class="card-header bg-gradient text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-wallet"></i> Salary & Leave Overview</h5>
             </div>
         </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Salary Information Column -->
+                <div class="col-md-6 border-end border-light">
+                    <h6 class="mb-3 text-primary"><i class="fas fa-money-bill-wave"></i> Salary Information</h6>
 
-        <!-- Leave Balance Card -->
-        <div class="col-lg-6 col-md-12">
-            {% if leave_info %}
-            <div class="card h-100">
-                <div class="card-header bg-warning text-white">
-                    <h5 class="card-title mb-0"><i class="fas fa-calendar-check"></i> Leave Balance (Current Year)</h5>
+                    <div class="mb-3">
+                        <p class="text-muted mb-1 small fw-bold">Monthly Salary</p>
+                        <h3 class="text-success mb-0">₹{{ "%.2f"|format(salary.monthly_salary) }}</h3>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="text-muted mb-1 small fw-bold">Hourly Rate</p>
+                        <h4 class="text-info mb-0">₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</h4>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="text-muted mb-1 small fw-bold">Effective From</p>
+                        <p class="mb-0">{{ salary.effective_from.strftime('%d %b %Y') }}</p>
+                    </div>
+
+                    <div class="p-3 bg-light rounded">
+                        <p class="text-muted mb-1 small fw-bold">Annual Salary</p>
+                        <h5 class="text-success mb-0">₹{{ "%.2f"|format(salary.monthly_salary * 12) }}</h5>
+                    </div>
                 </div>
-                <div class="card-body">
+
+                <!-- Leave Balance Column -->
+                <div class="col-md-6">
+                    <h6 class="mb-3 text-warning"><i class="fas fa-calendar-check"></i> Leave Balance (Current Year)</h6>
+
                     <div class="mb-3">
                         <p class="text-muted mb-2 small fw-bold">Annual Leave</p>
-                        <div class="progress" style="height: 24px;">
+                        <div class="progress" style="height: 26px;">
                             <div class="progress-bar bg-success d-flex align-items-center justify-content-center text-white"
                                  role="progressbar"
                                  style="width: {{ (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 }}%; font-size: 12px; font-weight: bold;">
@@ -66,7 +62,7 @@
 
                     <div class="mb-3">
                         <p class="text-muted mb-2 small fw-bold">Sick Leave</p>
-                        <div class="progress" style="height: 24px;">
+                        <div class="progress" style="height: 26px;">
                             <div class="progress-bar bg-info d-flex align-items-center justify-content-center text-white"
                                  role="progressbar"
                                  style="width: {{ (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 }}%; font-size: 12px; font-weight: bold;">
@@ -76,13 +72,12 @@
                         <small class="text-muted d-block mt-1">Used: {{ "%.1f"|format(leave_info.sick_used) }} / Accrued: {{ "%.1f"|format(leave_info.sick_accrued) }}</small>
                     </div>
 
-                    <div class="p-2 bg-light rounded">
+                    <div class="p-3 bg-light rounded">
                         <p class="text-muted mb-1 small fw-bold">LWP Used</p>
                         <p class="h5 mb-0 text-danger">{{ "%.1f"|format(leave_info.lwp_used) }} hours</p>
                     </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
     {% else %}
