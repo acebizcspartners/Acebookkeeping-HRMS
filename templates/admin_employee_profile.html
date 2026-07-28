@@ -191,16 +191,6 @@
                         <i class="fas fa-phone"></i> Emergency Contacts
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="documents-tab" data-bs-toggle="tab" data-bs-target="#documents" type="button" role="tab">
-                        <i class="fas fa-file"></i> Documents
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
-                        <i class="fas fa-star"></i> Performance Reviews
-                    </button>
-                </li>
             </ul>
         </div>
 
@@ -349,71 +339,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Documents Tab -->
-                <div class="tab-pane fade" id="documents" role="tabpanel">
-                    {% if documents %}
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Document Type</th>
-                                    <th>File Name</th>
-                                    <th>Uploaded On</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for doc in documents %}
-                                <tr>
-                                    <td><strong>{{ doc.document_type }}</strong></td>
-                                    <td>{{ doc.file_name }}</td>
-                                    <td>{{ doc.uploaded_on.strftime('%d %b %Y') if doc.uploaded_on else '-' }}</td>
-                                    <td>
-                                        <span class="badge bg-success">Verified</span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-info mb-0">No documents uploaded.</div>
-                    {% endif %}
-                </div>
-
-                <!-- Reviews Tab -->
-                <div class="tab-pane fade" id="reviews" role="tabpanel">
-                    {% if reviews %}
-                    <div class="row">
-                        {% for review in reviews %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">
-                                        {{ review.period_start.strftime('%b %Y') }} - {{ review.period_end.strftime('%b %Y') }}
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-2">
-                                        <div class="col-6"><small>Performance</small> <strong>{{ review.performance_rating }}/5</strong></div>
-                                        <div class="col-6"><small>Technical Skills</small> <strong>{{ review.technical_skills }}/5</strong></div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-6"><small>Communication</small> <strong>{{ review.communication }}/5</strong></div>
-                                        <div class="col-6"><small>Teamwork</small> <strong>{{ review.teamwork }}/5</strong></div>
-                                    </div>
-                                    {% if review.comments %}
-                                    <p class="mb-0"><small class="text-muted">{{ review.comments[:100] }}</small></p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-info mb-0">No performance reviews found.</div>
-                    {% endif %}
-                </div>
             </div>
         </div>
     </div>
