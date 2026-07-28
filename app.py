@@ -1841,11 +1841,8 @@ def manage_leave_balance():
 @admin_required
 def deduct_minus_leave(user_id):
     """Deduct salary for negative leave balance"""
-    print(f"DEBUG: deduct_minus_leave called with user_id={user_id}")
     user = User.query.get_or_404(user_id)
-    print(f"DEBUG: user found: {user.username}")
     salary = Salary.query.filter_by(user_id=user_id, is_active=True).first()
-    print(f"DEBUG: salary found: {salary}")
 
     if not salary:
         flash('Salary not configured for this employee.', 'error')

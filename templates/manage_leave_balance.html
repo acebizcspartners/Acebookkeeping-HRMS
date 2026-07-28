@@ -214,24 +214,6 @@
 
 {% endfor %}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Log when deduct button is clicked
-    document.querySelectorAll('[data-bs-target^="#deductModal"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            console.log('DEBUG: Deduct button clicked for modal', this.getAttribute('data-bs-target'));
-        });
-    });
-
-    // Log when forms are submitted
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            console.log('DEBUG: Form submitted to:', this.action);
-        });
-    });
-});
-</script>
-
 <style>
     .table-hover tbody tr:hover {
         background-color: rgba(0, 0, 0, 0.02);
