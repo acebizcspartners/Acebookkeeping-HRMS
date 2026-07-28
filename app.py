@@ -761,25 +761,6 @@ def apply_leave():
             flash('Please enter valid leave hours', 'error')
             return render_template('apply_leave.html')
 
-        # Check leave balance
-        balance = LeaveBalance.query.filter_by(
-            user_id=current_user.id,
-            year=datetime.now().year
-        ).first()
-
-        # LWP has no balance limit, skip check for it
-        if leave_type in ['sick', 'annual'] and balance:
-            leave_info = balance.get_available_leave()
-            available = 0
-            if leave_type == 'sick':
-                available = leave_info['sick_available']
-            elif leave_type == 'annual':
-                available = leave_info['annual_available']
-
-            if hours > available:
-                flash(f'Insufficient leave balance. Available: {available} hours', 'error')
-                return render_template('apply_leave.html')
-
         leave = Leave(
             user_id=current_user.id,
             leave_type=leave_type,
