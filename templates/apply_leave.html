@@ -57,10 +57,24 @@
 
             <div class="form-row" id="customHoursRow" style="display: none;">
                 <div class="form-group">
-                    <label for="custom_hours">
-                        <i class="fas fa-hourglass-half"></i> Enter Hours
+                    <label for="from_time">
+                        <i class="fas fa-sign-in-alt"></i> From Time
                     </label>
-                    <input type="number" id="custom_hours" step="0.01" min="0.01" max="7.36" placeholder="e.g. 2, 3, 4.5">
+                    <input type="time" id="from_time" name="from_time">
+                </div>
+
+                <div class="form-group">
+                    <label for="to_time">
+                        <i class="fas fa-sign-out-alt"></i> To Time
+                    </label>
+                    <input type="time" id="to_time" name="to_time">
+                </div>
+
+                <div class="form-group">
+                    <label for="custom_hours">
+                        <i class="fas fa-hourglass-half"></i> Calculated Hours
+                    </label>
+                    <input type="number" id="custom_hours" name="custom_hours" step="0.01" min="0.01" max="7.36" placeholder="Auto-calculated" readonly>
                 </div>
             </div>
 
@@ -106,6 +120,8 @@
     const durationType = document.getElementById('duration_type');
     const customHoursRow = document.getElementById('customHoursRow');
     const customHours = document.getElementById('custom_hours');
+    const fromTime = document.getElementById('from_time');
+    const toTime = document.getElementById('to_time');
     const hiddenHours = document.getElementById('hours');
     const daysInfo = document.getElementById('daysInfo');
     const totalDays = document.getElementById('totalDays');
@@ -126,6 +142,32 @@
             return days > 0 ? days : 0;
         }
         return 0;
+    }
+
+    function calculateTimeHours() {
+        if (!fromTime.value || !toTime.value) {
+            customHours.value = '';
+            return 0;
+        }
+
+        const [fromHours, fromMins] = fromTime.value.split(':').map(Number);
+        const [toHours, toMins] = toTime.value.split(':').map(Number);
+
+        const fromTotalMins = fromHours * 60 + fromMins;
+        const toTotalMins = toHours * 60 + toMins;
+
+        let diffMins = toTotalMins - fromTotalMins;
+
+        if (diffMins < 0) {
+            alert('To Time must be after From Time');
+            toTime.value = '';
+            customHours.value = '';
+            return 0;
+        }
+
+        const calculatedHours = (diffMins / 60).toFixed(2);
+        customHours.value = calculatedHours;
+        return parseFloat(calculatedHours);
     }
 
     function calculateHours() {
@@ -161,10 +203,16 @@
     durationType.addEventListener('change', function() {
         if (this.value === 'custom') {
             customHoursRow.style.display = 'flex';
+            fromTime.setAttribute('required', 'required');
+            toTime.setAttribute('required', 'required');
             customHours.setAttribute('required', 'required');
         } else {
             customHoursRow.style.display = 'none';
+            fromTime.removeAttribute('required');
+            toTime.removeAttribute('required');
             customHours.removeAttribute('required');
+            fromTime.value = '';
+            toTime.value = '';
             customHours.value = '';
         }
         calculateHours();
@@ -176,7 +224,15 @@
     });
 
     endDate.addEventListener('change', calculateHours);
-    customHours.addEventListener('input', calculateHours);
+    fromTime.addEventListener('change', function() {
+        calculateTimeHours();
+        calculateHours();
+    });
+
+    toTime.addEventListener('change', function() {
+        calculateTimeHours();
+        calculateHours();
+    });
 
     // Form validation
     document.getElementById('leaveForm').addEventListener('submit', function(e) {
@@ -189,6 +245,11 @@
         if (total <= 0) {
             e.preventDefault();
             alert('Please fill in dates and duration correctly');
+            return;
+        }
+        if (durationType.value === 'custom' && (!fromTime.value || !toTime.value)) {
+            e.preventDefault();
+            alert('Please select both From Time and To Time');
             return;
         }
     });
