@@ -1084,6 +1084,8 @@ def view_employee_profile(user_id):
     # Training records
     training_records = EmployeeTraining.query.filter_by(user_id=user_id).order_by(EmployeeTraining.completion_date.desc()).limit(10).all()
 
+    current_year = datetime.now().year
+
     return render_template('admin_employee_profile.html',
         user=user,
         profile=profile,
@@ -1095,7 +1097,8 @@ def view_employee_profile(user_id):
         emergency_contacts=emergency_contacts,
         documents=documents,
         reviews=reviews,
-        training_records=training_records
+        training_records=training_records,
+        current_year=current_year
     )
 
 @app.route('/admin/salaries')
