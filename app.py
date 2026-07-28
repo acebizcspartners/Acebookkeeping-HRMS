@@ -1906,7 +1906,7 @@ def deduct_minus_leave(user_id):
 
     if created_deductions:
         db.session.commit()
-        flash(f'Salary deduction created for {user.username} negative leave balance.', 'success')
+        flash(f'✅ Salary deduction successfully created for {user.username}!', 'success')
     else:
         flash(f'No negative balance found for this employee.', 'info')
 
@@ -1922,7 +1922,7 @@ def carry_forward_leave(user_id):
     annual_balance = user.get_leave_balance('annual')
     sick_balance = user.get_leave_balance('sick')
 
-    flash(f'Negative leave balance for {user.username} will carry forward to next month. No salary deduction applied.', 'info')
+    flash(f'✅ Negative leave balance for {user.username} marked for carry forward. No salary deduction applied.', 'success')
     return redirect(url_for('manage_leave_balance'))
 
 
