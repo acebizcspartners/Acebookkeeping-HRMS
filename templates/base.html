@@ -45,9 +45,6 @@
             <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
                 <i class="fas fa-user"></i> My Profile
             </a></li>
-            <li><a href="{{ url_for('attendance') }}" class="{% if request.endpoint == 'attendance' %}active{% endif %}">
-                <i class="fas fa-clock"></i> Attendance
-            </a></li>
             <li><a href="{{ url_for('announcements') }}" class="{% if request.endpoint == 'announcements' %}active{% endif %}">
                 <i class="fas fa-bell"></i> Announcements
             </a></li>

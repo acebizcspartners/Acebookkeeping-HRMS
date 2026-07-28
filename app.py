@@ -1601,54 +1601,6 @@ def auto_mark_attendance_route():
 
     return redirect(url_for('view_all_salaries'))
 
-@app.route('/attendance')
-@login_required
-def attendance():
-    today = datetime.now().date()
-    user_attendance = Attendance.query.filter_by(user_id=current_user.id).order_by(Attendance.date.desc()).all()
-    return render_template('attendance.html', attendance=user_attendance, today=today)
-
-@app.route('/attendance/checkin', methods=['POST'])
-@login_required
-def checkin():
-    today = datetime.now().date()
-    existing = Attendance.query.filter_by(user_id=current_user.id, date=today).first()
-
-    if existing and existing.check_in:
-        flash('Already checked in today', 'warning')
-    else:
-        if not existing:
-            attendance = Attendance(user_id=current_user.id, date=today)
-            db.session.add(attendance)
-        else:
-            attendance = existing
-        attendance.check_in = datetime.utcnow()
-        attendance.status = 'present'
-        db.session.commit()
-        flash('Check-in successful!', 'success')
-
-    return redirect(url_for('attendance'))
-
-@app.route('/attendance/checkout', methods=['POST'])
-@login_required
-def checkout():
-    today = datetime.now().date()
-    attendance = Attendance.query.filter_by(user_id=current_user.id, date=today).first()
-
-    if not attendance:
-        flash('No check-in found for today', 'error')
-    elif attendance.check_out:
-        flash('Already checked out today', 'warning')
-    else:
-        attendance.check_out = datetime.utcnow()
-        if attendance.check_in:
-            hours = (attendance.check_out - attendance.check_in).total_seconds() / 3600
-            attendance.hours_worked = round(hours, 2)
-        db.session.commit()
-        flash('Check-out successful!', 'success')
-
-    return redirect(url_for('attendance'))
-
 # Employee Profile
 @app.route('/profile')
 @login_required
