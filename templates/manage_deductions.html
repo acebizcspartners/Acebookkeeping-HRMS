@@ -22,6 +22,19 @@
             <h5 class="card-title mb-0"><i class="fas fa-plus-circle"></i> Add New Deduction</h5>
         </div>
         <div class="card-body">
+            <!-- Tabs for different deduction types -->
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-form" type="button" role="tab">Manual Deduction</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="leave-tab" data-bs-toggle="tab" data-bs-target="#leave-form" type="button" role="tab">Leave Deduction (LWP)</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Manual Deduction Tab -->
+                <div class="tab-pane fade show active" id="manual-form" role="tabpanel">
             <form method="POST" action="{{ url_for('add_deduction') }}">
                 <div class="row">
                     <div class="col-md-3 mb-3">
@@ -65,9 +78,70 @@
                 </div>
 
                 <button type="submit" class="btn btn-success">
-                    <i class="fas fa-plus"></i> Add Deduction
+                    <i class="fas fa-plus"></i> Add Manual Deduction
                 </button>
             </form>
+                </div>
+
+                <!-- Leave Deduction Tab -->
+                <div class="tab-pane fade" id="leave-form" role="tabpanel">
+            <form method="POST" action="{{ url_for('add_deduction') }}">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="user_id_leave" class="form-label">Select Employee *</label>
+                        <select class="form-select" id="user_id_leave" name="user_id" required>
+                            <option value="">-- Choose Employee --</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">{{ emp.username }} ({{ emp.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label for="leave_type" class="form-label">Leave Type *</label>
+                        <select class="form-select" id="leave_type" name="leave_type" required>
+                            <option value="">-- Choose Leave Type --</option>
+                            <option value="personal">Personal Leave</option>
+                            <option value="short">Short Leave</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="annual">Annual Leave</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="leave_hours" class="form-label">Hours *</label>
+                        <input type="number" class="form-control" id="leave_hours" name="leave_hours"
+                               placeholder="8" step="0.5" min="0" required>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="leave_amount" class="form-label">Amount (₹) *</label>
+                        <input type="number" class="form-control" id="leave_amount" name="amount"
+                               placeholder="0" step="0.01" min="0" readonly>
+                        <small class="text-muted">Auto-calculated</small>
+                    </div>
+
+                    <div class="col-md-2 mb-3">
+                        <label for="applied_from_leave" class="form-label">Date *</label>
+                        <input type="date" class="form-control" id="applied_from_leave" name="applied_from" required>
+                    </div>
+                </div>
+
+                <input type="hidden" name="reason" id="leave_reason" value="">
+                <input type="hidden" name="applied_to" value="">
+
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Leave Without Pay (LWP):</strong> Use this when employee doesn't have leave balance remaining.
+                    The amount will be auto-calculated as: Hours × Hourly Rate
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add Leave Deduction
+                </button>
+            </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -154,4 +228,45 @@
         background-color: rgba(0, 0, 0, 0.02);
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const leaveHoursInput = document.getElementById('leave_hours');
+    const leaveTypeSelect = document.getElementById('leave_type');
+    const leaveAmountInput = document.getElementById('leave_amount');
+    const leaveReasonInput = document.getElementById('leave_reason');
+    const userIdSelect = document.getElementById('user_id_leave');
+
+    // Mock hourly rates - in real app, fetch from API
+    const mockRates = {
+        'personal': 'Personal Leave Without Pay',
+        'short': 'Short Leave Without Pay',
+        'sick': 'Sick Leave Without Pay',
+        'annual': 'Annual Leave Without Pay'
+    };
+
+    leaveHoursInput.addEventListener('input', calculateLeaveAmount);
+    leaveTypeSelect.addEventListener('change', updateLeaveReason);
+
+    function calculateLeaveAmount() {
+        const hours = parseFloat(leaveHoursInput.value) || 0;
+        // Assuming ₹700/hr - will be dynamic in real implementation
+        const hourlyRate = 700;
+        const amount = hours * hourlyRate;
+        leaveAmountInput.value = amount.toFixed(2);
+    }
+
+    function updateLeaveReason() {
+        const leaveType = leaveTypeSelect.value;
+        const hours = leaveHoursInput.value || '0';
+        const typeMap = {
+            'personal': 'Personal Leave',
+            'short': 'Short Leave',
+            'sick': 'Sick Leave',
+            'annual': 'Annual Leave'
+        };
+        leaveReasonInput.value = `Leave Without Pay - ${typeMap[leaveType]} (${hours} hrs)`;
+    }
+});
+</script>
 {% endblock %}
