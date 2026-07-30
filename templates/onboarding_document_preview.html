@@ -31,10 +31,10 @@
         <!-- Document Content -->
         {% if doc.doc_type == 'offer' %}
             <!-- OFFER LETTER -->
-            <p style="margin-bottom: 20px;">{{ doc.letter_date }}</p>
+            <p style="margin-bottom: 20px;">{{ doc.letter_date or '' }}</p>
             <p>
                 <strong>{{ doc.employee.username }}</strong><br>
-                {% if doc.employee.profile %}<span style="color: #666;">{{ doc.employee.profile.address or '' }}</span>{% endif %}
+                <span style="color: #666;">{{ doc.employee.email }}</span>
             </p>
             <p style="font-weight: bold; text-decoration: underline; margin: 20px 0 10px 0;">
                 Re: Letter of Offer – [Position]
@@ -178,7 +178,7 @@
             <p style="margin-bottom: 20px;">{{ doc.letter_date }}</p>
             <p>
                 <strong>{{ doc.employee.username }}</strong><br>
-                {% if doc.employee.profile %}<span style="color: #666;">{{ doc.employee.profile.address or '' }}</span>{% endif %}
+                <span style="color: #666;">{{ doc.employee.email }}</span>
             </p>
             <p style="font-weight: bold; text-decoration: underline; margin: 20px 0 10px 0;">
                 Re: Salary Revision

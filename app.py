@@ -2108,7 +2108,7 @@ def generate_onboarding_document():
         doc_data.update({
             'letter_date': request.form.get('letter_date', date.today().isoformat()),
             'work_location': request.form.get('work_location', 'Office – Tilak Nagar, Delhi'),
-            'start_date': request.form.get('start_date', employee.date_joined.isoformat() if employee.date_joined else ''),
+            'start_date': request.form.get('start_date', ''),
         })
     elif doc_type == 'agreement':
         doc_data.update({
