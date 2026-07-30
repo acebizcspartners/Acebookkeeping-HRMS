@@ -239,6 +239,19 @@ class LeaveAdjustment(db.Model):
     user = db.relationship('User', foreign_keys=[user_id], backref='leave_adjustments')
     admin = db.relationship('User', foreign_keys=[created_by])
 
+class OnboardingDocument(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    doc_type = db.Column(db.String(50), nullable=False)  # offer, agreement, assets, increment
+    doc_title = db.Column(db.String(200), nullable=False)
+    doc_content = db.Column(db.Text, nullable=False)  # HTML content of the document
+    assigned_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Admin who assigned it
+    assigned_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='assigned')  # assigned, acknowledged, rejected
+
+    user = db.relationship('User', foreign_keys=[user_id], backref='onboarding_documents')
+    admin = db.relationship('User', foreign_keys=[assigned_by])
+
 class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -1669,7 +1682,8 @@ def auto_mark_attendance_route():
 def profile():
     profile = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
     emergency_contacts = EmergencyContact.query.filter_by(user_id=current_user.id).all()
-    return render_template('profile.html', profile=profile, emergency_contacts=emergency_contacts)
+    onboarding_documents = OnboardingDocument.query.filter_by(user_id=current_user.id).order_by(OnboardingDocument.assigned_at.desc()).all()
+    return render_template('profile.html', profile=profile, emergency_contacts=emergency_contacts, onboarding_documents=onboarding_documents)
 
 @app.route('/profile/edit', methods=['GET', 'POST'])
 @login_required
@@ -2140,6 +2154,47 @@ def generate_onboarding_document():
         })
 
     return render_template('onboarding_document_preview.html', doc=doc_data)
+
+@app.route('/admin/assign-onboarding-document', methods=['POST'])
+@login_required
+@admin_required
+def assign_onboarding_document():
+    """Assign/Save onboarding document to employee"""
+    employee_id = request.form.get('employee_id')
+    doc_type = request.form.get('doc_type')
+    doc_title = request.form.get('doc_title')
+    doc_html = request.form.get('doc_html')
+
+    employee = User.query.get_or_404(employee_id)
+
+    # Check if document already exists (don't create duplicates)
+    existing_doc = OnboardingDocument.query.filter_by(
+        user_id=employee_id,
+        doc_type=doc_type
+    ).first()
+
+    if existing_doc:
+        # Update existing document
+        existing_doc.doc_title = doc_title
+        existing_doc.doc_content = doc_html
+        existing_doc.assigned_at = datetime.now()
+        existing_doc.assigned_by = current_user.id
+        existing_doc.status = 'assigned'
+    else:
+        # Create new document record
+        onboarding_doc = OnboardingDocument(
+            user_id=employee_id,
+            doc_type=doc_type,
+            doc_title=doc_title,
+            doc_content=doc_html,
+            assigned_by=current_user.id,
+            status='assigned'
+        )
+        db.session.add(onboarding_doc)
+
+    db.session.commit()
+    flash(f'✅ {doc_title} assigned to {employee.username}!', 'success')
+    return redirect(url_for('employee_onboarding'))
 
 
 # Admin: HR Reports & Analytics

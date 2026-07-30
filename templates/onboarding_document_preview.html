@@ -10,6 +10,9 @@
             <p class="text-muted">{{ doc.employee.username }} - {{ doc.doc_type | replace('_', ' ') | title }}</p>
         </div>
         <div class="col-auto">
+            <button class="btn btn-success" onclick="assignDocument()">
+                <i class="fas fa-check-circle"></i> Assign to Employee
+            </button>
             <button class="btn btn-primary" onclick="window.print()">
                 <i class="fas fa-print"></i> Print / Save as PDF
             </button>
@@ -253,4 +256,48 @@
         }
     }
 </style>
+
+<form id="assignForm" method="POST" action="{{ url_for('assign_onboarding_document') }}" style="display: none;">
+    <input type="hidden" name="employee_id" value="{{ doc.employee.id }}">
+    <input type="hidden" name="doc_type" value="{{ doc.doc_type }}">
+    <input type="hidden" name="doc_title" id="docTitle" value="">
+    <input type="hidden" name="doc_html" id="docHtml" value="">
+</form>
+
+<script>
+function assignDocument() {
+    // Get document title based on type
+    const docType = "{{ doc.doc_type }}";
+    let docTitle = "";
+
+    switch(docType) {
+        case 'offer':
+            docTitle = "Offer Letter";
+            break;
+        case 'agreement':
+            docTitle = "Employment Agreement";
+            break;
+        case 'assets':
+            docTitle = "Assets Declaration";
+            break;
+        case 'increment':
+            docTitle = "Increment Letter";
+            break;
+        default:
+            docTitle = "Onboarding Document";
+    }
+
+    // Get the HTML content of the document
+    const docContent = document.querySelector('[style*="background: white"]').innerHTML;
+
+    // Set form values
+    document.getElementById('docTitle').value = docTitle;
+    document.getElementById('docHtml').value = docContent;
+
+    // Submit form
+    if (confirm('Assign this document to ' + '{{ doc.employee.username }}'+ '?')) {
+        document.getElementById('assignForm').submit();
+    }
+}
+</script>
 {% endblock %}
