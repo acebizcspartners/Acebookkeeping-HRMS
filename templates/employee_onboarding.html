@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee Onboarding - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-user-tie"></i> Employee Onboarding</h1>
+            <p class="text-muted">Generate employment documents for new employees</p>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('view_all_salaries') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Document Selection -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-file-alt"></i> Generate Documents</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('generate_onboarding_document') }}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Select Employee</strong></label>
+                        <select class="form-select" name="employee_id" id="employee_id" required onchange="fillEmployeeData()">
+                            <option value="">-- Choose Employee --</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">{{ emp.username }} ({{ emp.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Document Type</strong></label>
+                        <select class="form-select" name="doc_type" required>
+                            <option value="">-- Select Document --</option>
+                            <option value="offer">Offer Letter</option>
+                            <option value="agreement">Employment Agreement</option>
+                            <option value="assets">Assets Declaration</option>
+                            <option value="increment">Increment Letter</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Signatory Name</label>
+                        <input type="text" class="form-control" name="signatory_name" value="Ankit Kulshrestha">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Signatory Title</label>
+                        <input type="text" class="form-control" name="signatory_title" value="Director">
+                    </div>
+                </div>
+
+                <!-- Conditional Fields -->
+                <div id="offer-fields" style="display: none;">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Letter Date</label>
+                            <input type="date" class="form-control" name="letter_date" value="{{ today | default('') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="start_date">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Work Location</label>
+                            <input type="text" class="form-control" name="work_location" value="Office – Tilak Nagar, Delhi">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="agreement-fields" style="display: none;">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Employee Address</label>
+                            <input type="text" class="form-control" name="employee_address" placeholder="Full residential address">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Probation Period</label>
+                            <input type="text" class="form-control" name="probation_period" value="six (6) months">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Work Location</label>
+                            <input type="text" class="form-control" name="work_location" value="Office – Tilak Nagar, Delhi">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Hours per Week</label>
+                            <input type="text" class="form-control" name="hours_per_week" value="38">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Notice Period</label>
+                            <input type="text" class="form-control" name="notice_period" value="sixty (60) calendar days">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="increment-fields" style="display: none;">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Letter Date</label>
+                            <input type="date" class="form-control" name="letter_date" value="{{ today | default('') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Effective From</label>
+                            <input type="date" class="form-control" name="effective_from">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Old Annual CTC (₹)</label>
+                            <input type="number" class="form-control" name="old_annual" step="0.01">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">New Annual CTC (₹)</label>
+                            <input type="number" class="form-control" name="new_annual" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    Select an employee and document type, then click "Generate" to create the document for preview and printing.
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-file-export"></i> Generate Document
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Employees Summary -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-users"></i> Active Employees</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Designation</th>
+                            <th>Salary (Annual)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr>
+                            <td><strong>{{ emp.username }}</strong></td>
+                            <td>{{ emp.email }}</td>
+                            <td>
+                                {% if emp.profile %}
+                                    {{ emp.profile.designation or 'N/A' }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set salary = emp.salary[0] if emp.salary else None %}
+                                {% if salary %}
+                                    ₹{{ "{:,.2f}".format(salary.monthly_salary * 12) }}
+                                {% else %}
+                                    <span class="badge bg-warning">Not Configured</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const docTypeSelect = document.querySelector('select[name="doc_type"]');
+    const offerFields = document.getElementById('offer-fields');
+    const agreementFields = document.getElementById('agreement-fields');
+    const incrementFields = document.getElementById('increment-fields');
+
+    docTypeSelect.addEventListener('change', function() {
+        // Hide all
+        offerFields.style.display = 'none';
+        agreementFields.style.display = 'none';
+        incrementFields.style.display = 'none';
+
+        // Show selected
+        switch(this.value) {
+            case 'offer':
+                offerFields.style.display = 'block';
+                break;
+            case 'agreement':
+                agreementFields.style.display = 'block';
+                break;
+            case 'increment':
+                incrementFields.style.display = 'block';
+                break;
+        }
+    });
+});
+
+function fillEmployeeData() {
+    const empId = document.getElementById('employee_id').value;
+    if (empId) {
+        // Could fetch employee data via API here
+        console.log('Employee selected:', empId);
+    }
+}
+</script>
+{% endblock %}

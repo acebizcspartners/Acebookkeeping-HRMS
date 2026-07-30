@@ -2047,6 +2047,93 @@ def undo_deduction(user_id):
 
     return redirect(url_for('manage_leave_balance'))
 
+# Admin: Employee Onboarding
+@app.route('/admin/employee-onboarding')
+@login_required
+@admin_required
+def employee_onboarding():
+    """Employee onboarding page - generate all documents for new employee"""
+    employees = User.query.filter_by(role='employee').all()
+    departments = Department.query.all()
+
+    return render_template('employee_onboarding.html',
+        employees=employees,
+        departments=departments,
+        company_name='Ace Bookkeeping Private Limited',
+        company_cin='U69201DC2026FTC469983',
+        company_address='1/27, 1st Floor, Mall Road, Tilak Nagar (West Delhi), New Delhi, West Delhi - 110018, Delhi',
+        company_phone='98110 08636',
+        company_email='info.acebookkeeping@gmail.com'
+    )
+
+@app.route('/admin/generate-onboarding-document', methods=['POST'])
+@login_required
+@admin_required
+def generate_onboarding_document():
+    """Generate onboarding document (offer letter, agreement, etc.)"""
+    doc_type = request.form.get('doc_type')
+    employee_id = request.form.get('employee_id')
+
+    employee = User.query.get_or_404(employee_id)
+    salary = Salary.query.filter_by(user_id=employee_id, is_active=True).first()
+
+    if not salary:
+        flash('Salary not configured for this employee', 'error')
+        return redirect(url_for('employee_onboarding'))
+
+    # Calculate salary components (assuming 50% basic, 50% of basic as HRA, rest special)
+    monthly = salary.monthly_salary
+    basic = round(monthly * 0.5)
+    hra = round(basic * 0.5)
+    special = monthly - basic - hra
+
+    doc_data = {
+        'doc_type': doc_type,
+        'employee': employee,
+        'salary': salary,
+        'monthly_salary': monthly,
+        'basic': basic,
+        'hra': hra,
+        'special': special,
+        'company_name': 'Ace Bookkeeping Private Limited',
+        'company_cin': 'U69201DC2026FTC469983',
+        'company_address': '1/27, 1st Floor, Mall Road, Tilak Nagar (West Delhi), New Delhi, West Delhi - 110018, Delhi',
+        'company_phone': '98110 08636',
+        'company_email': 'info.acebookkeeping@gmail.com',
+        'signatory': request.form.get('signatory_name', 'Ankit Kulshrestha'),
+        'signatory_title': request.form.get('signatory_title', 'Director'),
+    }
+
+    if doc_type == 'offer':
+        doc_data.update({
+            'letter_date': request.form.get('letter_date', date.today().isoformat()),
+            'work_location': request.form.get('work_location', 'Office – Tilak Nagar, Delhi'),
+            'start_date': request.form.get('start_date', employee.date_joined.isoformat() if employee.date_joined else ''),
+        })
+    elif doc_type == 'agreement':
+        doc_data.update({
+            'address': request.form.get('employee_address', ''),
+            'probation_period': request.form.get('probation_period', 'six (6) months'),
+            'work_location': request.form.get('work_location', 'Office – Tilak Nagar, Delhi'),
+            'hours_per_week': request.form.get('hours_per_week', '38'),
+            'notice_period': request.form.get('notice_period', 'sixty (60) calendar days'),
+        })
+    elif doc_type == 'assets':
+        doc_data.update({
+            'employment_type': request.form.get('employment_type', 'Full-Time'),
+            'work_location': request.form.get('work_location', 'India'),
+            'assets': []  # Admin can add assets in the form
+        })
+    elif doc_type == 'increment':
+        doc_data.update({
+            'letter_date': request.form.get('letter_date', date.today().isoformat()),
+            'effective_from': request.form.get('effective_from', date.today().isoformat()),
+            'old_annual': request.form.get('old_annual', salary.monthly_salary * 12),
+            'new_annual': request.form.get('new_annual', salary.monthly_salary * 12),
+        })
+
+    return render_template('onboarding_document_preview.html', doc=doc_data)
+
 
 # Admin: HR Reports & Analytics
 @app.route('/admin/hr-analytics')

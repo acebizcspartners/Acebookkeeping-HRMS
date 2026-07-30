@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}Document Preview - {{ doc.employee.username }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <h3>Document Preview</h3>
+            <p class="text-muted">{{ doc.employee.username }} - {{ doc.doc_type | replace('_', ' ') | title }}</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> Print / Save as PDF
+            </button>
+            <a href="{{ url_for('employee_onboarding') }}" class="btn btn-secondary ms-2">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Document Container -->
+    <div style="background: white; padding: 40px; max-width: 900px; margin: 20px auto; border: 1px solid #ddd; font-family: 'Arial', sans-serif; line-height: 1.6;">
+
+        <!-- Header -->
+        <div style="border-top: 4px solid #6B2D8B; border-bottom: 1px solid #ddd; padding: 20px; margin-bottom: 30px;">
+            <h2 style="text-align: center; color: #6B2D8B; font-size: 22px; margin: 0;">{{ doc.company_name }}</h2>
+            <p style="text-align: center; color: #666; font-size: 12px; margin: 5px 0 0 0;">CIN: {{ doc.company_cin }}</p>
+        </div>
+
+        <!-- Document Content -->
+        {% if doc.doc_type == 'offer' %}
+            <!-- OFFER LETTER -->
+            <p style="margin-bottom: 20px;">{{ doc.letter_date }}</p>
+            <p>
+                <strong>{{ doc.employee.username }}</strong><br>
+                {% if doc.employee.profile %}<span style="color: #666;">{{ doc.employee.profile.address or '' }}</span>{% endif %}
+            </p>
+            <p style="font-weight: bold; text-decoration: underline; margin: 20px 0 10px 0;">
+                Re: Letter of Offer – [Position]
+            </p>
+            <p>Dear {{ doc.employee.username }},</p>
+            <p>Congratulations! We are delighted to welcome you to the <strong>{{ doc.company_name }}</strong> family.</p>
+            <p>Following our recent discussions, we are happy to confirm our offer for the role starting <strong>{{ doc.start_date }}</strong>.</p>
+            <p><strong>Details of Engagement:</strong></p>
+            <ul>
+                <li><strong>Location:</strong> {{ doc.work_location }}</li>
+                <li><strong>Start Date:</strong> {{ doc.start_date }}</li>
+                <li><strong>Employment Type:</strong> Full-Time, Permanent</li>
+                <li><strong>Annual Package:</strong> INR {{ "{:,}".format(doc.salary.monthly_salary * 12) }}</li>
+            </ul>
+            <p>We trust you will bring your best to the role. Kindly sign and return a copy of this letter to confirm your acceptance.</p>
+            <p>Yours sincerely,</p>
+            <p style="margin-top: 50px;">
+                <strong>{{ doc.signatory }}</strong><br>
+                {{ doc.signatory_title }}<br>
+                {{ doc.company_name }}
+            </p>
+
+        {% elif doc.doc_type == 'agreement' %}
+            <!-- EMPLOYMENT AGREEMENT -->
+            <h3 style="text-align: center; font-size: 18px; margin: 30px 0 20px 0;">EMPLOYMENT AGREEMENT</h3>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">1. PARTIES</p>
+                <p style="margin-left: 20px;">
+                    1.1 Employer: <strong>{{ doc.company_name }}</strong> (CIN: {{ doc.company_cin }})<br>
+                    1.2 Employee: <strong>{{ doc.employee.username }}</strong>
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">2. APPOINTMENT</p>
+                <p style="margin-left: 20px;">
+                    The Employee is engaged to perform duties as per Job Description. The Company reserves the right to modify duties based on business requirements.
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">3. REMUNERATION</p>
+                <p style="margin-left: 20px;">
+                    <strong>Annual Salary:</strong> INR {{ "{:,}".format(doc.salary.monthly_salary * 12) }} per annum<br>
+                    <strong>Monthly Salary:</strong> INR {{ "{:,}".format(doc.salary.monthly_salary) }}<br>
+                    <strong>Basic:</strong> ₹{{ doc.basic }}<br>
+                    <strong>HRA:</strong> ₹{{ doc.hra }}<br>
+                    <strong>Special Allowance:</strong> ₹{{ doc.special }}
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">4. PROBATION PERIOD</p>
+                <p style="margin-left: 20px;">
+                    The first {{ doc.probation_period }} shall constitute a probationary period. Either party may terminate with 14 days' notice during this period.
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">5. PLACE OF WORK</p>
+                <p style="margin-left: 20px;">
+                    Primary place of work: {{ doc.work_location }}
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">6. HOURS OF WORK</p>
+                <p style="margin-left: 20px;">
+                    Standard working hours: {{ doc.hours_per_week }} hours per week
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">7. LEAVE ENTITLEMENTS</p>
+                <p style="margin-left: 20px;">
+                    - Annual Leave: 15 days per year<br>
+                    - Sick Leave: 12 days per year<br>
+                    - Public Holidays as per company list
+                </p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold; margin-bottom: 10px;">8. TERMINATION</p>
+                <p style="margin-left: 20px;">
+                    Notice Period: {{ doc.notice_period }} from either party after probation.
+                </p>
+            </div>
+
+            <p style="margin-top: 50px;">
+                <strong>{{ doc.signatory }}</strong><br>
+                {{ doc.signatory_title }}<br>
+                {{ doc.company_name }}
+            </p>
+
+        {% elif doc.doc_type == 'assets' %}
+            <!-- ASSETS DECLARATION -->
+            <h3 style="text-align: center; font-size: 18px; margin: 30px 0 20px 0;">COMPANY FIXED ASSETS DECLARATION</h3>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold;">EMPLOYEE DETAILS</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px; font-weight: bold; width: 40%;">Employee Name</td>
+                        <td style="padding: 8px;">{{ doc.employee.username }}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px; font-weight: bold;">Email</td>
+                        <td style="padding: 8px;">{{ doc.employee.email }}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px; font-weight: bold;">Work Location</td>
+                        <td style="padding: 8px;">{{ doc.work_location }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold;">ASSETS ISSUED</p>
+                <p style="color: #999; font-style: italic;">No assets recorded at this time. Assets can be added separately.</p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <p style="font-weight: bold;">CONDITIONS OF USE</p>
+                <ul style="margin-left: 20px;">
+                    <li>All assets must be used for legitimate business purposes only</li>
+                    <li>Employee is responsible for safe custody of all issued assets</li>
+                    <li>Any damage, loss, or theft must be reported immediately</li>
+                    <li>Assets remain the exclusive property of {{ doc.company_name }}</li>
+                </ul>
+            </div>
+
+            <p style="margin-top: 50px;">
+                <strong>{{ doc.signatory }}</strong><br>
+                {{ doc.signatory_title }}<br>
+                {{ doc.company_name }}
+            </p>
+
+        {% elif doc.doc_type == 'increment' %}
+            <!-- INCREMENT LETTER -->
+            <p style="margin-bottom: 20px;">{{ doc.letter_date }}</p>
+            <p>
+                <strong>{{ doc.employee.username }}</strong><br>
+                {% if doc.employee.profile %}<span style="color: #666;">{{ doc.employee.profile.address or '' }}</span>{% endif %}
+            </p>
+            <p style="font-weight: bold; text-decoration: underline; margin: 20px 0 10px 0;">
+                Re: Salary Revision
+            </p>
+            <p>Dear {{ doc.employee.username }},</p>
+            <p>We are pleased to inform you that following your performance review, we have decided to revise your compensation with effect from <strong>{{ doc.effective_from }}</strong>.</p>
+            <p><strong>Your Revised Salary Details:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                <tr style="background: #f5f5f5; font-weight: bold;">
+                    <td style="padding: 10px; border: 1px solid #ddd;">Component</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">Previous (Annual)</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">Revised (Annual)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px; border: 1px solid #ddd;"><strong>Gross Salary</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">₹{{ "{:,}".format(doc.old_annual) }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">₹{{ "{:,}".format(doc.new_annual) }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="padding: 10px; text-align: right; font-weight: bold;">
+                        Hike: {{ "{:.1f}%".format(((doc.new_annual - doc.old_annual) / doc.old_annual * 100) if doc.old_annual else 0) }}
+                    </td>
+                </tr>
+            </table>
+            <p>We look forward to your continued growth with us. Congratulations!</p>
+            <p>Yours sincerely,</p>
+            <p style="margin-top: 50px;">
+                <strong>{{ doc.signatory }}</strong><br>
+                {{ doc.signatory_title }}<br>
+                {{ doc.company_name }}
+            </p>
+        {% endif %}
+
+        <!-- Footer -->
+        <div style="border-top: 1px solid #ddd; margin-top: 40px; padding-top: 20px; font-size: 11px; color: #666; text-align: center;">
+            <p style="margin: 5px 0;">{{ doc.company_address }}</p>
+            <p style="margin: 5px 0;">Phone: {{ doc.company_phone }} | Email: {{ doc.company_email }}</p>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    @media print {
+        .container-fluid {
+            max-width: 100%;
+        }
+        .btn, .row {
+            display: none !important;
+        }
+        body {
+            background: white;
+        }
+    }
+</style>
+{% endblock %}
