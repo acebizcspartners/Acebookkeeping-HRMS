@@ -1920,6 +1920,36 @@ def carry_forward_leave(user_id):
     flash(f'✅ Negative leave balance for {user.username} marked for carry forward. No salary deduction applied.', 'success')
     return redirect(url_for('manage_leave_balance'))
 
+@app.route('/admin/undo-deduction/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def undo_deduction(user_id):
+    """Undo salary deduction and restore negative leave balance"""
+    user = User.query.get_or_404(user_id)
+
+    # Find and delete the deduction for negative leave created this month
+    current_month_start = datetime.now().replace(day=1).date()
+    if datetime.now().month == 12:
+        current_month_end = datetime.now().replace(year=datetime.now().year + 1, month=1, day=1).date() - timedelta(days=1)
+    else:
+        current_month_end = datetime.now().replace(month=datetime.now().month + 1, day=1).date() - timedelta(days=1)
+
+    deduction = Deduction.query.filter(
+        Deduction.user_id == user_id,
+        Deduction.reason.like('%Negative%'),
+        Deduction.applied_from >= current_month_start,
+        Deduction.applied_from <= current_month_end
+    ).first()
+
+    if deduction:
+        db.session.delete(deduction)
+        db.session.commit()
+        flash(f'✅ Deduction undone for {user.username}. Leave balance restored.', 'success')
+    else:
+        flash(f'No deduction found to undo for this employee.', 'info')
+
+    return redirect(url_for('manage_leave_balance'))
+
 
 # Admin: HR Reports & Analytics
 @app.route('/admin/hr-analytics')
