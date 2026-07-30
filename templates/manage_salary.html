@@ -83,9 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const hourlyRateInput = document.getElementById('hourly_rate');
 
     // Constants
-    const WORKING_DAYS_PER_MONTH = 22; // Typically 22 working days
-    const HOURS_PER_DAY = 8;
-    const TOTAL_WORKING_HOURS = WORKING_DAYS_PER_MONTH * HOURS_PER_DAY; // 176 hours
+    const WORKING_DAYS_PER_MONTH = 22; // 22 working days per month
+    const HOURS_PER_DAY = 7.36; // 7.36 hours per day
+    const TOTAL_WORKING_HOURS = WORKING_DAYS_PER_MONTH * HOURS_PER_DAY; // 161.92 hours
 
     // Calculate hourly rate when monthly salary changes
     monthlySalaryInput.addEventListener('input', function() {
