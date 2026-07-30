@@ -76,4 +76,33 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const monthlySalaryInput = document.getElementById('monthly_salary');
+    const hourlyRateInput = document.getElementById('hourly_rate');
+
+    // Constants
+    const WORKING_DAYS_PER_MONTH = 22; // Typically 22 working days
+    const HOURS_PER_DAY = 8;
+    const TOTAL_WORKING_HOURS = WORKING_DAYS_PER_MONTH * HOURS_PER_DAY; // 176 hours
+
+    // Calculate hourly rate when monthly salary changes
+    monthlySalaryInput.addEventListener('input', function() {
+        const monthlySalary = parseFloat(this.value);
+
+        if (monthlySalary && monthlySalary > 0) {
+            const hourlyRate = monthlySalary / TOTAL_WORKING_HOURS;
+            hourlyRateInput.value = hourlyRate.toFixed(2);
+        } else {
+            hourlyRateInput.value = '';
+        }
+    });
+
+    // Allow manual override of hourly rate
+    hourlyRateInput.addEventListener('focus', function() {
+        // User can now manually edit if needed
+    });
+});
+</script>
 {% endblock %}
