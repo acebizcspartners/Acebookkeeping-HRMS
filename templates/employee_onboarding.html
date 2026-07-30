@@ -103,6 +103,42 @@
                     </div>
                 </div>
 
+                <div id="assets-fields" style="display: none;">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label"><strong>Add Assets</strong></label>
+                            <small class="text-muted d-block mb-2">Add company assets issued to employee</small>
+                        </div>
+                    </div>
+                    <div id="assets-container">
+                        <div class="asset-row mb-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control asset-desc" placeholder="e.g. Lenovo Laptop">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control asset-serial" placeholder="Serial / Model No.">
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select asset-condition">
+                                        <option value="New">New</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Fair">Fair</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="removeAssetRow(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="addAssetRow()">
+                        <i class="fas fa-plus"></i> Add Another Asset
+                    </button>
+                </div>
+
                 <div id="increment-fields" style="display: none;">
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -188,12 +224,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const docTypeSelect = document.querySelector('select[name="doc_type"]');
     const offerFields = document.getElementById('offer-fields');
     const agreementFields = document.getElementById('agreement-fields');
+    const assetsFields = document.getElementById('assets-fields');
     const incrementFields = document.getElementById('increment-fields');
 
     docTypeSelect.addEventListener('change', function() {
         // Hide all
         offerFields.style.display = 'none';
         agreementFields.style.display = 'none';
+        assetsFields.style.display = 'none';
         incrementFields.style.display = 'none';
 
         // Show selected
@@ -203,6 +241,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'agreement':
                 agreementFields.style.display = 'block';
+                break;
+            case 'assets':
+                assetsFields.style.display = 'block';
                 break;
             case 'increment':
                 incrementFields.style.display = 'block';
@@ -214,9 +255,63 @@ document.addEventListener('DOMContentLoaded', function() {
 function fillEmployeeData() {
     const empId = document.getElementById('employee_id').value;
     if (empId) {
-        // Could fetch employee data via API here
         console.log('Employee selected:', empId);
     }
 }
+
+function addAssetRow() {
+    const container = document.getElementById('assets-container');
+    const row = document.createElement('div');
+    row.className = 'asset-row mb-3';
+    row.innerHTML = `
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" class="form-control asset-desc" placeholder="e.g. Lenovo Laptop">
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form-control asset-serial" placeholder="Serial / Model No.">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select asset-condition">
+                    <option value="New">New</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeAssetRow(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeAssetRow(btn) {
+    btn.closest('.asset-row').remove();
+}
+
+// Before form submission, collect assets data
+document.querySelector('form').addEventListener('submit', function(e) {
+    const docType = document.querySelector('select[name="doc_type"]').value;
+    if (docType === 'assets') {
+        const assets = [];
+        document.querySelectorAll('.asset-row').forEach(row => {
+            const desc = row.querySelector('.asset-desc').value;
+            const serial = row.querySelector('.asset-serial').value;
+            const condition = row.querySelector('.asset-condition').value;
+            if (desc || serial) {
+                assets.push({ desc, serial, condition });
+                // Add hidden inputs for form submission
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'assets';
+                input.value = JSON.stringify(assets);
+                this.appendChild(input);
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

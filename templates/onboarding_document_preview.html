@@ -154,7 +154,26 @@
 
             <div style="margin: 20px 0;">
                 <p style="font-weight: bold;">ASSETS ISSUED</p>
-                <p style="color: #999; font-style: italic;">No assets recorded at this time. Assets can be added separately.</p>
+                {% if doc.assets and doc.assets|length > 0 %}
+                <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                    <tr style="background: #f5f5f5; font-weight: bold;">
+                        <td style="padding: 10px; border: 1px solid #ddd;">#</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Description</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Serial / Model No.</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">Condition</td>
+                    </tr>
+                    {% for asset in doc.assets %}
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ loop.index }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ asset.desc or asset.get('desc', '') }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ asset.serial or asset.get('serial', '') }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">{{ asset.condition or asset.get('condition', 'New') }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p style="color: #999; font-style: italic;">No assets recorded at this time.</p>
+                {% endif %}
             </div>
 
             <div style="margin: 20px 0;">

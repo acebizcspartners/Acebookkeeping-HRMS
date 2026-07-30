@@ -2119,10 +2119,17 @@ def generate_onboarding_document():
             'notice_period': request.form.get('notice_period', 'sixty (60) calendar days'),
         })
     elif doc_type == 'assets':
+        import json
+        assets_json = request.form.get('assets', '[]')
+        try:
+            assets = json.loads(assets_json)
+        except:
+            assets = []
+
         doc_data.update({
             'employment_type': request.form.get('employment_type', 'Full-Time'),
             'work_location': request.form.get('work_location', 'India'),
-            'assets': []  # Admin can add assets in the form
+            'assets': assets
         })
     elif doc_type == 'increment':
         doc_data.update({
