@@ -198,6 +198,18 @@ class PaymentInvoice(db.Model):
 
     user = db.relationship('User', backref='invoices')
 
+class SalaryFinalization(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    month = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    finalized_on = db.Column(db.DateTime, default=datetime.utcnow)
+    finalized_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    total_employees = db.Column(db.Integer, nullable=False)
+    payslips_generated = db.Column(db.Integer, default=0)
+    notes = db.Column(db.Text, nullable=True)
+
+    admin = db.relationship('User', backref='salary_finalizations')
+
 class Deduction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -1259,6 +1271,91 @@ def process_salary():
         year=year,
         month_name=month_name
     )
+
+@app.route('/admin/finalize-salary/<int:month>/<int:year>', methods=['POST'])
+@login_required
+@admin_required
+def finalize_salary(month, year):
+    """Finalize salary and generate payslips for all employees"""
+
+    # Check if already finalized
+    existing = SalaryFinalization.query.filter_by(month=month, year=year).first()
+    if existing:
+        flash(f'Salary for this month is already finalized!', 'warning')
+        return redirect(url_for('process_salary', month=month, year=year))
+
+    # Get all active employees
+    employees = User.query.filter_by(role='employee').all()
+    payslips_created = 0
+
+    for emp in employees:
+        salary = Salary.query.filter_by(user_id=emp.id, is_active=True).first()
+        if not salary:
+            continue
+
+        # Check if invoice already exists
+        existing_invoice = PaymentInvoice.query.filter_by(
+            user_id=emp.id,
+            month=month,
+            year=year
+        ).first()
+
+        if not existing_invoice:
+            # Create invoice (payslip)
+            invoice_number = f"INV-{emp.id}-{year}-{month:02d}-{datetime.now().strftime('%H%M%S')}"
+
+            # Calculate salary data for this month
+            month_start = datetime(year, month, 1).date()
+            if month == 12:
+                month_end = datetime(year + 1, 1, 1).date() - timedelta(days=1)
+            else:
+                month_end = datetime(year, month + 1, 1).date() - timedelta(days=1)
+
+            # Count present days
+            present_days = Attendance.query.filter(
+                Attendance.user_id == emp.id,
+                Attendance.date >= month_start,
+                Attendance.date <= month_end,
+                Attendance.status == 'present'
+            ).count()
+
+            # Get deductions
+            deductions = Deduction.query.filter(
+                Deduction.user_id == emp.id,
+                Deduction.status == 'active',
+                Deduction.applied_from <= month_end,
+                (Deduction.applied_to.is_(None) | (Deduction.applied_to >= month_start))
+            ).all()
+            total_deduction = sum(d.amount for d in deductions)
+
+            net_salary = salary.monthly_salary - total_deduction
+
+            invoice = PaymentInvoice(
+                user_id=emp.id,
+                month=month,
+                year=year,
+                salary_amount=salary.monthly_salary,
+                deductions=total_deduction,
+                net_amount=net_salary,
+                status='generated',
+                invoice_number=invoice_number
+            )
+            db.session.add(invoice)
+            payslips_created += 1
+
+    # Create finalization record
+    finalization = SalaryFinalization(
+        month=month,
+        year=year,
+        finalized_by=current_user.id,
+        total_employees=len(employees),
+        payslips_generated=payslips_created
+    )
+    db.session.add(finalization)
+    db.session.commit()
+
+    flash(f'✅ Salary finalized! {payslips_created} payslips generated for {month}/{year}', 'success')
+    return redirect(url_for('process_salary', month=month, year=year))
 
 @app.route('/admin/salaries')
 @login_required
