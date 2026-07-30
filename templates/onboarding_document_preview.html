@@ -47,7 +47,7 @@
                 <li><strong>Location:</strong> {{ doc.work_location }}</li>
                 <li><strong>Start Date:</strong> {{ doc.start_date }}</li>
                 <li><strong>Employment Type:</strong> Full-Time, Permanent</li>
-                <li><strong>Annual Package:</strong> INR {{ (doc.salary.monthly_salary * 12) | int }}</li>
+                <li><strong>Annual Package:</strong> INR {{ ((doc.salary.monthly_salary | float) * 12) | int }}</li>
             </ul>
             <p>We trust you will bring your best to the role. Kindly sign and return a copy of this letter to confirm your acceptance.</p>
             <p>Yours sincerely,</p>
@@ -79,11 +79,11 @@
             <div style="margin: 20px 0;">
                 <p style="font-weight: bold; margin-bottom: 10px;">3. REMUNERATION</p>
                 <p style="margin-left: 20px;">
-                    <strong>Annual Salary:</strong> INR {{ (doc.salary.monthly_salary * 12) | int }} per annum<br>
-                    <strong>Monthly Salary:</strong> INR {{ "{:,}".format(doc.salary.monthly_salary) }}<br>
-                    <strong>Basic:</strong> ₹{{ doc.basic }}<br>
-                    <strong>HRA:</strong> ₹{{ doc.hra }}<br>
-                    <strong>Special Allowance:</strong> ₹{{ doc.special }}
+                    <strong>Annual Salary:</strong> INR {{ ((doc.salary.monthly_salary | float) * 12) | int }} per annum<br>
+                    <strong>Monthly Salary:</strong> INR {{ (doc.salary.monthly_salary | float) | int }}<br>
+                    <strong>Basic:</strong> ₹{{ (doc.basic | float) | int }}<br>
+                    <strong>HRA:</strong> ₹{{ (doc.hra | float) | int }}<br>
+                    <strong>Special Allowance:</strong> ₹{{ (doc.special | float) | int }}
                 </p>
             </div>
 
@@ -213,12 +213,12 @@
                 </tr>
                 <tr style="border-bottom: 1px solid #ddd;">
                     <td style="padding: 10px; border: 1px solid #ddd;"><strong>Gross Salary</strong></td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">₹{{ doc.old_annual | int }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">₹{{ doc.new_annual | int }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">₹{{ (doc.old_annual | float) | int }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">₹{{ (doc.new_annual | float) | int }}</td>
                 </tr>
                 <tr>
                     <td colspan="3" style="padding: 10px; text-align: right; font-weight: bold;">
-                        Hike: {% if doc.old_annual %}{{ (((doc.new_annual - doc.old_annual) / doc.old_annual * 100) | round(1)) }}%{% else %}0%{% endif %}
+                        Hike: {% if doc.old_annual and doc.old_annual|int > 0 %}{{ ((((doc.new_annual|float - doc.old_annual|float) / doc.old_annual|float * 100) | round(1))) }}%{% else %}0%{% endif %}
                     </td>
                 </tr>
             </table>
