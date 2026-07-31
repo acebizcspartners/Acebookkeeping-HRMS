@@ -8,6 +8,7 @@ import random
 import os
 import requests
 import smtplib
+import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -2085,14 +2086,22 @@ def employee_onboarding():
 @admin_required
 def generate_onboarding_document():
     """Generate onboarding document (offer letter, agreement, etc.)"""
-    doc_type = request.form.get('doc_type')
-    employee_id = request.form.get('employee_id')
+    try:
+        doc_type = request.form.get('doc_type')
+        employee_id = request.form.get('employee_id')
 
-    employee = User.query.get_or_404(employee_id)
-    salary = Salary.query.filter_by(user_id=employee_id, is_active=True).first()
+        if not doc_type or not employee_id:
+            flash('Please select employee and document type', 'error')
+            return redirect(url_for('employee_onboarding'))
 
-    if not salary:
-        flash('Salary not configured for this employee', 'error')
+        employee = User.query.get_or_404(employee_id)
+        salary = Salary.query.filter_by(user_id=employee_id, is_active=True).first()
+
+        if not salary:
+            flash('Salary not configured for this employee', 'error')
+            return redirect(url_for('employee_onboarding'))
+    except Exception as e:
+        flash(f'Error loading employee data: {str(e)}', 'error')
         return redirect(url_for('employee_onboarding'))
 
     # Calculate salary components (assuming 50% basic, 50% of basic as HRA, rest special)
@@ -2133,7 +2142,6 @@ def generate_onboarding_document():
             'notice_period': request.form.get('notice_period', 'sixty (60) calendar days'),
         })
     elif doc_type == 'assets':
-        import json
         assets_json = request.form.get('assets', '[]')
         try:
             assets = json.loads(assets_json)
