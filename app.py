@@ -2094,6 +2094,7 @@ def generate_onboarding_document():
             flash('Please select employee and document type', 'error')
             return redirect(url_for('employee_onboarding'))
 
+        employee_id = int(employee_id)
         employee = User.query.get_or_404(employee_id)
         salary = Salary.query.filter_by(user_id=employee_id, is_active=True).first()
 
@@ -2168,7 +2169,7 @@ def generate_onboarding_document():
 @admin_required
 def assign_onboarding_document():
     """Assign/Save onboarding document to employee"""
-    employee_id = request.form.get('employee_id')
+    employee_id = int(request.form.get('employee_id'))
     doc_type = request.form.get('doc_type')
     doc_title = request.form.get('doc_title')
     doc_html = request.form.get('doc_html')
