@@ -50,10 +50,14 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Enable SSL for psycopg2 (required by Neon)
+# Enable SSL for psycopg2 (required by Neon) + Connection pooling
 if DATABASE_URL:
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'connect_args': {'sslmode': 'require'}
+        'connect_args': {'sslmode': 'require'},
+        'pool_pre_ping': True,           # Test connections before using them
+        'pool_recycle': 3600,            # Recycle connections after 1 hour
+        'pool_size': 10,                 # Connection pool size
+        'max_overflow': 20,              # Allow overflow connections
     }
 
 # Email configuration - Update these with your SMTP settings
