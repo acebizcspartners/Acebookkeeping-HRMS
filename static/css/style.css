@@ -1552,32 +1552,38 @@ body.sidebar-open {
     display: none;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 481px) and (max-width: 768px) {
     .user-info {
         display: none;
     }
 
     .navbar {
         justify-content: space-between;
-        padding: 0 1rem;
+        padding: 0.75rem 1rem;
         height: auto;
+        min-height: 65px;
     }
 
-    .nav-brand {
-        gap: 0.5rem;
+    .nav-brand-container {
+        gap: 0.6rem;
     }
 
     .brand-title {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 
     .brand-subtitle {
-        font-size: 0.55rem;
+        font-size: 0.6rem;
+    }
+
+    .nav-logo {
+        height: 36px;
     }
 
     .nav-links {
-        width: 80vw;
-        left: -80vw;
+        width: 75vw;
+        left: -75vw;
+        top: 65px;
     }
 
     .nav-links.active {
@@ -1594,14 +1600,19 @@ body.sidebar-open {
     }
 
     .user-avatar {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         font-size: 1rem;
     }
 
     .logout-btn {
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
+    }
+
+    .hamburger span {
+        width: 24px;
+        height: 2.5px;
     }
 
     .tabs {
@@ -1647,16 +1658,28 @@ body.sidebar-open {
 /* Extra Small Screens (320px to 480px) */
 @media (max-width: 480px) {
     .navbar {
-        padding: 0.5rem 0.75rem;
-        height: 60px;
+        padding: 0.5rem;
+        height: auto;
+        min-height: 60px;
+        gap: 0.5rem;
+    }
+
+    .nav-brand-container {
+        gap: 0.4rem;
+        flex: 1;
     }
 
     .nav-logo {
-        height: 30px;
+        height: 32px;
+    }
+
+    .brand-text {
+        gap: 0;
     }
 
     .brand-title {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
     }
 
     .brand-subtitle {
@@ -1664,9 +1687,51 @@ body.sidebar-open {
     }
 
     .nav-links {
-        width: 90vw;
-        left: -90vw;
+        width: 85vw;
+        left: -85vw;
         top: 60px;
+        max-height: calc(100vh - 60px);
+    }
+
+    .nav-user-section {
+        gap: 0.75rem;
+        padding-left: 0.75rem;
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-details {
+        gap: 0.25rem;
+    }
+
+    .user-name {
+        font-size: 0.75rem;
+    }
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
+    }
+
+    .role-badge {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.55rem;
+    }
+
+    .logout-btn {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+    }
+
+    .hamburger {
+        margin-right: 0.5rem;
+        padding: 0.25rem;
+    }
+
+    .hamburger span {
+        width: 22px;
+        height: 2.5px;
     }
 
     .page-header h1 {
