@@ -46,10 +46,13 @@
             <li><a href="{{ url_for('leave_transactions') }}" class="{% if request.endpoint == 'leave_transactions' %}active{% endif %}">
                 <i class="fas fa-exchange-alt"></i> Transactions
             </a></li>
+            <li><a href="{{ url_for('view_holidays') }}" class="{% if request.endpoint == 'view_holidays' %}active{% endif %}">
+                <i class="fas fa-calendar-alt"></i> Holidays
+            </a></li>
             <li><a href="{{ url_for('my_payslip') }}" class="{% if request.endpoint == 'my_payslip' or request.endpoint == 'my_salary' or request.endpoint == 'my_invoices' %}active{% endif %}">
                 <i class="fas fa-file-invoice-dollar"></i> My Pay Slip
             </a></li>
-            <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
+            <li><a href="{{ url_for('view_profile') }}" class="{% if request.endpoint == 'view_profile' %}active{% endif %}">
                 <i class="fas fa-user"></i> My Profile
             </a></li>
             <li><a href="{{ url_for('announcements') }}" class="{% if request.endpoint == 'announcements' %}active{% endif %}">
