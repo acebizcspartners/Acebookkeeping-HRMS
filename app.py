@@ -50,6 +50,12 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Session timeout configuration (10 minutes inactivity)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 # Enable SSL for psycopg2 (required by Neon) + Connection pooling
 if DATABASE_URL:
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -70,6 +76,24 @@ app.config['MAIL_PASSWORD'] = 'tgsm vhus erra smwb'      # Update with your app 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+login_manager.login_message = 'Please login to access this page.'
+login_manager.login_message_category = 'info'
+
+# Session timeout handler
+@app.before_request
+def session_timeout():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=10)
+    session.modified = True
+
+    if current_user.is_authenticated:
+        session['_user_id'] = current_user.id
+
+# Unauthorized handler (session expired)
+@login_manager.unauthorized_handler
+def unauthorized():
+    flash('Your session has expired. Please login again.', 'warning')
+    return redirect(url_for('login', timeout='1'))
 
 # Models
 class User(UserMixin, db.Model):
@@ -546,6 +570,10 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
 
+    # Show session timeout message if user was logged out
+    if request.args.get('timeout') == '1':
+        flash('Your session has expired. Please login again.', 'warning')
+
     if request.method == 'POST':
         login_input = request.form.get('login_input')
         password = request.form.get('password')
@@ -555,7 +583,8 @@ def login():
         ).first()
 
         if user and check_password_hash(user.password, password):
-            login_user(user)
+            login_user(user, remember=False)
+            session.permanent = True
             flash('Logged in successfully!', 'success')
             return redirect(url_for('dashboard'))
         flash('Invalid username/email or password', 'error')
