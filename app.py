@@ -2265,6 +2265,47 @@ def add_announcement():
     flash('Announcement posted!', 'success')
     return redirect(url_for('announcements'))
 
+# Holiday Calendar Routes
+@app.route('/holidays')
+@login_required
+def view_holidays():
+    """Display upcoming holidays"""
+    holidays = Holiday.query.filter(Holiday.holiday_date >= datetime.now().date()).order_by(Holiday.holiday_date).all()
+    all_holidays = Holiday.query.order_by(Holiday.holiday_date).all()
+    return render_template('holidays_calendar.html', upcoming_holidays=holidays, all_holidays=all_holidays)
+
+# Profile Routes
+@app.route('/profile')
+@login_required
+def view_profile():
+    """View employee profile"""
+    user = current_user
+    return render_template('profile.html', user=user)
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    """Edit employee profile"""
+    if request.method == 'POST':
+        current_user.phone = request.form.get('phone')
+        current_user.address = request.form.get('address')
+        current_user.city = request.form.get('city')
+        current_user.emergency_contact = request.form.get('emergency_contact')
+        current_user.emergency_phone = request.form.get('emergency_phone')
+
+        # Date of joining and designation (admin can set these)
+        if current_user.role == 'admin':
+            if request.form.get('date_of_joining'):
+                current_user.date_of_joining = datetime.strptime(request.form.get('date_of_joining'), '%Y-%m-%d').date()
+            current_user.designation = request.form.get('designation')
+            current_user.reporting_manager = request.form.get('reporting_manager')
+
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('view_profile'))
+
+    return render_template('profile_edit.html', user=current_user)
+
 def init_db():
     with app.app_context():
         db.create_all()

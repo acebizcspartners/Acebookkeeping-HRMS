@@ -203,3 +203,636 @@ since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
 127.0.0.1 - - [06/Aug/2026 12:04:01] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
 127.0.0.1 - - [06/Aug/2026 12:04:01] "GET /static/js/main.js HTTP/1.1" 304 -
 127.0.0.1 - - [06/Aug/2026 12:04:01] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:05:54] "GET /admin/employee/3/profile HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:05:54] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:05:54] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:05:54] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:05:54] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:06:27] "GET /admin/employee/3/profile HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:06:28] "GET /admin/employee/3/profile HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:06:31] "GET /admin/employee/3/profile HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:06:31] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:31] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:31] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:31] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:06:39] "GET /my-leaves HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:06:39] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:39] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:39] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:06:42] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:06:43] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:43] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:43] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:06:50] "GET /employees HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:06:50] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:50] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:50] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:06:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:08:55] "GET /leave-transactions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:08:55] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:08:55] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:08:55] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:08:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:10:49] "GET /leave-transactions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:10:49] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:10:49] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:10:49] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:10:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:11:52] "GET /leave-balance HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:11:52] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:11:52] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:11:52] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:11:52] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:11:57] "GET /admin/performance-reviews HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:11:57] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:11:57] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:11:57] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:11:57] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:12:00] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:12:00] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:12:00] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:12:00] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:12:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:12:21] "GET /admin/deductions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:12:21] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:12:21] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:12:21] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:12:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:13:14] "GET /admin/deductions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:13:14] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:14] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:14] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:13:17] "GET /admin/deductions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:13:20] "GET /admin/deductions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:13:20] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:20] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:20] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:20] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:13:24] "GET /admin/deductions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:13:24] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:24] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:24] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:24] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:13:28] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:13:28] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:28] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:28] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:13:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:15:26] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:15:26] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:26] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:26] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:15:50] "GET /my-leaves HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:15:50] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:50] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:50] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:15:55] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:15:55] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:55] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:55] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:15:55] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:16:21] "GET /my-leaves HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:16:22] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:22] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:22] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:22] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:16:25] "GET /leave-balance HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:16:25] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:25] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:25] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:25] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:16:32] "GET /profile HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:16:32] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:32] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:32] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:16:40] "GET /admin/salaries HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:16:40] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:40] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:40] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:16:56] "GET /admin/employee-onboarding HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:16:56] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:56] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:56] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:16:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:06] "GET /logout HTTP/1.1" 302 -
+127.0.0.1 - - [06/Aug/2026 12:17:06] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:06] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:06] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:06] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:13] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [06/Aug/2026 12:17:14] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:14] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:14] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:14] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:30] "GET /leave-transactions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:31] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:31] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:31] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:31] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:34] "GET /leave-transactions?type=sick&year=2026 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:34] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:34] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:34] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:34] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:38] "GET /leave-transactions?type=lwp&year=2026 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:39] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:39] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:39] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:40] "GET /leave-transactions?type=sick&year=2026 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:40] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:40] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:40] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:43] "GET /leave-transactions?type=sick&year=2025 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:43] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:43] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:43] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:44] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:17:48] "GET /leave-transactions?type=annual&year=2025 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:17:48] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:48] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:48] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:17:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:18:37] "GET /leave-transactions?type=sick&year=2025 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:18:37] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:18:37] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:18:37] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:18:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:23:58] "GET /leave-transactions?type=sick&year=2025 HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in 
+_exec_single_context
+    self.dialect.do_execute(
+    ^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: SSL connection has been closed unexpectedly
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask\app.py", line 1478, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask\app.py", line 1458, in wsgi_app
+    response = self.handle_exception(e)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask_login\utils.py", line 284, in decorated_view
+    elif not current_user.is_authenticated:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\werkzeug\local.py", line 311, in __get__
+    obj = instance._get_current_object()
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\werkzeug\local.py", line 515, in _get_current_object
+    return get_name(local())
+                    ~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask_login\utils.py", line 25, in <lambda>
+    current_user = LocalProxy(lambda: _get_user())
+                                      ~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask_login\utils.py", line 370, in _get_user
+    current_app.login_manager._load_user()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask_login\login_manager.py", line 364, in _load_user
+    user = self._user_callback(user_id)
+  File "D:\office_task\develop\portel\app.py", line 499, in load_user
+    return User.query.get(int(user_id))
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "<string>", line 2, in get
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\util\deprecations.py", line 386, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 1126, in get
+    return self._get_impl(ident, loading.load_on_pk_identity)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 1135, in _get_impl
+    return self.session._get_impl(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 3859, in _get_impl
+    return db_load_fn(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 695, in 
+load_on_pk_identity
+    session.execute(
+    ^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2351, in execute
+    return self._execute_internal(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2249, in 
+_execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\orm\context.py", line 306, in 
+orm_execute_statement
+    result = conn.execute(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in 
+_execute_on_connection
+    return connection._execute_clauseelement(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in 
+_execute_clauseelement
+    ret = self._execute_context(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+    
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in 
+_exec_single_context
+    self._handle_dbapi_exception(
+    ^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in 
+_handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in 
+_exec_single_context
+    self.dialect.do_execute(
+    ^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) SSL connection has been closed unexpectedly
+
+[SQL: SELECT "user".id AS user_id, "user".username AS user_username, "user".email AS user_email, "user".password AS 
+user_password, "user".role AS user_role, "user".department AS user_department, "user".created_at AS user_created_at 
+FROM "user" 
+WHERE "user".id = %(pk_1)s]
+[parameters: {'pk_1': 2}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+127.0.0.1 - - [06/Aug/2026 12:23:58] "GET /leave-transactions?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:23:58] "GET /leave-transactions?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 
+200 -
+127.0.0.1 - - [06/Aug/2026 12:23:59] "GET /leave-transactions?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 
+200 -
+127.0.0.1 - - [06/Aug/2026 12:23:59] "GET /leave-transactions?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 
+200 -
+127.0.0.1 - - [06/Aug/2026 12:23:59] "GET /leave-transactions?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 
+304 -
+ * Detected change in 'D:\\office_task\\develop\\portel\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 136-449-723
+D:\office_task\develop\portel\app.py:503: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x 
+series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated 
+since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [06/Aug/2026 12:25:23] "GET /leave-transactions?type=sick&year=2025 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:25:23] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:25:23] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:25:23] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:25:23] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:25:37] "GET /leave-transactions?type=annual&year=2025 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:25:37] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:25:37] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:25:37] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:25:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:26:06] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:26:06] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:06] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:06] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:26:12] "GET /profile HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:26:13] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:13] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:13] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:26:18] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:26:18] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:19] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:19] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:26:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:27:19] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:27:19] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:27:19] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:27:19] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:27:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:28:00] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:28:00] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:28:00] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:28:00] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:28:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:28:40] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:28:40] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:28:40] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:28:40] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:28:40] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:29:36] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:29:36] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:29:36] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:29:36] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:29:36] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:31:52] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:31:52] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:31:52] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:31:52] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:31:52] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:33:20] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:33:20] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:33:20] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:33:20] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:33:20] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:33:41] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:33:42] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:33:57] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:33:57] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:33:57] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:33:57] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:33:57] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:33:57] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:34:04] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:34:04] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:34:04] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:34:04] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:34:04] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:34:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:36:08] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:36:08] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:08] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:08] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:08] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:36:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:36:15] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:36:15] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:15] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:15] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:15] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:36:16] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:36:42] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:36:42] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:42] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:42] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:36:47] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:36:47] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:47] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:47] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:36:48] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:37:45] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:37:45] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:37:45] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:37:45] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:37:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:37:51] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:37:51] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:38:19] "GET /my-payslip HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:38:19] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:38:19] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:38:19] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:38:19] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:38:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:38:25] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:38:25] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:38:25] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:38:25] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:38:25] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:38:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:39:37] "GET /leave-transactions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:39:37] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:39:37] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:37] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:37] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:37] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:39:46] "GET /leave-transactions?type=sick&year=2026 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:39:47] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:39:47] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:47] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:47] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:39:50] "GET /leave-transactions?type=lwp&year=2026 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:39:50] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:39:50] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:50] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:50] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:39:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:40:04] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:40:04] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:40:04] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:04] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:04] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:40:33] "GET /my-leaves HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:40:33] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:33] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:33] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:33] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:40:39] "GET /announcements HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:40:39] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:39] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:39] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:39] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:40:43] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:40:43] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:43] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:43] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:40:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:41:41] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:41:41] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:41:41] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:41:41] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:41:42] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:41:46] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:41:46] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:41:46] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:41:46] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:41:46] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:41:56] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:41:56] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:41:56] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:41:56] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:41:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:42:04] "GET /apply-leave HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:42:04] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:04] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:04] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:04] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:42:09] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:42:09] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:09] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:09] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:09] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:42:14] "GET /my-payslip HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:42:14] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:14] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:14] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:42:19] "GET /announcements HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:42:19] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:19] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:19] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:20] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:42:23] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:42:23] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:23] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:23] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:23] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:42:45] "GET /admin/training HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:42:45] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:45] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:45] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 12:42:53] "GET /logout HTTP/1.1" 302 -
+127.0.0.1 - - [06/Aug/2026 12:42:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 12:42:53] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:53] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:53] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 12:42:53] "GET /favicon.ico HTTP/1.1" 404 -
+ * Detected change in 'D:\\office_task\\develop\\portel\\app.py', reloading
+ * Restarting with stat
+Traceback (most recent call last):
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3309, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 899, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 661, in connect
+    return dialect.connect(*cargs, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 630, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: connection to server at "ep-steep-silence-ay15iei6-pooler.c-5.us-east-2.aws.neon.tech" 
+(16.58.187.204), port 5432 failed: ERROR:  password authentication failed for user 'neondb_owner'
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\office_task\develop\portel\app.py", line 2342, in <module>
+    init_db()
+    ~~~~~~~^^
+  File "D:\office_task\develop\portel\app.py", line 2257, in init_db
+    db.create_all()
+    ~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask_sqlalchemy\extension.py", line 900, in create_all
+    self._call_for_binds(bind_key, "create_all")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\flask_sqlalchemy\extension.py", line 881, in 
+_call_for_binds
+    getattr(metadata, op_name)(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\sql\schema.py", line 5928, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3259, in _run_ddl_visitor
+    with self.begin() as conn:
+         ~~~~~~~~~~^^
+  File "C:\Python314\Lib\contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3249, in begin
+    with self.connect() as conn:
+         ~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3285, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 145, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        err, dialect, engine
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2448, in 
+_handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3309, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 899, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 661, in connect
+    return dialect.connect(*cargs, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 630, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "d:\office_task\develop\portel\venv\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) connection to server at 
+"ep-steep-silence-ay15iei6-pooler.c-5.us-east-2.aws.neon.tech" (16.58.187.204), port 5432 failed: ERROR:  password 
+authentication failed for user 'neondb_owner'
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

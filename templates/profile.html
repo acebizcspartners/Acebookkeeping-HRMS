@@ -1,306 +1,191 @@
 {% extends 'base.html' %}
 
-{% block title %}My Profile - Acebookking Leave Portal{% endblock %}
+{% block title %}My Profile - HRMS{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Profile Header -->
-    <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                     style="width: 60px; height: 60px; font-size: 24px;">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div>
-                    <h2 class="mb-0">{{ current_user.username }}</h2>
-                    <p class="text-muted mb-0">Employee Profile</p>
-                </div>
-            </div>
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h3 mb-1"><i class="fas fa-user-circle text-primary"></i> My Profile</h1>
+            <p class="text-muted">View and manage your profile information</p>
         </div>
-        <div class="col-auto">
-            <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit Profile
-            </a>
-        </div>
+        <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit Profile
+        </a>
     </div>
 
-    {% if profile %}
-    <div class="row">
-        <div class="col-md-8">
-            <!-- Personal Information Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0"><i class="fas fa-user-circle"></i> Personal Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Email Address</label>
-                            <p class="mb-0">{{ current_user.email }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Phone Number</label>
-                            <p class="mb-0">{{ profile.phone or '—' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Date of Birth</label>
-                            <p class="mb-0">{{ profile.date_of_birth.strftime('%d %b %Y') if profile.date_of_birth else '—' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Gender</label>
-                            <p class="mb-0">{{ profile.gender or '—' }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Address Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0"><i class="fas fa-map-marker-alt"></i> Address</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-12 mb-3">
-                            <label class="text-muted small fw-bold">Street Address</label>
-                            <p class="mb-0">{{ profile.address or '—' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">City</label>
-                            <p class="mb-0">{{ profile.city or '—' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">State</label>
-                            <p class="mb-0">{{ profile.state or '—' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Postal Code</label>
-                            <p class="mb-0">{{ profile.postal_code or '—' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Country</label>
-                            <p class="mb-0">{{ profile.country or '—' }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Financial Information Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0"><i class="fas fa-credit-card"></i> Financial Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">PAN Number</label>
-                            <p class="mb-0">{{ profile.pan_number or '—' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Aadhar Number</label>
-                            <p class="mb-0">{{ profile.aadhar_number or '—' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">Bank Account</label>
-                            <p class="mb-0">{{ profile.bank_account or '—' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small fw-bold">IFSC Code</label>
-                            <p class="mb-0">{{ profile.ifsc_code or '—' }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <!-- Employment Details Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="card-title mb-0"><i class="fas fa-briefcase"></i> Employment Details</h5>
+    <div class="row g-4">
+        <!-- Personal Information -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-id-card text-primary"></i> Personal Information</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="text-muted small fw-bold">Joining Date</label>
-                        <p class="mb-0">{{ profile.joining_date.strftime('%d %b %Y') if profile.joining_date else '—' }}</p>
+                        <small class="text-muted d-block">Username</small>
+                        <p class="mb-0"><strong>{{ user.username }}</strong></p>
                     </div>
-
                     <div class="mb-3">
-                        <label class="text-muted small fw-bold">Employment Type</label>
+                        <small class="text-muted d-block">Email Address</small>
+                        <p class="mb-0"><strong>{{ user.email }}</strong></p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Phone Number</small>
                         <p class="mb-0">
-                            {% if profile.employment_type %}
-                            <span class="badge bg-info">{{ profile.employment_type }}</span>
+                            {% if user.phone %}
+                                <strong>{{ user.phone }}</strong>
                             {% else %}
-                            —
+                                <span class="text-muted">Not provided</span>
                             {% endif %}
                         </p>
                     </div>
-
                     <div class="mb-3">
-                        <label class="text-muted small fw-bold">Designation</label>
-                        <p class="mb-0">{{ profile.designation.name if profile.designation else '—' }}</p>
+                        <small class="text-muted d-block">Address</small>
+                        <p class="mb-0">
+                            {% if user.address %}
+                                <strong>{{ user.address }}</strong>
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </p>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="text-muted small fw-bold">Department</label>
-                        <p class="mb-0">{{ profile.department.name if profile.department else '—' }}</p>
-                    </div>
-
-                    <div>
-                        <label class="text-muted small fw-bold">Reporting Manager</label>
-                        <p class="mb-0">{{ profile.manager.username if profile.manager else '—' }}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">City</small>
+                            <p class="mb-0">
+                                {% if user.city %}
+                                    <strong>{{ user.city }}</strong>
+                                {% else %}
+                                    <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Member Since</small>
+                            <p class="mb-0"><strong>{{ user.created_at.strftime('%b %d, %Y') }}</strong></p>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Emergency Contacts Card -->
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="card-title mb-0"><i class="fas fa-phone"></i> Emergency Contacts</h5>
+        <!-- Emergency Contact -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-phone text-danger"></i> Emergency Contact</h5>
                 </div>
                 <div class="card-body">
-                    {% if emergency_contacts %}
-                        {% for contact in emergency_contacts %}
-                        <div class="mb-3 pb-3 border-bottom">
-                            <p class="mb-1"><strong>{{ contact.name }}</strong></p>
-                            <p class="mb-1">
-                                <span class="badge bg-light text-dark">{{ contact.relationship }}</span>
-                            </p>
-                            <p class="mb-0"><i class="fas fa-phone"></i> {{ contact.phone }}</p>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Emergency Contact Name</small>
+                        <p class="mb-0">
+                            {% if user.emergency_contact %}
+                                <strong>{{ user.emergency_contact }}</strong>
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Emergency Contact Phone</small>
+                        <p class="mb-0">
+                            {% if user.emergency_phone %}
+                                <strong>{{ user.emergency_phone }}</strong>
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Information -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-briefcase text-success"></i> Employment Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Department</small>
+                        <p class="mb-0"><strong>{{ user.department or 'Not assigned' }}</strong></p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Designation</small>
+                        <p class="mb-0">
+                            {% if user.designation %}
+                                <strong>{{ user.designation }}</strong>
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Date of Joining</small>
+                        <p class="mb-0">
+                            {% if user.date_of_joining %}
+                                <strong>{{ user.date_of_joining.strftime('%b %d, %Y') }}</strong>
+                            {% else %}
+                                <span class="text-muted">Not provided</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Reporting Manager</small>
+                        <p class="mb-0">
+                            {% if user.reporting_manager %}
+                                <strong>{{ user.reporting_manager }}</strong>
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role & Permissions -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt text-info"></i> Role & Permissions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Current Role</small>
+                        <p class="mb-0">
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">Administrator</span>
+                            {% elif user.role == 'manager' %}
+                                <span class="badge bg-warning">Manager</span>
+                            {% else %}
+                                <span class="badge bg-success">Employee</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Permissions</small>
+                        <div class="mt-2">
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-info mb-1">Manage Users</span>
+                                <span class="badge bg-info mb-1">Approve Leaves</span>
+                                <span class="badge bg-info mb-1">Manage Salaries</span>
+                                <span class="badge bg-info mb-1">View Analytics</span>
+                            {% elif user.role == 'manager' %}
+                                <span class="badge bg-info mb-1">Approve Team Leaves</span>
+                                <span class="badge bg-info mb-1">View Team Data</span>
+                            {% else %}
+                                <span class="badge bg-info mb-1">Apply Leave</span>
+                                <span class="badge bg-info mb-1">View Payslip</span>
+                            {% endif %}
                         </div>
-                        {% endfor %}
-                    {% else %}
-                    <p class="text-muted text-center py-3">No emergency contacts added</p>
-                    {% endif %}
-                    <a href="{{ url_for('emergency_contacts') }}" class="btn btn-sm btn-outline-primary w-100 mt-2">
-                        <i class="fas fa-plus"></i> Manage Contacts
-                    </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Onboarding Documents -->
-    {% if onboarding_documents %}
-    <div class="card mt-4">
-        <div class="card-header bg-success text-white">
-            <h5 class="card-title mb-0"><i class="fas fa-file-alt"></i> Onboarding Documents</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Document</th>
-                            <th>Type</th>
-                            <th>Assigned Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for doc in onboarding_documents %}
-                        <tr>
-                            <td><strong>{{ doc.doc_title }}</strong></td>
-                            <td>
-                                <span class="badge bg-info">{{ doc.doc_type | replace('_', ' ') | title }}</span>
-                            </td>
-                            <td>{{ doc.assigned_at.strftime('%d %b %Y') }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewDocModal{{ doc.id }}">
-                                    <i class="fas fa-eye"></i> View
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Document View Modal -->
-                        <div class="modal fade" id="viewDocModal{{ doc.id }}" tabindex="-1">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">{{ doc.doc_title }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                                        {{ doc.doc_content | safe }}
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" onclick="window.print()">
-                                            <i class="fas fa-print"></i> Print
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="alert alert-info mt-4">
-        <i class="fas fa-info-circle"></i> No onboarding documents assigned yet.
-    </div>
-    {% endif %}
-
-    {% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> Profile not found. <a href="{{ url_for('edit_profile') }}">Create your profile</a>
-    </div>
-    {% endif %}
 </div>
-
-<style>
-    .card {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border: none;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    }
-
-    .card-header {
-        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .card-body label {
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-        color: #6c757d;
-    }
-
-    .card-body p {
-        font-size: 1rem;
-        color: #212529;
-    }
-
-    .d-flex.gap-3 {
-        gap: 1rem;
-    }
-
-    .text-muted.small {
-        font-size: 0.9rem;
-    }
-
-    .badge {
-        padding: 0.35rem 0.65rem;
-        font-size: 0.85rem;
-    }
-</style>
 {% endblock %}
