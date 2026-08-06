@@ -46,6 +46,20 @@
     </div>
 </div>
 
+<style>
+/* Hide browser's default password eye icon */
+#password::-webkit-outer-spin-button,
+#password::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide password reveal icon in Edge/IE */
+#password::-ms-reveal {
+    display: none;
+}
+</style>
+
 <script>
 function togglePassword() {
     const passwordInput = document.getElementById('password');
