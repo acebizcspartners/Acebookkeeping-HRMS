@@ -1,164 +1,278 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard - Leave Management System{% endblock %}
+{% block title %}Dashboard - HRMS{% endblock %}
 
 {% block content %}
-<div class="dashboard">
-    <div class="page-header">
-        <h1><i class="fas fa-home"></i> Dashboard</h1>
-        <p>Welcome back, {{ current_user.username }}!</p>
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1"><i class="fas fa-home text-primary"></i> Dashboard</h1>
+                <p class="text-muted mb-0">Welcome back, <strong>{{ current_user.username }}</strong>!</p>
+            </div>
+            <div class="text-end text-muted">
+                <small>{{ current_user.role|capitalize }} • {{ current_user.department }}</small>
+            </div>
+        </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card annual">
-            <div class="stat-icon">
-                <i class="fas fa-umbrella-beach"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Annual Leave</h3>
-                {% if leave_info %}
-                <p class="stat-number">{{ leave_info.annual_available }}</p>
-                <span class="stat-label">of {{ leave_info.annual_accrued }} accrued hrs</span>
-                {% else %}
-                <p class="stat-number">--</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="stat-card sick">
-            <div class="stat-icon">
-                <i class="fas fa-briefcase-medical"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Sick Leave</h3>
-                {% if leave_info %}
-                <p class="stat-number">{{ leave_info.sick_available }}</p>
-                <span class="stat-label">of {{ leave_info.sick_accrued }} accrued hrs</span>
-                {% else %}
-                <p class="stat-number">--</p>
-                {% endif %}
+    <!-- Leave Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #10b981;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-umbrella-beach"></i> Annual Leave</p>
+                            <h4 class="mb-0">
+                                {% if leave_info %}
+                                    {{ leave_info.annual_available|int }}
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </h4>
+                            <small class="text-muted">
+                                {% if leave_info %}
+                                    of {{ leave_info.annual_accrued|int }} hrs available
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="badge bg-success-light p-2" style="background-color: rgba(16, 185, 129, 0.1);">
+                            <i class="fas fa-umbrella-beach text-success"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="stat-card lwp" style="border-left-color: #f59e0b;">
-            <div class="stat-icon" style="color: #f59e0b;">
-                <i class="fas fa-ban"></i>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #f59e0b;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-briefcase-medical"></i> Sick Leave</p>
+                            <h4 class="mb-0">
+                                {% if leave_info %}
+                                    {{ leave_info.sick_available|int }}
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </h4>
+                            <small class="text-muted">
+                                {% if leave_info %}
+                                    of {{ leave_info.sick_accrued|int }} hrs available
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="badge bg-warning-light p-2" style="background-color: rgba(245, 158, 11, 0.1);">
+                            <i class="fas fa-briefcase-medical text-warning"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="stat-info">
-                <h3>Leave Without Pay</h3>
-                {% if leave_info %}
-                <p class="stat-number">{{ leave_info.lwp_used }}</p>
-                <span class="stat-label">total hours taken</span>
-                {% else %}
-                <p class="stat-number">0</p>
-                {% endif %}
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ef4444;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-ban"></i> LWP Used</p>
+                            <h4 class="mb-0">
+                                {% if leave_info %}
+                                    {{ leave_info.lwp_used|int }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </h4>
+                            <small class="text-muted">total hours</small>
+                        </div>
+                        <div class="badge bg-danger-light p-2" style="background-color: rgba(239, 68, 68, 0.1);">
+                            <i class="fas fa-ban text-danger"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         {% if current_user.role in ['admin', 'manager'] %}
-        <div class="stat-card pending">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Pending Requests</h3>
-                <p class="stat-number">{{ pending_count }}</p>
-                <span class="stat-label">awaiting approval</span>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #8b5cf6;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-clock"></i> Pending</p>
+                            <h4 class="mb-0">{{ pending_count }}</h4>
+                            <small class="text-muted">awaiting approval</small>
+                        </div>
+                        <div class="badge bg-primary-light p-2" style="background-color: rgba(139, 92, 246, 0.1);">
+                            <i class="fas fa-clock" style="color: #8b5cf6;"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}
     </div>
 
-    <div class="dashboard-grid">
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-history"></i> Recent Leave Applications</h2>
-                <a href="{{ url_for('my_leaves') }}" class="btn btn-outline btn-sm">View All</a>
-            </div>
-            <div class="card-body">
-                {% if recent_leaves %}
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Duration</th>
-                            <th>Status</th>
-                            <th>Applied On</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for leave in recent_leaves %}
-                        <tr>
-                            <td>
-                                <span class="leave-type {{ leave.leave_type }}">
-                                    {{ leave.leave_type|capitalize }}
-                                </span>
-                            </td>
-                            <td>{{ leave.start_date.strftime('%d %b') }} - {{ leave.end_date.strftime('%d %b, %Y') }}</td>
-                            <td>
-                                <span class="status-badge {{ leave.status }}">
-                                    {{ leave.status|capitalize }}
-                                </span>
-                            </td>
-                            <td>{{ leave.applied_on.strftime('%d %b, %Y') }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div class="empty-state">
-                    <i class="fas fa-calendar-times"></i>
-                    <p>No leave applications yet</p>
-                    <a href="{{ url_for('apply_leave') }}" class="btn btn-primary">Apply for Leave</a>
+    <!-- Main Content Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Recent Leaves -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0"><i class="fas fa-history text-primary"></i> Recent Leave Applications</h5>
+                    <a href="{{ url_for('my_leaves') }}" class="btn btn-outline-primary btn-sm">View All</a>
                 </div>
-                {% endif %}
+                <div class="card-body p-0">
+                    {% if recent_leaves %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="fw-600">Type</th>
+                                    <th class="fw-600">Duration</th>
+                                    <th class="fw-600">Status</th>
+                                    <th class="fw-600">Applied On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in recent_leaves %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            {{ leave.leave_type|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td class="small text-muted">
+                                        {{ leave.start_date.strftime('%d %b') }} - {{ leave.end_date.strftime('%d %b, %Y') }}
+                                    </td>
+                                    <td>
+                                        {% if leave.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif leave.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif leave.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ leave.status|capitalize }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="small text-muted">{{ leave.applied_on.strftime('%d %b, %Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-calendar-times fa-3x mb-3 opacity-50"></i>
+                        <p class="mb-3">No leave applications yet</p>
+                        <a href="{{ url_for('apply_leave') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Apply for Leave
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
-            </div>
-            <div class="card-body">
-                <div class="quick-actions">
-                    <a href="{{ url_for('apply_leave') }}" class="quick-action-btn">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Apply Leave</span>
-                    </a>
-                    <a href="{{ url_for('my_leaves') }}" class="quick-action-btn">
-                        <i class="fas fa-list-alt"></i>
-                        <span>My Leaves</span>
-                    </a>
-                    <a href="{{ url_for('leave_balance') }}" class="quick-action-btn">
-                        <i class="fas fa-chart-pie"></i>
-                        <span>View Balance</span>
-                    </a>
-                    <a href="{{ url_for('my_payslip') }}" class="quick-action-btn">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        <span>My Pay Slip</span>
-                    </a>
-                    <a href="{{ url_for('leave_transactions') }}" class="quick-action-btn">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span>Transactions</span>
-                    </a>
-                    {% if current_user.role in ['admin', 'manager'] %}
-                    <a href="{{ url_for('manage_leaves') }}" class="quick-action-btn">
-                        <i class="fas fa-tasks"></i>
-                        <span>Manage Leaves</span>
-                    </a>
-                    <a href="{{ url_for('view_all_salaries') }}" class="quick-action-btn">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Employee Salaries</span>
-                    </a>
-                    <a href="{{ url_for('admin_invoices') }}" class="quick-action-btn">
-                        <i class="fas fa-file-pdf"></i>
-                        <span>All Invoices</span>
-                    </a>
-                    <a href="{{ url_for('manage_leave_balance') }}" class="quick-action-btn">
-                        <i class="fas fa-calendar-times"></i>
-                        <span>Leave Balance</span>
-                    </a>
-                    {% endif %}
+        <!-- Quick Actions -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0"><i class="fas fa-bolt text-warning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('apply_leave') }}" class="btn btn-light text-start border-bottom py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-plus-circle text-primary fa-lg me-3"></i>
+                                <div>
+                                    <strong>Apply Leave</strong>
+                                    <small class="d-block text-muted">Submit new request</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('my_leaves') }}" class="btn btn-light text-start border-bottom py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-list-alt text-info fa-lg me-3"></i>
+                                <div>
+                                    <strong>My Leaves</strong>
+                                    <small class="d-block text-muted">View all applications</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('leave_balance') }}" class="btn btn-light text-start border-bottom py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-chart-pie text-success fa-lg me-3"></i>
+                                <div>
+                                    <strong>View Balance</strong>
+                                    <small class="d-block text-muted">Check your balance</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('my_payslip') }}" class="btn btn-light text-start border-bottom py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-invoice-dollar text-danger fa-lg me-3"></i>
+                                <div>
+                                    <strong>My Pay Slip</strong>
+                                    <small class="d-block text-muted">View salary slip</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('leave_transactions') }}" class="btn btn-light text-start py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exchange-alt text-secondary fa-lg me-3"></i>
+                                <div>
+                                    <strong>Transactions</strong>
+                                    <small class="d-block text-muted">View history</small>
+                                </div>
+                            </div>
+                        </a>
+
+                        {% if current_user.role in ['admin', 'manager'] %}
+                        <hr class="my-3">
+                        <p class="text-muted small fw-600 mb-2"><i class="fas fa-shield-alt"></i> Admin Tools</p>
+                        <a href="{{ url_for('manage_leaves') }}" class="btn btn-light text-start border-bottom py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tasks text-primary fa-lg me-3"></i>
+                                <div>
+                                    <strong>Manage Leaves</strong>
+                                    <small class="d-block text-muted">Review requests</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('view_all_salaries') }}" class="btn btn-light text-start border-bottom py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users-cog text-warning fa-lg me-3"></i>
+                                <div>
+                                    <strong>Employee Salaries</strong>
+                                    <small class="d-block text-muted">View payroll</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('admin_invoices') }}" class="btn btn-light text-start border-bottom py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-pdf text-danger fa-lg me-3"></i>
+                                <div>
+                                    <strong>All Invoices</strong>
+                                    <small class="d-block text-muted">View documents</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('manage_leave_balance') }}" class="btn btn-light text-start py-3 px-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calendar-times text-info fa-lg me-3"></i>
+                                <div>
+                                    <strong>Leave Balance</strong>
+                                    <small class="d-block text-muted">Manage balances</small>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,46 +280,46 @@
 
     <!-- Active Trainings Section -->
     {% if active_trainings %}
-    <div class="dashboard-grid">
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-graduation-cap"></i> Active Training Programs</h2>
-                <a href="{{ url_for('training_list') }}" class="btn btn-outline btn-sm">View All</a>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for training in active_trainings %}
-                    <div class="col-md-4 mb-3">
-                        <div class="card h-100">
-                            <div class="card-header bg-light">
-                                <span class="badge bg-primary">
-                                    <i class="fas {{ training.icon }}"></i> {{ training.training_type|replace('-', ' ')|title }}
-                                </span>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-title">{{ training.title }}</h6>
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap text-info"></i> Active Training Programs</h5>
+                    <a href="{{ url_for('training_list') }}" class="btn btn-outline-primary btn-sm">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for training in active_trainings %}
+                        <div class="col-md-4">
+                            <div class="card border-0 h-100 shadow-sm">
+                                <div class="card-header bg-light border-0">
+                                    <span class="badge bg-primary">
+                                        <i class="fas {{ training.icon }}"></i> {{ training.training_type|replace('-', ' ')|title }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ training.title }}</h6>
 
-                                {% if training.video_url %}
-                                <div class="mb-2">
-                                    <a href="{{ training.video_url }}" target="_blank" class="btn btn-sm btn-primary w-100">
+                                    {% if training.video_url %}
+                                    <a href="{{ training.video_url }}" target="_blank" class="btn btn-primary btn-sm w-100 mb-2">
                                         <i class="fas fa-play-circle"></i> Watch Video
                                     </a>
+                                    {% endif %}
+
+                                    <p class="text-sm text-muted small mb-1">
+                                        <i class="fas fa-calendar"></i> {{ training.start_date.strftime('%d %b') }} - {{ training.end_date.strftime('%d %b %Y') }}
+                                    </p>
+
+                                    {% if training.trainer %}
+                                    <p class="text-sm text-muted small mb-0">
+                                        <i class="fas fa-user-tie"></i> {{ training.trainer }}
+                                    </p>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
-
-                                <p class="text-sm text-muted mb-2">
-                                    <i class="fas fa-calendar"></i> {{ training.start_date.strftime('%d %b') }} - {{ training.end_date.strftime('%d %b %Y') }}
-                                </p>
-
-                                {% if training.trainer %}
-                                <p class="text-sm text-muted mb-0">
-                                    <i class="fas fa-user-tie"></i> {{ training.trainer }}
-                                </p>
-                                {% endif %}
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
