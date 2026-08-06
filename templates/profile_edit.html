@@ -7,159 +7,200 @@
     <!-- Page Header -->
     <div class="mb-4">
         <h1 class="h3 mb-1"><i class="fas fa-user-edit text-primary"></i> Edit Profile</h1>
-        <p class="text-muted">Update your personal information</p>
+        <p class="text-muted">Update your personal and employment information</p>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <form method="POST" class="card border-0 shadow-sm">
+    <form method="POST">
+        <div class="row g-4">
+            <!-- Left Column -->
+            <div class="col-lg-6">
                 <!-- Personal Information Section -->
-                <div class="card-header bg-light border-bottom">
-                    <h5 class="mb-0"><i class="fas fa-id-card text-primary"></i> Personal Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-id-card text-primary"></i> Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
                             <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control form-control-lg" id="phone" name="phone"
+                            <input type="tel" class="form-control" id="phone" name="phone"
                                    value="{{ user.phone or '' }}" placeholder="Enter phone number">
                         </div>
-                        <div class="col-md-6">
-                            <label for="city" class="form-label">City</label>
-                            <input type="text" class="form-control form-control-lg" id="city" name="city"
-                                   value="{{ user.city or '' }}" placeholder="Enter city">
-                        </div>
-                    </div>
 
-                    <div class="mt-3">
-                        <label for="address" class="form-label">Address</label>
-                        <textarea class="form-control form-control-lg" id="address" name="address"
-                                  rows="3" placeholder="Enter your address">{{ user.address or '' }}</textarea>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
+                                       value="{% if user.date_of_birth %}{{ user.date_of_birth.strftime('%Y-%m-%d') }}{% endif %}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="">-- Select --</option>
+                                    <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                                    <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="blood_group" class="form-label">Blood Group</label>
+                            <select class="form-select" id="blood_group" name="blood_group">
+                                <option value="">-- Select --</option>
+                                <option value="O+" {% if user.blood_group == 'O+' %}selected{% endif %}>O+</option>
+                                <option value="O-" {% if user.blood_group == 'O-' %}selected{% endif %}>O-</option>
+                                <option value="A+" {% if user.blood_group == 'A+' %}selected{% endif %}>A+</option>
+                                <option value="A-" {% if user.blood_group == 'A-' %}selected{% endif %}>A-</option>
+                                <option value="B+" {% if user.blood_group == 'B+' %}selected{% endif %}>B+</option>
+                                <option value="B-" {% if user.blood_group == 'B-' %}selected{% endif %}>B-</option>
+                                <option value="AB+" {% if user.blood_group == 'AB+' %}selected{% endif %}>AB+</option>
+                                <option value="AB-" {% if user.blood_group == 'AB-' %}selected{% endif %}>AB-</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Address Section -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-map-marker-alt text-success"></i> Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Street Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="2"
+                                      placeholder="Enter your address">{{ user.address or '' }}</textarea>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city"
+                                       value="{{ user.city or '' }}" placeholder="City">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="state" class="form-label">State</label>
+                                <input type="text" class="form-control" id="state" name="state"
+                                       value="{{ user.state or '' }}" placeholder="State">
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="postal_code" class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code"
+                                       value="{{ user.postal_code or '' }}" placeholder="Postal Code">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="country" name="country"
+                                       value="{{ user.country or '' }}" placeholder="Country">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-6">
                 <!-- Emergency Contact Section -->
-                <div class="card-header bg-light border-bottom mt-4">
-                    <h5 class="mb-0"><i class="fas fa-phone text-danger"></i> Emergency Contact</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-phone text-danger"></i> Emergency Contact</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
                             <label for="emergency_contact" class="form-label">Contact Name</label>
-                            <input type="text" class="form-control form-control-lg" id="emergency_contact"
-                                   name="emergency_contact" value="{{ user.emergency_contact or '' }}"
-                                   placeholder="Emergency contact name">
+                            <input type="text" class="form-control" id="emergency_contact" name="emergency_contact"
+                                   value="{{ user.emergency_contact or '' }}" placeholder="Emergency contact name">
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="mb-3">
                             <label for="emergency_phone" class="form-label">Contact Phone</label>
-                            <input type="tel" class="form-control form-control-lg" id="emergency_phone"
-                                   name="emergency_phone" value="{{ user.emergency_phone or '' }}"
-                                   placeholder="Emergency contact phone">
+                            <input type="tel" class="form-control" id="emergency_phone" name="emergency_phone"
+                                   value="{{ user.emergency_phone or '' }}" placeholder="Emergency contact phone">
                         </div>
                     </div>
                 </div>
 
                 <!-- Employment Information (Admin Only) -->
                 {% if current_user.role == 'admin' %}
-                <div class="card-header bg-light border-bottom mt-4">
-                    <h5 class="mb-0"><i class="fas fa-briefcase text-success"></i> Employment Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="designation" class="form-label">Designation</label>
-                            <input type="text" class="form-control form-control-lg" id="designation"
-                                   name="designation" value="{{ user.designation or '' }}"
-                                   placeholder="Job designation">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="date_of_joining" class="form-label">Date of Joining</label>
-                            <input type="date" class="form-control form-control-lg" id="date_of_joining"
-                                   name="date_of_joining"
-                                   value="{% if user.date_of_joining %}{{ user.date_of_joining.strftime('%Y-%m-%d') }}{% endif %}">
-                        </div>
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-briefcase text-info"></i> Employment Information</h5>
                     </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="designation" class="form-label">Designation</label>
+                                <input type="text" class="form-control" id="designation" name="designation"
+                                       value="{{ user.designation or '' }}" placeholder="Job title">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="date_of_joining" class="form-label">Date of Joining</label>
+                                <input type="date" class="form-control" id="date_of_joining" name="date_of_joining"
+                                       value="{% if user.date_of_joining %}{{ user.date_of_joining.strftime('%Y-%m-%d') }}{% endif %}">
+                            </div>
+                        </div>
 
-                    <div class="mt-3">
-                        <label for="reporting_manager" class="form-label">Reporting Manager</label>
-                        <input type="text" class="form-control form-control-lg" id="reporting_manager"
-                               name="reporting_manager" value="{{ user.reporting_manager or '' }}"
-                               placeholder="Manager name">
+                        <div class="mb-3">
+                            <label for="reporting_manager" class="form-label">Reporting Manager</label>
+                            <input type="text" class="form-control" id="reporting_manager" name="reporting_manager"
+                                   value="{{ user.reporting_manager or '' }}" placeholder="Manager name">
+                        </div>
                     </div>
                 </div>
                 {% endif %}
 
-                <!-- Form Actions -->
-                <div class="card-footer bg-light">
-                    <div class="d-flex gap-2">
-                        <a href="{{ url_for('view_profile') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save Changes
-                        </button>
+                <!-- Financial Information Section -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-credit-card text-warning"></i> Financial Information</h5>
                     </div>
-                </div>
-            </form>
-        </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="pan_number" class="form-label">PAN Number</label>
+                                <input type="text" class="form-control" id="pan_number" name="pan_number"
+                                       value="{{ user.pan_number or '' }}" placeholder="e.g., AAAPA1234A">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="aadhar_number" class="form-label">Aadhar Number</label>
+                                <input type="text" class="form-control" id="aadhar_number" name="aadhar_number"
+                                       value="{{ user.aadhar_number or '' }}" placeholder="12-digit number">
+                            </div>
+                        </div>
 
-        <!-- Info Sidebar -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light border-bottom">
-                    <h5 class="mb-0"><i class="fas fa-info-circle text-info"></i> Profile Tips</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-3 pb-3 border-bottom">
-                            <small><strong>Phone:</strong> Keep your phone number updated for important notifications</small>
-                        </li>
-                        <li class="mb-3 pb-3 border-bottom">
-                            <small><strong>Address:</strong> Used for official communications and documents</small>
-                        </li>
-                        <li class="mb-3 pb-3 border-bottom">
-                            <small><strong>Emergency Contact:</strong> This person will be contacted in case of emergency</small>
-                        </li>
-                        {% if current_user.role == 'admin' %}
-                        <li class="mb-3 pb-3 border-bottom">
-                            <small><strong>Designation:</strong> Employee's job title or position</small>
-                        </li>
-                        <li class="mb-3 pb-3 border-bottom">
-                            <small><strong>Date of Joining:</strong> Employee's start date in the company</small>
-                        </li>
-                        <li>
-                            <small><strong>Reporting Manager:</strong> Name of the direct supervisor</small>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Account Information (Read-only) -->
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-header bg-light border-bottom">
-                    <h5 class="mb-0"><i class="fas fa-lock text-warning"></i> Account Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <small class="text-muted d-block">Username</small>
-                        <p class="mb-0"><strong>{{ current_user.username }}</strong></p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="bank_account" class="form-label">Bank Account Number</label>
+                                <input type="text" class="form-control" id="bank_account" name="bank_account"
+                                       value="{{ user.bank_account or '' }}" placeholder="Account number">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="ifsc_code" class="form-label">IFSC Code</label>
+                                <input type="text" class="form-control" id="ifsc_code" name="ifsc_code"
+                                       value="{{ user.ifsc_code or '' }}" placeholder="e.g., SBIN0001234">
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <small class="text-muted d-block">Email</small>
-                        <p class="mb-0"><strong>{{ current_user.email }}</strong></p>
-                    </div>
-                    <div>
-                        <small class="text-muted d-block">Member Since</small>
-                        <p class="mb-0"><strong>{{ current_user.created_at.strftime('%b %d, %Y') }}</strong></p>
-                    </div>
-                    <hr>
-                    <p class="text-muted small mb-0">
-                        <i class="fas fa-info-circle"></i> Username and email cannot be changed. Contact admin if you need assistance.
-                    </p>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Form Actions -->
+        <div class="row mt-4">
+            <div class="col">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{{ url_for('view_profile') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 {% endblock %}

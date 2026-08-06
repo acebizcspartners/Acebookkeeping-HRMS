@@ -105,15 +105,33 @@ class User(UserMixin, db.Model):
     department = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Profile fields
+    # Personal Profile fields
     phone = db.Column(db.String(20))
+    date_of_birth = db.Column(db.Date)
+    gender = db.Column(db.String(20))
+    blood_group = db.Column(db.String(10))
+
+    # Address fields
     address = db.Column(db.Text)
     city = db.Column(db.String(50))
+    state = db.Column(db.String(50))
+    postal_code = db.Column(db.String(20))
+    country = db.Column(db.String(50))
+
+    # Emergency Contact
     emergency_contact = db.Column(db.String(100))
     emergency_phone = db.Column(db.String(20))
+
+    # Employment fields
     date_of_joining = db.Column(db.Date)
     designation = db.Column(db.String(100))
     reporting_manager = db.Column(db.String(100))
+
+    # Financial fields
+    pan_number = db.Column(db.String(20))
+    aadhar_number = db.Column(db.String(20))
+    bank_account = db.Column(db.String(50))
+    ifsc_code = db.Column(db.String(20))
 
     def get_leave_balance(self, leave_type):
         """Get leave balance for a specific leave type"""
@@ -2278,13 +2296,31 @@ def view_profile():
 def edit_profile():
     """Edit employee profile"""
     if request.method == 'POST':
+        # Personal info
         current_user.phone = request.form.get('phone')
         current_user.address = request.form.get('address')
         current_user.city = request.form.get('city')
+        current_user.state = request.form.get('state')
+        current_user.postal_code = request.form.get('postal_code')
+        current_user.country = request.form.get('country')
+
+        # Personal details
+        if request.form.get('date_of_birth'):
+            current_user.date_of_birth = datetime.strptime(request.form.get('date_of_birth'), '%Y-%m-%d').date()
+        current_user.gender = request.form.get('gender')
+        current_user.blood_group = request.form.get('blood_group')
+
+        # Emergency contact
         current_user.emergency_contact = request.form.get('emergency_contact')
         current_user.emergency_phone = request.form.get('emergency_phone')
 
-        # Date of joining and designation (admin can set these)
+        # Financial info
+        current_user.pan_number = request.form.get('pan_number')
+        current_user.aadhar_number = request.form.get('aadhar_number')
+        current_user.bank_account = request.form.get('bank_account')
+        current_user.ifsc_code = request.form.get('ifsc_code')
+
+        # Employment (admin only)
         if current_user.role == 'admin':
             if request.form.get('date_of_joining'):
                 current_user.date_of_joining = datetime.strptime(request.form.get('date_of_joining'), '%Y-%m-%d').date()
