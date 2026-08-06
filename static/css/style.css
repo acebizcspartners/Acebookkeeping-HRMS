@@ -59,7 +59,7 @@ a {
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1001;
 }
 
 .nav-brand {
@@ -147,6 +147,8 @@ a {
     padding: 2rem;
     max-width: 1400px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 /* Flash Messages */

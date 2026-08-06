@@ -11,6 +11,10 @@ import smtplib
 import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Monthly leave accrual rates (in HOURS)
 ANNUAL_LEAVE_MONTHLY_CREDIT = 9.2    # 9.2 hours per month (110.4 hours/year)
