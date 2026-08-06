@@ -1699,44 +1699,6 @@ def auto_mark_attendance_route():
     return redirect(url_for('view_all_salaries'))
 
 # Employee Profile
-@app.route('/profile')
-@login_required
-def profile():
-    profile = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
-    emergency_contacts = EmergencyContact.query.filter_by(user_id=current_user.id).all()
-    onboarding_documents = OnboardingDocument.query.filter_by(user_id=current_user.id).order_by(OnboardingDocument.assigned_at.desc()).all()
-    return render_template('profile.html', profile=profile, emergency_contacts=emergency_contacts, onboarding_documents=onboarding_documents)
-
-@app.route('/profile/edit', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    profile = EmployeeProfile.query.filter_by(user_id=current_user.id).first()
-
-    if request.method == 'POST':
-        if not profile:
-            profile = EmployeeProfile(user_id=current_user.id)
-            db.session.add(profile)
-
-        profile.phone = request.form.get('phone')
-        profile.address = request.form.get('address')
-        profile.city = request.form.get('city')
-        profile.state = request.form.get('state')
-        profile.postal_code = request.form.get('postal_code')
-        profile.country = request.form.get('country')
-        profile.date_of_birth = datetime.strptime(request.form.get('date_of_birth'), '%Y-%m-%d').date() if request.form.get('date_of_birth') else None
-        profile.gender = request.form.get('gender')
-        profile.blood_group = request.form.get('blood_group')
-        profile.pan_number = request.form.get('pan_number')
-        profile.aadhar_number = request.form.get('aadhar_number')
-        profile.bank_account = request.form.get('bank_account')
-        profile.ifsc_code = request.form.get('ifsc_code')
-
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
-        return redirect(url_for('profile'))
-
-    return render_template('edit_profile.html', profile=profile)
-
 # Emergency Contacts
 @app.route('/emergency-contacts')
 @login_required
