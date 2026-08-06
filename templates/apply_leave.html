@@ -1,118 +1,348 @@
 {% extends 'base.html' %}
 
-{% block title %}Apply Leave - Leave Management System{% endblock %}
+{% block title %}Apply Leave - HRMS{% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <div class="page-header">
-        <h1><i class="fas fa-plus-circle"></i> Apply for Leave</h1>
-        <p>Submit a new leave request</p>
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="h3 mb-1"><i class="fas fa-plus-circle text-primary"></i> Apply for Leave</h1>
+        <p class="text-muted">Submit a new leave request and track its status</p>
     </div>
 
-    <div class="form-card">
-        <form method="POST" class="leave-form" id="leaveForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="leave_type">
-                        <i class="fas fa-tag"></i> Leave Type
-                    </label>
-                    <select id="leave_type" name="leave_type" required>
-                        <option value="">Select Leave Type</option>
-                        <option value="annual">Annual Leave</option>
-                        <option value="sick">Sick Leave</option>
-                        <option value="lwp">Leave Without Pay</option>
-                    </select>
+    <div class="row g-4">
+        <!-- Main Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <form method="POST" class="leave-form" id="leaveForm">
+                    <!-- Leave Type Selection -->
+                    <div class="card-body">
+                        <h5 class="mb-4"><i class="fas fa-tag text-primary"></i> Leave Details</h5>
+
+                        <div class="mb-4">
+                            <label for="leave_type" class="form-label">
+                                <span class="fw-600">Leave Type</span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select id="leave_type" name="leave_type" class="form-select form-select-lg" required>
+                                <option value="">-- Select Leave Type --</option>
+                                <option value="annual">
+                                    <i class="fas fa-umbrella-beach"></i> Annual Leave (Paid)
+                                </option>
+                                <option value="sick">
+                                    <i class="fas fa-briefcase-medical"></i> Sick Leave (Health-related)
+                                </option>
+                                <option value="lwp">
+                                    <i class="fas fa-ban"></i> Leave Without Pay (Unpaid)
+                                </option>
+                            </select>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Date Selection -->
+                        <h5 class="mb-4"><i class="fas fa-calendar-alt text-primary"></i> Select Dates</h5>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">
+                                    <span class="fw-600">Start Date</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" id="start_date" name="start_date" class="form-control form-control-lg" required>
+                                <small class="text-muted d-block mt-2"><i class="fas fa-info-circle"></i> Leave start date</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">
+                                    <span class="fw-600">End Date</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" id="end_date" name="end_date" class="form-control form-control-lg" required>
+                                <small class="text-muted d-block mt-2"><i class="fas fa-info-circle"></i> Leave end date</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Duration Selection -->
+                        <h5 class="mb-4"><i class="fas fa-clock text-primary"></i> Duration</h5>
+
+                        <div class="mb-4">
+                            <label for="duration_type" class="form-label">
+                                <span class="fw-600">Duration Type</span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select id="duration_type" class="form-select form-select-lg" required>
+                                <option value="">-- Select Duration Type --</option>
+                                <option value="full_day">Full Day (7.36 hours)</option>
+                                <option value="half_day">Half Day (3.68 hours)</option>
+                                <option value="custom">Custom Hours</option>
+                            </select>
+                        </div>
+
+                        <!-- Custom Hours Row -->
+                        <div id="customHoursRow" style="display: none;" class="row g-3 mb-4">
+                            <div class="col-md-5">
+                                <label for="from_time" class="form-label">
+                                    <span class="fw-600">From Time</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="time" id="from_time" name="from_time" class="form-control form-control-lg">
+                            </div>
+                            <div class="col-md-5">
+                                <label for="to_time" class="form-label">
+                                    <span class="fw-600">To Time</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="time" id="to_time" name="to_time" class="form-control form-control-lg">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="custom_hours" class="form-label">
+                                    <span class="fw-600">Hours</span>
+                                </label>
+                                <input type="number" id="custom_hours" name="custom_hours" class="form-control form-control-lg" step="0.01" min="0.01" max="7.36" placeholder="Auto" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Hidden field -->
+                        <input type="hidden" id="hours" name="hours" value="0">
+
+                        <!-- Days Info -->
+                        <div id="daysInfo" style="display: none;" class="alert alert-info border-0 mb-4" role="alert">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Leave Summary</strong>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Total Days</small>
+                                    <h6 class="mb-0"><strong id="totalDays">0</strong> day(s)</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Hours per Day</small>
+                                    <h6 class="mb-0"><strong id="hoursPerDay">0</strong> hrs</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block">Total Hours</small>
+                                    <h6 class="mb-0"><strong id="displayHours">0</strong> hrs</h6>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Reason -->
+                        <h5 class="mb-4"><i class="fas fa-comment-alt text-primary"></i> Reason</h5>
+
+                        <div class="mb-4">
+                            <label for="reason" class="form-label">
+                                <span class="fw-600">Leave Reason</span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea id="reason" name="reason" rows="4" class="form-control form-control-lg" required placeholder="Please provide a reason for your leave request..."></textarea>
+                            <small class="text-muted d-block mt-2"><i class="fas fa-lightbulb"></i> Be specific about the reason for better approval chances</small>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="card-footer bg-light border-top py-3">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Application
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Sidebar -->
+        <div class="col-lg-4">
+            <!-- Leave Balance -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie text-primary"></i> Your Leave Balance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Annual Leave</span>
+                            <span class="badge bg-success">64.4 hrs</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Sick Leave</span>
+                            <span class="badge bg-warning">51.5 hrs</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">LWP Used</span>
+                            <span class="badge bg-danger">0 hrs</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-danger" style="width: 0%;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="start_date">
-                        <i class="fas fa-calendar-alt"></i> Start Date
-                    </label>
-                    <input type="date" id="start_date" name="start_date" required>
+            <!-- Guidelines -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb text-warning"></i> Guidelines</h5>
                 </div>
-
-                <div class="form-group">
-                    <label for="end_date">
-                        <i class="fas fa-calendar-alt"></i> End Date
-                    </label>
-                    <input type="date" id="end_date" name="end_date" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="duration_type">
-                        <i class="fas fa-clock"></i> Duration Type
-                    </label>
-                    <select id="duration_type" required>
-                        <option value="">Select Duration</option>
-                        <option value="full_day">Full Day (7.36 hrs)</option>
-                        <option value="half_day">Half Day (3.68 hrs)</option>
-                        <option value="custom">Custom Hours</option>
-                    </select>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2 pb-2 border-bottom">
+                            <small><i class="fas fa-check text-success"></i> Apply leave at least 5 days in advance</small>
+                        </li>
+                        <li class="mb-2 pb-2 border-bottom">
+                            <small><i class="fas fa-check text-success"></i> Half day leaves must be applied by 10 AM</small>
+                        </li>
+                        <li class="mb-2 pb-2 border-bottom">
+                            <small><i class="fas fa-check text-success"></i> Emergency leaves need manager approval</small>
+                        </li>
+                        <li>
+                            <small><i class="fas fa-check text-success"></i> Medical certificate needed for sick leave > 3 days</small>
+                        </li>
+                    </ul>
                 </div>
             </div>
-
-            <div class="form-row" id="customHoursRow" style="display: none;">
-                <div class="form-group">
-                    <label for="from_time">
-                        <i class="fas fa-sign-in-alt"></i> From Time
-                    </label>
-                    <input type="time" id="from_time" name="from_time">
-                </div>
-
-                <div class="form-group">
-                    <label for="to_time">
-                        <i class="fas fa-sign-out-alt"></i> To Time
-                    </label>
-                    <input type="time" id="to_time" name="to_time">
-                </div>
-
-                <div class="form-group">
-                    <label for="custom_hours">
-                        <i class="fas fa-hourglass-half"></i> Calculated Hours
-                    </label>
-                    <input type="number" id="custom_hours" name="custom_hours" step="0.01" min="0.01" max="7.36" placeholder="Auto-calculated" readonly>
-                </div>
-            </div>
-
-            <!-- Hidden field that actually submits -->
-            <input type="hidden" id="hours" name="hours" value="0">
-
-            <div class="form-group" id="daysInfo" style="display: none;">
-                <div class="info-box">
-                    <i class="fas fa-info-circle"></i>
-                    <span>
-                        Duration: <strong id="totalDays">0</strong> day(s) |
-                        Hours per day: <strong id="hoursPerDay">0</strong> |
-                        Total Hours: <strong id="displayHours">0</strong>
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="reason">
-                    <i class="fas fa-comment-alt"></i> Reason
-                </label>
-                <textarea id="reason" name="reason" rows="4" required placeholder="Please provide a reason for your leave request..."></textarea>
-            </div>
-
-            <div class="form-actions">
-                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Submit Application
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<style>
+.form-control-lg {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+    .form-control-lg:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-select-lg {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+    .form-select-lg:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Form Headers with Gradient Colors */
+    .card-body h5 {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+    }
+
+    .card-body h5 i {
+        color: #6366f1;
+        margin-right: 0.5rem;
+    }
+
+    /* Section Dividers */
+    hr {
+        border-color: #e0e7ff;
+        opacity: 0.5;
+    }
+
+    /* Button Styling */
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        border: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .btn-outline-secondary:hover {
+        border-color: #6366f1;
+        color: #6366f1;
+        background: #f5f5ff;
+    }
+
+    /* Card Headers */
+    .card-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-bottom: 2px solid #e0e7ff !important;
+    }
+
+    .card-header h5 {
+        color: #1e293b !important;
+        background: none !important;
+        -webkit-text-fill-color: #1e293b !important;
+    }
+
+    /* Progress Bar Colors */
+    .progress {
+        background-color: #f1f5f9;
+        border-radius: 10px;
+    }
+
+    /* Info Box Color */
+    .alert-info {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-left: 4px solid #0284c7;
+    }
+
+    /* Form Label Colors */
+    .form-label {
+        color: #1e293b;
+    }
+
+    .form-label .fw-600 {
+        color: #0f172a;
+    }
+
+    .form-label .text-danger {
+        color: #ef4444;
+    }
+
+    /* Input Placeholder */
+    .form-control-lg::placeholder,
+    .form-select-lg::placeholder {
+        color: #cbd5e1;
+    }
+</style>
+
 <script>
     const HOURS_PER_DAY = 7.36;
     const startDate = document.getElementById('start_date');
