@@ -148,7 +148,7 @@ a {
     max-width: 1400px;
     margin: 0 auto;
     position: relative;
-    z-index: 1;
+    z-index: 0;
 }
 
 /* Flash Messages */
@@ -1285,12 +1285,12 @@ a {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    z-index: 996;
+    z-index: 999;
     pointer-events: none;
 }
 
 .sidebar-overlay.active {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -1345,7 +1345,7 @@ body.sidebar-open {
     width: 350px;
     text-align: left;
     transition: left 0.3s ease;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
     padding: 1rem 0;
     gap: 0;
     max-height: calc(100vh - 70px);
