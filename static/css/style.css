@@ -1484,10 +1484,10 @@ body.sidebar-open {
     display: flex;
     flex-direction: column;
     position: fixed;
-    left: -350px;
+    left: -280px;
     top: 70px;
     background-color: white;
-    width: 350px;
+    width: 280px;
     text-align: left;
     transition: left 0.3s ease;
     box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
@@ -1634,8 +1634,8 @@ body.sidebar-open {
 /* Tablet Responsive (768px to 1024px) */
 @media (min-width: 768px) and (max-width: 1024px) {
     .nav-links {
-        width: 300px;
-        left: -300px;
+        width: 260px;
+        left: -260px;
     }
 
     .container-fluid {
@@ -1651,7 +1651,7 @@ body.sidebar-open {
 /* Large Desktop (1024px and above) */
 @media (min-width: 1024px) {
     .nav-links {
-        width: 350px;
+        width: 280px;
     }
 }
 
