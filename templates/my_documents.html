@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}My Documents - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h1 class="h3 mb-1"><i class="fas fa-file-contract text-primary"></i> My Documents</h1>
+        <p class="text-muted">View all assigned onboarding documents</p>
+    </div>
+
+    {% if documents %}
+    <div class="row g-4">
+        {% for doc in documents %}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">
+                            <i class="fas fa-{% if doc.doc_type == 'offer' %}briefcase{% elif doc.doc_type == 'agreement' %}handshake{% elif doc.doc_type == 'assets' %}laptop{% else %}file{% endif %} text-info me-2"></i>
+                            {{ doc.doc_title }}
+                        </h5>
+                        <small class="text-muted">
+                            Type: <span class="badge bg-light text-dark">{{ doc.doc_type|capitalize }}</span>
+                        </small>
+                    </div>
+                    {% if doc.status == 'assigned' %}
+                        <span class="badge bg-warning text-dark" style="font-size: 0.8rem; padding: 0.6rem;">Pending Review</span>
+                    {% elif doc.status == 'acknowledged' %}
+                        <span class="badge bg-success" style="font-size: 0.8rem; padding: 0.6rem;">Acknowledged</span>
+                    {% elif doc.status == 'rejected' %}
+                        <span class="badge bg-danger" style="font-size: 0.8rem; padding: 0.6rem;">Rejected</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2">
+                            <i class="fas fa-calendar me-1"></i> Assigned on: {{ doc.assigned_at.strftime('%d %B, %Y at %I:%M %p') }}
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('view_document', doc_id=doc.id) }}" class="btn btn-primary">
+                            <i class="fas fa-eye me-2"></i> View Document
+                        </a>
+                        {% if doc.status == 'assigned' %}
+                        <form method="POST" action="{{ url_for('acknowledge_document', doc_id=doc.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i> Mark as Acknowledged
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-file-alt fa-3x mb-3" style="color: #ccc;"></i>
+            <h5 class="text-muted mb-2">No Documents Assigned</h5>
+            <p class="text-muted mb-0">You don't have any assigned documents yet. Check back later or contact your admin.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

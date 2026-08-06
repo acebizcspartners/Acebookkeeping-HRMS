@@ -52,12 +52,12 @@ try:
                     ALTER TABLE "user"
                     ADD COLUMN {column_name} {column_type}
                 """))
-                print(f"✓ {column_name} added successfully")
+                print(f"[OK] {column_name} added successfully")
             else:
-                print(f"✓ {column_name} already exists")
+                print(f"[OK] {column_name} already exists")
 
         conn.commit()
-        print("\n✓ All profile columns are now available!")
+        print("\n[OK] All profile columns are now available!")
 
 except Exception as e:
     print(f"ERROR: {e}")

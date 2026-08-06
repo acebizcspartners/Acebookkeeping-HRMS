@@ -117,11 +117,63 @@
         {% endif %}
     </div>
 
+    <!-- Assigned Documents Alert -->
+    {% if assigned_documents %}
+    <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+        <i class="fas fa-file-contract me-2"></i>
+        <strong>Assigned Documents:</strong> You have {{ assigned_documents|length }} document(s) assigned by admin.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
     <!-- Main Content Grid -->
     <div class="row g-4 mb-4">
-        <!-- Recent Leaves -->
+        <!-- Assigned Documents Section (if any) -->
+        {% if assigned_documents %}
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0"><i class="fas fa-file-contract text-info"></i> Assigned Documents</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for doc in assigned_documents %}
+                        <div class="list-group-item px-4 py-3">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-{% if doc.doc_type == 'offer' %}briefcase{% elif doc.doc_type == 'agreement' %}handshake{% elif doc.doc_type == 'assets' %}laptop{% else %}file{% endif %} text-info me-2"></i>
+                                        {{ doc.doc_title }}
+                                    </h6>
+                                    <small class="text-muted d-block">
+                                        Type: <span class="badge bg-light text-dark">{{ doc.doc_type|capitalize }}</span>
+                                        • Assigned: {{ doc.assigned_at.strftime('%d %b, %Y') }}
+                                    </small>
+                                </div>
+                                <div class="col-auto">
+                                    {% if doc.status == 'assigned' %}
+                                        <span class="badge bg-warning">Pending Review</span>
+                                    {% elif doc.status == 'acknowledged' %}
+                                        <span class="badge bg-success">Acknowledged</span>
+                                    {% elif doc.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                    <a href="{{ url_for('view_document', doc_id=doc.id) }}" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Leaves -->
+        <div class="col-lg-{% if assigned_documents %}4{% else %}8{% endif %}">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0"><i class="fas fa-history text-primary"></i> Recent Leave Applications</h5>
                     <a href="{{ url_for('my_leaves') }}" class="btn btn-outline-primary btn-sm">View All</a>

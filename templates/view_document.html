@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ document.doc_title }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-{% if document.doc_type == 'offer' %}briefcase{% elif document.doc_type == 'agreement' %}handshake{% elif document.doc_type == 'assets' %}laptop{% else %}file{% endif %} text-primary me-2"></i>
+                {{ document.doc_title }}
+            </h1>
+            <p class="text-muted mb-0">
+                Type: <span class="badge bg-light text-dark">{{ document.doc_type|capitalize }}</span>
+                • Assigned: {{ document.assigned_at.strftime('%d %B, %Y') }}
+            </p>
+        </div>
+        <div>
+            {% if document.status == 'assigned' %}
+                <span class="badge bg-warning text-dark p-2" style="font-size: 1rem;">Pending Review</span>
+            {% elif document.status == 'acknowledged' %}
+                <span class="badge bg-success p-2" style="font-size: 1rem;">Acknowledged</span>
+            {% elif document.status == 'rejected' %}
+                <span class="badge bg-danger p-2" style="font-size: 1rem;">Rejected</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Document Content -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <!-- Document Content (HTML rendered) -->
+                    <div class="document-content" style="line-height: 1.8; font-size: 1rem; color: #333;">
+                        {{ document.doc_content|safe }}
+                    </div>
+                </div>
+            </div>
+
+                    <!-- Action Buttons -->
+            <div class="mt-4 d-flex gap-2 justify-content-center print-hide">
+                <button onclick="printDocument()" class="btn btn-info btn-lg">
+                    <i class="fas fa-print me-2"></i> Print Document
+                </button>
+                <a href="{{ url_for('my_documents') }}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Documents
+                </a>
+                {% if document.status == 'assigned' %}
+                <form method="POST" action="{{ url_for('acknowledge_document', doc_id=document.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check me-2"></i> Mark as Acknowledged
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Support -->
+    <style>
+        .print-hide {
+            print: none;
+        }
+
+        @media print {
+            /* Hide non-printable elements */
+            .navbar, .sidebar-overlay, .nav-links, .nav-user-section,
+            .btn, button, a.btn, .print-hide, .page-header {
+                display: none !important;
+            }
+
+            /* Style the card for printing */
+            .container-fluid {
+                padding: 0 !important;
+            }
+
+            .card {
+                box-shadow: none !important;
+                border: none !important;
+                page-break-inside: avoid;
+            }
+
+            /* Improve document content printing */
+            .document-content {
+                font-size: 11pt;
+                line-height: 1.6;
+                color: #000;
+            }
+
+            /* Page margins */
+            @page {
+                margin: 1cm;
+                size: A4;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+
+    <script>
+        // Print with better formatting
+        function printDocument() {
+            const printWindow = window.open('', '_blank');
+            const docTitle = '{{ document.doc_title }}';
+            const docContent = document.querySelector('.document-content').innerHTML;
+
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${docTitle}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 1cm; }
+                        h1 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+                        .document-content { line-height: 1.8; font-size: 11pt; }
+                        @page { margin: 1cm; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${docTitle}</h1>
+                    <div class="document-content">${docContent}</div>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(html);
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+    </script>
+</div>
+{% endblock %}

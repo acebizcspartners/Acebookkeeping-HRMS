@@ -830,12 +830,17 @@ def dashboard():
     active_trainings = Training.query.filter_by(status='ongoing')\
         .order_by(Training.start_date).limit(3).all()
 
+    # Get assigned onboarding documents for current user
+    assigned_documents = OnboardingDocument.query.filter_by(user_id=current_user.id)\
+        .order_by(OnboardingDocument.assigned_at.desc()).all()
+
     return render_template('dashboard.html',
                          balance=balance,
                          leave_info=leave_info,
                          recent_leaves=recent_leaves,
                          pending_count=pending_count,
-                         active_trainings=active_trainings)
+                         active_trainings=active_trainings,
+                         assigned_documents=assigned_documents)
 
 @app.route('/apply-leave', methods=['GET', 'POST'])
 @login_required
@@ -2332,6 +2337,43 @@ def edit_profile():
         return redirect(url_for('view_profile'))
 
     return render_template('profile_edit.html', user=current_user)
+
+@app.route('/my-documents')
+@login_required
+def my_documents():
+    """View assigned onboarding documents"""
+    documents = OnboardingDocument.query.filter_by(user_id=current_user.id)\
+        .order_by(OnboardingDocument.assigned_at.desc()).all()
+
+    return render_template('my_documents.html', documents=documents)
+
+@app.route('/document/<int:doc_id>')
+@login_required
+def view_document(doc_id):
+    """View a specific document"""
+    doc = OnboardingDocument.query.get_or_404(doc_id)
+
+    # Check if user has permission to view this document
+    if doc.user_id != current_user.id and current_user.role != 'admin':
+        flash('You do not have permission to view this document', 'error')
+        return redirect(url_for('dashboard'))
+
+    return render_template('view_document.html', document=doc)
+
+@app.route('/document/<int:doc_id>/acknowledge', methods=['POST'])
+@login_required
+def acknowledge_document(doc_id):
+    """Mark document as acknowledged"""
+    doc = OnboardingDocument.query.get_or_404(doc_id)
+
+    if doc.user_id != current_user.id:
+        flash('You do not have permission to acknowledge this document', 'error')
+        return redirect(url_for('dashboard'))
+
+    doc.status = 'acknowledged'
+    db.session.commit()
+    flash('Document acknowledged successfully!', 'success')
+    return redirect(url_for('my_documents'))
 
 def init_db():
     with app.app_context():
