@@ -1283,7 +1283,7 @@ a {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    z-index: 997;
+    z-index: 996;
     pointer-events: none;
 }
 
@@ -1348,7 +1348,7 @@ body.sidebar-open {
     gap: 0;
     max-height: calc(100vh - 70px);
     overflow-y: auto;
-    z-index: 999;
+    z-index: 1000;
     list-style: none;
 }
 
