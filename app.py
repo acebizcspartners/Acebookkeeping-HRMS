@@ -32,17 +32,9 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 IS_VERCEL = os.environ.get('VERCEL', False)
 
 if DATABASE_URL:
-    # Clean up connection string for pg8000 driver
+    # Use psycopg2 driver for PostgreSQL (works with Neon)
     if DATABASE_URL.startswith('postgres://'):
-        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+pg8000://', 1)
-    elif DATABASE_URL.startswith('postgresql://'):
-        DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+pg8000://', 1)
-    # Remove parameters not supported by pg8000
-    DATABASE_URL = DATABASE_URL.replace('&channel_binding=require', '')
-    DATABASE_URL = DATABASE_URL.replace('?sslmode=require', '?')
-    DATABASE_URL = DATABASE_URL.replace('?&', '?')
-    if DATABASE_URL.endswith('?'):
-        DATABASE_URL = DATABASE_URL[:-1]
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
     DB_URI = DATABASE_URL
 elif IS_VERCEL:
     DB_URI = 'sqlite:////tmp/leave_management.db'
@@ -54,12 +46,10 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Enable SSL for pg8000 (required by Neon)
+# Enable SSL for psycopg2 (required by Neon)
 if DATABASE_URL:
-    import ssl
-    ssl_context = ssl.create_default_context()
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'connect_args': {'ssl_context': ssl_context}
+        'connect_args': {'sslmode': 'require'}
     }
 
 # Email configuration - Update these with your SMTP settings

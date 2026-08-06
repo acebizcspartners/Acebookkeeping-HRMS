@@ -1,0 +1,15 @@
+﻿ * Serving Flask app 'app'
+ * Debug mode: on
+python : WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server 
+instead.
+At line:1 char:339
++ ...  } }; cd "d:\office_task\develop\portel" ; python app.py 2>&1 | Tee-O ...
++                                                ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: This i...server instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.129.171.83:5000
+Press CTRL+C to quit
+ * Restarting with stat
