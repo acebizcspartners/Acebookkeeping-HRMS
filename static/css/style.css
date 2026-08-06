@@ -1294,6 +1294,11 @@ a {
     pointer-events: auto;
 }
 
+/* Prevent scroll when sidebar is active */
+body.sidebar-open {
+    overflow: hidden;
+}
+
 /* Hamburger Menu */
 .hamburger {
     display: flex;
@@ -1332,11 +1337,10 @@ a {
     display: flex;
     flex-direction: column;
     position: fixed;
-    left: -100%;
+    left: -350px;
     top: 70px;
     background-color: white;
-    width: 100%;
-    max-width: 350px;
+    width: 350px;
     text-align: left;
     transition: left 0.3s ease;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -1344,7 +1348,7 @@ a {
     gap: 0;
     max-height: calc(100vh - 70px);
     overflow-y: auto;
-    z-index: 998;
+    z-index: 999;
     list-style: none;
 }
 

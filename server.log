@@ -213,3 +213,24 @@ since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 136-449-723
+D:\office_task\develop\portel\app.py:495: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x 
+series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated 
+since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [06/Aug/2026 11:37:55] "GET / HTTP/1.1" 302 -
+127.0.0.1 - - [06/Aug/2026 11:37:56] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 11:37:56] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:37:56] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:37:56] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:37:56] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 11:37:58] "GET /logout HTTP/1.1" 302 -
+127.0.0.1 - - [06/Aug/2026 11:37:59] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 11:37:59] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:37:59] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:37:59] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:37:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 11:38:09] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 11:38:09] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:38:09] "GET /static/images/acebiz-logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:38:09] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [06/Aug/2026 11:38:09] "GET /favicon.ico HTTP/1.1" 404 -

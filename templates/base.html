@@ -125,6 +125,7 @@
                 navMenu.classList.remove('active');
                 hamburger.classList.remove('active');
                 overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             }
 
             if (hamburger && navMenu) {
@@ -132,6 +133,7 @@
                     navMenu.classList.toggle('active');
                     hamburger.classList.toggle('active');
                     overlay.classList.toggle('active');
+                    document.body.classList.toggle('sidebar-open');
                 });
 
                 // Close menu when clicking overlay
