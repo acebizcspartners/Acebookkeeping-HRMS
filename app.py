@@ -81,6 +81,16 @@ class User(UserMixin, db.Model):
     department = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Profile fields
+    phone = db.Column(db.String(20))
+    address = db.Column(db.Text)
+    city = db.Column(db.String(50))
+    emergency_contact = db.Column(db.String(100))
+    emergency_phone = db.Column(db.String(20))
+    date_of_joining = db.Column(db.Date)
+    designation = db.Column(db.String(100))
+    reporting_manager = db.Column(db.String(100))
+
     def get_leave_balance(self, leave_type):
         """Get leave balance for a specific leave type"""
         balance = LeaveBalance.query.filter_by(
@@ -378,6 +388,19 @@ class Announcement(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime)
     visibility = db.Column(db.String(20), default='all')  # all, department, specific
+
+class Holiday(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    holiday_name = db.Column(db.String(100), nullable=False)
+    holiday_date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.Text)
+    holiday_type = db.Column(db.String(50), default='National')  # National, Regional, Company
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def get_day_name(self):
+        """Get day name (Monday, Tuesday, etc.)"""
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        return days[self.holiday_date.weekday()]
 
 def auto_mark_attendance():
     """Auto-mark all employees as present for current month (Mon-Fri only)"""
