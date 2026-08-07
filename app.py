@@ -827,8 +827,18 @@ def dashboard():
         pending_count = Leave.query.filter_by(status='pending').count()
 
     # Get active trainings for dashboard
-    active_trainings = Training.query.filter_by(status='ongoing')\
-        .order_by(Training.start_date).limit(3).all()
+    if current_user.role in ['admin', 'manager']:
+        # Admins see all active trainings
+        active_trainings = Training.query.filter_by(status='ongoing')\
+            .order_by(Training.start_date).limit(3).all()
+    else:
+        # Employees see only their assigned trainings
+        assigned_trainings = EmployeeTraining.query.filter_by(user_id=current_user.id).all()
+        training_ids = [et.training_id for et in assigned_trainings]
+        active_trainings = Training.query.filter(
+            Training.id.in_(training_ids),
+            Training.status == 'ongoing'
+        ).order_by(Training.start_date).limit(3).all() if training_ids else []
 
     # Get assigned onboarding documents for current user
     assigned_documents = OnboardingDocument.query.filter_by(user_id=current_user.id)\
@@ -1822,11 +1832,15 @@ def add_performance_review():
 @login_required
 def training_list():
     """View training programs - accessible to all users"""
-    trainings = Training.query.filter_by(status='ongoing').order_by(Training.start_date).all()
 
-    # For admins, show all trainings including planned ones
     if current_user.role in ['admin', 'manager']:
+        # Admins see all trainings
         trainings = Training.query.all()
+    else:
+        # Employees see only trainings assigned to them
+        assigned_trainings = EmployeeTraining.query.filter_by(user_id=current_user.id).all()
+        training_ids = [et.training_id for et in assigned_trainings]
+        trainings = Training.query.filter(Training.id.in_(training_ids)).order_by(Training.start_date).all() if training_ids else []
 
     return render_template('training.html', trainings=trainings)
 
@@ -1860,7 +1874,19 @@ def add_training():
     )
     db.session.add(training)
     db.session.commit()
-    flash('Training added successfully!', 'success')
+
+    # Auto-assign training to all employees
+    all_users = User.query.filter_by(role='employee').all()
+    for user in all_users:
+        employee_training = EmployeeTraining(
+            user_id=user.id,
+            training_id=training.id,
+            status='enrolled'
+        )
+        db.session.add(employee_training)
+    db.session.commit()
+
+    flash('Training added and assigned to all employees!', 'success')
     return redirect(url_for('training_list'))
 
 @app.route('/admin/training/<int:training_id>/delete', methods=['POST'])

@@ -851,31 +851,141 @@ a {
     margin-top: 1rem;
 }
 
-/* Modals */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
+/* Bootstrap Modals - Let Bootstrap handle styling */
+/* Bootstrap Modal Fixes */
+.modal.show {
+    z-index: 2000 !important;
+    pointer-events: auto !important;
 }
 
-.modal.show {
-    display: flex;
+.modal {
+    z-index: 2000 !important;
+}
+
+.modal-dialog {
+    z-index: 2000 !important;
+    pointer-events: auto !important;
+}
+
+.modal-backdrop {
+    z-index: 1999 !important;
+    pointer-events: none !important;
+    opacity: 0.15 !important;
+    background-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .modal-content {
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 480px;
-    margin: 1rem;
+    pointer-events: auto !important;
     animation: modalSlide 0.3s ease;
+}
+
+/* Modal body scrollable if needed */
+.modal-body {
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
+    pointer-events: auto !important;
+}
+
+/* Ensure modal doesn't overflow viewport */
+.modal-dialog {
+    max-height: calc(100vh - 20px);
+}
+
+/* Ensure all form elements in modal are clickable */
+.modal-body input,
+.modal-body select,
+.modal-body textarea,
+.modal-body button,
+.modal-body label,
+.form-control,
+.form-select {
+    pointer-events: auto !important;
+}
+
+/* Modal footer buttons clickable */
+.modal-footer button {
+    pointer-events: auto !important;
+}
+
+/* Hide sidebar when modal open */
+body.modal-open .sidebar-overlay {
+    display: none !important;
+    pointer-events: none !important;
+}
+
+/* Training Form Styling */
+.modal-header.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white;
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem !important;
+    align-items: flex-start;
+}
+
+.modal-header.bg-gradient .modal-title {
+    color: white;
+    font-size: 1.25rem;
+    margin-bottom: 0.35rem;
+}
+
+.modal-header.bg-gradient small {
+    color: rgba(255, 255, 255, 0.85);
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.modal-header.bg-gradient .btn-close-white {
+    margin-top: 0.5rem;
+}
+
+
+.form-control-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-width: 1.5px;
+}
+
+.form-select-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-width: 1.5px;
+}
+
+.border-primary-light {
+    border-color: rgba(102, 126, 234, 0.3) !important;
+}
+
+.border-primary-light:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+}
+
+.border-success-light {
+    border-color: rgba(40, 167, 69, 0.3) !important;
+}
+
+.border-success-light:focus {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+.border-danger-light {
+    border-color: rgba(220, 53, 69, 0.3) !important;
+}
+
+.border-danger-light:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.fw-500 {
+    font-weight: 500;
+}
+
+.opacity-2 {
+    opacity: 0.2;
 }
 
 @keyframes modalSlide {
@@ -1440,6 +1550,11 @@ a {
 /* Prevent scroll when sidebar is active */
 body.sidebar-open {
     overflow: hidden;
+}
+
+/* Hide sidebar overlay when modal is open */
+body.modal-open .sidebar-overlay {
+    display: none !important;
 }
 
 /* Hamburger Menu */

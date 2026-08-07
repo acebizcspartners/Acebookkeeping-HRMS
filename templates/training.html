@@ -10,7 +10,7 @@
         </div>
         <div class="col-auto">
             {% if current_user.role == 'admin' %}
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTrainingModal">
+            <button class="btn btn-primary" id="openAddTrainingBtn" type="button">
                 <i class="fas fa-plus"></i> Add Training
             </button>
             {% endif %}
@@ -107,96 +107,160 @@
 
     <!-- Add Training Modal -->
     <div class="modal fade" id="addTrainingModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Training Program</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-gradient border-0">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0 text-white">
+                            <i class="fas fa-graduation-cap me-2"></i>Add Training Program
+                        </h5>
+                        <small class="d-block mt-1" style="color: rgba(255,255,255,0.85); font-size: 0.85rem;">Create a new training program for your team</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="POST" action="{{ url_for('add_training') }}">
-                    <div class="modal-body">
-                        <!-- Title -->
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Training Title *</label>
-                            <input type="text" class="form-control" id="title" name="title"
-                                   placeholder="e.g., Advanced Python Programming" required>
-                        </div>
+                    <div class="modal-body px-4 py-4">
+                        <!-- Basic Info Section -->
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                                <i class="fas fa-info-circle me-2"></i>Basic Information
+                            </h6>
 
-                        <!-- Training Type -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="training_type" class="form-label">Training Type *</label>
-                                <select class="form-select" id="training_type" name="training_type" required>
-                                    <option value="video">📹 Video Training</option>
-                                    <option value="document">📄 Document/Course</option>
-                                    <option value="webinar">🎤 Webinar</option>
-                                    <option value="live-session">👥 Live Session</option>
-                                    <option value="workshop">🔧 Workshop</option>
-                                </select>
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label for="title" class="form-label fw-500">
+                                    <i class="fas fa-heading text-primary me-2"></i>Training Title <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control form-control-lg border-primary-light" id="title" name="title"
+                                       placeholder="e.g., Advanced Python Programming" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="status" class="form-label">Status *</label>
-                                <select class="form-select" id="status" name="status" required>
-                                    <option value="planned">📋 Planned</option>
-                                    <option value="ongoing" selected>🚀 Ongoing</option>
-                                    <option value="completed">✅ Completed</option>
-                                </select>
-                            </div>
-                        </div>
 
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Short Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="2"
-                                      placeholder="Brief overview of the training..."></textarea>
-                        </div>
-
-                        <!-- HTML Content -->
-                        <div class="mb-3">
-                            <label for="html_content" class="form-label">Detailed Content (HTML)</label>
-                            <textarea class="form-control" id="html_content" name="html_content" rows="4"
-                                      placeholder="Enter HTML content or rich text (supports &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, etc.)"></textarea>
-                            <small class="text-muted">You can use HTML tags like &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;, etc.</small>
-                        </div>
-
-                        <!-- Video URL -->
-                        <div class="mb-3">
-                            <label for="video_url" class="form-label">Video URL</label>
-                            <input type="url" class="form-control" id="video_url" name="video_url"
-                                   placeholder="e.g., https://www.youtube.com/embed/dQw4w9WgXcQ">
-                            <small class="text-muted">Use embed URLs for YouTube videos (youtube.com/embed/VIDEO_ID)</small>
-                        </div>
-
-                        <!-- Dates -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="start_date" class="form-label">Start Date *</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="end_date" class="form-label">End Date *</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            <!-- Type & Status Row -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="training_type" class="form-label fw-500">
+                                        <i class="fas fa-video text-primary me-2"></i>Training Type <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg border-primary-light" id="training_type" name="training_type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="video">📹 Video Training</option>
+                                        <option value="document">📄 Document/Course</option>
+                                        <option value="webinar">🎤 Webinar</option>
+                                        <option value="live-session">👥 Live Session</option>
+                                        <option value="workshop">🔧 Workshop</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label fw-500">
+                                        <i class="fas fa-flag text-primary me-2"></i>Status <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg border-primary-light" id="status" name="status" required>
+                                        <option value="">Select Status</option>
+                                        <option value="planned">📋 Planned</option>
+                                        <option value="ongoing" selected>🚀 Ongoing</option>
+                                        <option value="completed">✅ Completed</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Trainer -->
-                        <div class="mb-3">
-                            <label for="trainer" class="form-label">Trainer Name</label>
-                            <input type="text" class="form-control" id="trainer" name="trainer"
-                                   placeholder="Name of the trainer/instructor">
+                        <hr class="my-4 opacity-2">
+
+                        <!-- Content Section -->
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                                <i class="fas fa-file-alt me-2"></i>Content & Details
+                            </h6>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label fw-500">
+                                    <i class="fas fa-align-left text-primary me-2"></i>Short Description
+                                </label>
+                                <textarea class="form-control form-control-sm" id="description" name="description" rows="2"
+                                          placeholder="Brief overview of the training..."></textarea>
+                            </div>
+
+                            <!-- HTML Content -->
+                            <div class="mb-3">
+                                <label for="html_content" class="form-label fw-500">
+                                    <i class="fas fa-code text-primary me-2"></i>Detailed Content (HTML)
+                                </label>
+                                <textarea class="form-control form-control-sm" id="html_content" name="html_content" rows="3"
+                                          placeholder="Enter HTML content or rich text..."></textarea>
+                                <small class="text-muted d-block mt-1">
+                                    💡 Supports: &lt;h2&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;, etc.
+                                </small>
+                            </div>
+
+                            <!-- Video URL -->
+                            <div class="mb-3">
+                                <label for="video_url" class="form-label fw-500">
+                                    <i class="fas fa-youtube text-danger me-2"></i>Video URL
+                                </label>
+                                <input type="url" class="form-control form-control-sm" id="video_url" name="video_url"
+                                       placeholder="https://www.youtube.com/embed/VIDEO_ID">
+                                <small class="text-muted d-block mt-1">
+                                    📺 Use YouTube embed URLs only (youtube.com/embed/VIDEO_ID)
+                                </small>
+                            </div>
                         </div>
 
-                        <!-- Info Box -->
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Tip:</strong> You can add HTML formatting in the content field for better visual presentation.
-                            Use video URLs to embed training videos directly!
+                        <hr class="my-4 opacity-2">
+
+                        <!-- Schedule Section -->
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                                <i class="fas fa-calendar-alt me-2"></i>Schedule & Trainer
+                            </h6>
+
+                            <!-- Dates Row -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="start_date" class="form-label fw-500">
+                                        <i class="fas fa-play-circle text-success me-2"></i>Start Date <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control form-control-sm border-success-light" id="start_date" name="start_date" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="end_date" class="form-label fw-500">
+                                        <i class="fas fa-stop-circle text-danger me-2"></i>End Date <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control form-control-sm border-danger-light" id="end_date" name="end_date" required>
+                                </div>
+                            </div>
+
+                            <!-- Trainer -->
+                            <div class="mb-0">
+                                <label for="trainer" class="form-label fw-500">
+                                    <i class="fas fa-user-tie text-info me-2"></i>Trainer Name
+                                </label>
+                                <input type="text" class="form-control form-control-sm" id="trainer" name="trainer"
+                                       placeholder="Full name of the trainer/instructor">
+                            </div>
+                        </div>
+
+                        <!-- Help Info -->
+                        <div class="alert alert-light border border-primary-light rounded-3 mb-0 mt-4" style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);">
+                            <div class="d-flex gap-2">
+                                <i class="fas fa-lightbulb text-warning mt-1"></i>
+                                <div>
+                                    <strong class="text-dark">Pro Tips:</strong>
+                                    <ul class="mb-0 mt-2 ps-3 small">
+                                        <li>Use HTML for rich text formatting</li>
+                                        <li>Add YouTube embed URLs for video content</li>
+                                        <li>Set realistic start and end dates</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add Training
+                    <div class="modal-footer bg-light border-top-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check me-2"></i>Create Training
                         </button>
                     </div>
                 </form>
@@ -205,5 +269,19 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const openBtn = document.getElementById('openAddTrainingBtn');
+        if (openBtn) {
+            openBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const modal = new bootstrap.Modal(document.getElementById('addTrainingModal'));
+                modal.show();
+            });
+        }
+    });
+</script>
+{% endblock %}
 {% endblock %}
