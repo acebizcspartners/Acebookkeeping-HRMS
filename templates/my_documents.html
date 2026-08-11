@@ -46,6 +46,8 @@
                         </a>
                         {% if doc.status == 'assigned' %}
                         <form method="POST" action="{{ url_for('acknowledge_document', doc_id=doc.id) }}" style="display: inline;">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                             <button type="submit" class="btn btn-success w-100">
                                 <i class="fas fa-check me-2"></i> Mark as Acknowledged
                             </button>

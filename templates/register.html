@@ -12,6 +12,8 @@
         </div>
 
         <form method="POST" class="auth-form">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <div class="form-group">
                 <label for="username">
                     <i class="fas fa-user"></i> Username
@@ -31,10 +33,32 @@
                     <i class="fas fa-lock"></i> Password
                 </label>
                 <div class="password-input-wrapper" style="position: relative;">
-                    <input type="password" id="password" name="password" required placeholder="Create a password" minlength="6" style="padding-right: 40px;">
+                    <input type="password" id="password" name="password" required placeholder="Create a password" minlength="8" oninput="validatePassword()" style="padding-right: 40px;">
                     <button type="button" class="toggle-password" onclick="togglePassword()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted);">
                         <i class="fas fa-eye" id="toggleIcon"></i>
                     </button>
+                </div>
+                <div id="password-strength" style="margin-top: 8px; font-size: 12px; display: none;">
+                    <div style="margin-bottom: 4px;">Password requirements:</div>
+                    <div id="req-length" style="color: #dc3545;"><i class="fas fa-times-circle"></i> At least 8 characters</div>
+                    <div id="req-upper" style="color: #dc3545;"><i class="fas fa-times-circle"></i> One uppercase letter</div>
+                    <div id="req-lower" style="color: #dc3545;"><i class="fas fa-times-circle"></i> One lowercase letter</div>
+                    <div id="req-digit" style="color: #dc3545;"><i class="fas fa-times-circle"></i> One digit</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password_confirm">
+                    <i class="fas fa-lock"></i> Confirm Password
+                </label>
+                <div class="password-input-wrapper" style="position: relative;">
+                    <input type="password" id="password_confirm" name="password_confirm" required placeholder="Confirm your password" style="padding-right: 40px;">
+                    <button type="button" class="toggle-password" onclick="toggleConfirmPassword()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted);">
+                        <i class="fas fa-eye" id="toggleConfirmIcon"></i>
+                    </button>
+                </div>
+                <div id="password-match" style="margin-top: 4px; font-size: 12px; color: #dc3545; display: none;">
+                    <i class="fas fa-times-circle"></i> Passwords do not match
                 </div>
             </div>
 
@@ -96,5 +120,104 @@ function togglePassword() {
         toggleIcon.classList.add('fa-eye');
     }
 }
+
+function toggleConfirmPassword() {
+    const passwordInput = document.getElementById('password_confirm');
+    const toggleIcon = document.getElementById('toggleConfirmIcon');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+
+function validatePassword() {
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password_confirm').value;
+    const strengthDiv = document.getElementById('password-strength');
+    const matchDiv = document.getElementById('password-match');
+
+    if (password.length === 0) {
+        strengthDiv.style.display = 'none';
+        matchDiv.style.display = 'none';
+        return;
+    }
+
+    strengthDiv.style.display = 'block';
+
+    // Check length
+    const lengthReq = document.getElementById('req-length');
+    if (password.length >= 8) {
+        lengthReq.style.color = '#28a745';
+        lengthReq.innerHTML = '<i class="fas fa-check-circle"></i> At least 8 characters';
+    } else {
+        lengthReq.style.color = '#dc3545';
+        lengthReq.innerHTML = '<i class="fas fa-times-circle"></i> At least 8 characters';
+    }
+
+    // Check uppercase
+    const upperReq = document.getElementById('req-upper');
+    if (/[A-Z]/.test(password)) {
+        upperReq.style.color = '#28a745';
+        upperReq.innerHTML = '<i class="fas fa-check-circle"></i> One uppercase letter';
+    } else {
+        upperReq.style.color = '#dc3545';
+        upperReq.innerHTML = '<i class="fas fa-times-circle"></i> One uppercase letter';
+    }
+
+    // Check lowercase
+    const lowerReq = document.getElementById('req-lower');
+    if (/[a-z]/.test(password)) {
+        lowerReq.style.color = '#28a745';
+        lowerReq.innerHTML = '<i class="fas fa-check-circle"></i> One lowercase letter';
+    } else {
+        lowerReq.style.color = '#dc3545';
+        lowerReq.innerHTML = '<i class="fas fa-times-circle"></i> One lowercase letter';
+    }
+
+    // Check digit
+    const digitReq = document.getElementById('req-digit');
+    if (/[0-9]/.test(password)) {
+        digitReq.style.color = '#28a745';
+        digitReq.innerHTML = '<i class="fas fa-check-circle"></i> One digit';
+    } else {
+        digitReq.style.color = '#dc3545';
+        digitReq.innerHTML = '<i class="fas fa-times-circle"></i> One digit';
+    }
+
+    // Check password match
+    if (passwordConfirm.length > 0) {
+        if (password === passwordConfirm) {
+            matchDiv.style.display = 'none';
+        } else {
+            matchDiv.style.display = 'block';
+        }
+    } else {
+        matchDiv.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordConfirm = document.getElementById('password_confirm');
+    if (passwordConfirm) {
+        passwordConfirm.addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const matchDiv = document.getElementById('password-match');
+
+            if (this.value.length === 0) {
+                matchDiv.style.display = 'none';
+            } else if (password === this.value) {
+                matchDiv.style.display = 'none';
+            } else {
+                matchDiv.style.display = 'block';
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

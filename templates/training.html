@@ -38,7 +38,8 @@
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
-                        <form id="delete-form-{{ training.id }}" method="POST" action="{{ url_for('delete_training', training_id=training.id) }}" style="display: none;"></form>
+                        <form id="delete-form-{{ training.id }}" method="POST" action="{{ url_for('delete_training', training_id=training.id) }}" style="display: none;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /></form>
                         {% endif %}
                     </div>
 
@@ -119,6 +120,8 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="POST" action="{{ url_for('add_training') }}">
+                    
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <div class="modal-body px-4 py-4">
                         <!-- Basic Info Section -->
                         <div class="mb-4">

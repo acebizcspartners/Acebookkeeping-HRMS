@@ -39,6 +39,8 @@
                 <!-- Manual Deduction Tab -->
                 <div class="tab-pane fade show active" id="manual-form" role="tabpanel">
             <form method="POST" action="{{ url_for('add_deduction') }}">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label for="user_id" class="form-label">Select Employee *</label>
@@ -89,6 +91,8 @@
                 <!-- Leave Deduction Tab -->
                 <div class="tab-pane fade" id="leave-form" role="tabpanel">
             <form method="POST" action="{{ url_for('add_deduction') }}">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label for="user_id_leave" class="form-label">Select Employee *</label>
@@ -206,6 +210,8 @@
                             <td>{{ deduction.admin.username }}</td>
                             <td>
                                 <form method="POST" action="{{ url_for('remove_deduction', deduction_id=deduction.id) }}"
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                       onsubmit="return confirm('Remove this deduction?');" style="display: inline;">
                                     <button type="submit" class="btn btn-sm btn-danger">
                                         <i class="fas fa-trash"></i> Remove

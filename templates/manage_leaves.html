@@ -131,6 +131,8 @@
             <button class="close-modal" onclick="closeModal('approveModal')">&times;</button>
         </div>
         <form id="approveForm" method="POST">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <div class="modal-body">
                 <p>Approve leave request for <strong id="approveUsername"></strong>?</p>
                 <div class="form-group">
@@ -156,6 +158,8 @@
             <button class="close-modal" onclick="closeModal('rejectModal')">&times;</button>
         </div>
         <form id="rejectForm" method="POST">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <div class="modal-body">
                 <p>Reject leave request for <strong id="rejectUsername"></strong>?</p>
                 <div class="form-group">
@@ -181,6 +185,8 @@
             <button class="close-modal" onclick="closeModal('approveRevocationModal')">&times;</button>
         </div>
         <form id="approveRevocationForm" method="POST">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <div class="modal-body">
                 <p>Approve revocation request for <strong id="approveRevocationUsername"></strong>?</p>
                 <div class="info-box warning">
@@ -213,6 +219,8 @@
             <button class="close-modal" onclick="closeModal('rejectRevocationModal')">&times;</button>
         </div>
         <form id="rejectRevocationForm" method="POST">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <div class="modal-body">
                 <p>Reject revocation request for <strong id="rejectRevocationUsername"></strong>?</p>
                 <div class="form-group">

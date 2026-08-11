@@ -87,6 +87,8 @@
             </div>
 
             <form method="POST" class="card">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="card-body">
                     <h5 class="card-title mb-4">Invoice Details</h5>
 

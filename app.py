@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, date
 from functools import wraps
@@ -30,6 +31,20 @@ def get_accrued_leave(month=None):
         'annual': round(months_accrued * ANNUAL_LEAVE_MONTHLY_CREDIT, 2),
         'sick': round(months_accrued * SICK_LEAVE_MONTHLY_CREDIT, 2)
     }
+
+def validate_password(password):
+    """Validate password strength. Returns (is_valid, error_message)"""
+    if not password:
+        return False, "Password cannot be empty"
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long"
+    if not any(c.isupper() for c in password):
+        return False, "Password must contain at least one uppercase letter"
+    if not any(c.islower() for c in password):
+        return False, "Password must contain at least one lowercase letter"
+    if not any(c.isdigit() for c in password):
+        return False, "Password must contain at least one digit"
+    return True, None
 
 # Database URI: Use PostgreSQL (Neon) if DATABASE_URL is set, else SQLite for local
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -70,14 +85,17 @@ if DATABASE_URL:
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'rami629914@gmail.com'  # Update with your email
-app.config['MAIL_PASSWORD'] = 'tgsm vhus erra smwb'      # Update with your app password
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please login to access this page.'
 login_manager.login_message_category = 'info'
+
+# CSRF Protection
+csrf = CSRFProtect(app)
 
 # Session timeout handler
 @app.before_request
@@ -618,7 +636,19 @@ def register():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
         department = request.form.get('department')
+
+        # Validate password
+        is_valid, error_msg = validate_password(password)
+        if not is_valid:
+            flash(error_msg, 'error')
+            return render_template('register.html')
+
+        # Check password confirmation
+        if password != password_confirm:
+            flash('Passwords do not match', 'error')
+            return render_template('register.html')
 
         if User.query.filter_by(username=username).first():
             flash('Username already exists', 'error')
@@ -1830,6 +1860,7 @@ def add_performance_review():
 # Admin: Training Management
 @app.route('/admin/training')
 @login_required
+@admin_required
 def training_list():
     """View training programs - accessible to all users"""
 

@@ -258,6 +258,8 @@
 </style>
 
 <form id="assignForm" method="POST" action="{{ url_for('assign_onboarding_document') }}" style="display: none;">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <input type="hidden" name="employee_id" value="{{ doc.employee.id }}">
     <input type="hidden" name="doc_type" value="{{ doc.doc_type }}">
     <input type="hidden" name="doc_title" id="docTitle" value="">

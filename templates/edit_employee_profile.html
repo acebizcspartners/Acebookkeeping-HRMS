@@ -17,6 +17,8 @@
     </div>
 
     <form method="POST" class="needs-validation">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <div class="row">
             <!-- Left Column -->
             <div class="col-lg-6">

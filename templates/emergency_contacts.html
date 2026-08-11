@@ -27,6 +27,8 @@
                                 <p class="text-muted mb-2">{{ contact.relationship }}</p>
                             </div>
                             <form method="POST" action="{{ url_for('delete_emergency_contact', contact_id=contact.id) }}" style="display: inline;">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this contact?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -59,6 +61,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST" action="{{ url_for('add_emergency_contact') }}">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="name" class="form-label">Full Name *</label>

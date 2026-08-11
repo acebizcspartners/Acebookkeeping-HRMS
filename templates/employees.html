@@ -52,6 +52,8 @@
                             <td>
                                 {% if user.id != current_user.id %}
                                 <form method="POST" action="{{ url_for('update_role', user_id=user.id) }}" class="role-form">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                                     <select name="role" class="role-select" onchange="this.form.submit()">
                                         <option value="employee" {% if user.role == 'employee' %}selected{% endif %}>Employee</option>
                                         <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>

@@ -150,6 +150,8 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{{ url_for('undo_deduction', user_id=emp_data.user.id) }}">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="modal-body">
                     <p><strong>Employee:</strong> {{ emp_data.user.username }}</p>
                     <div class="alert alert-warning">
@@ -180,6 +182,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{{ url_for('deduct_minus_leave', user_id=emp_data.user.id) }}">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="modal-body">
                     <p><strong>Employee:</strong> {{ emp_data.user.username }}</p>
                     <div class="alert alert-info">
@@ -216,6 +220,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{{ url_for('carry_forward_leave', user_id=emp_data.user.id) }}">
+            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="modal-body">
                     <p><strong>Employee:</strong> {{ emp_data.user.username }}</p>
                     <div class="alert alert-info">
