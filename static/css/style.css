@@ -470,6 +470,9 @@ a {
     font-family: inherit;
     cursor: pointer;
     transition: all 0.2s;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: auto;
 }
 
 .btn-primary {
@@ -853,13 +856,25 @@ a {
 
 /* Bootstrap Modals - Let Bootstrap handle styling */
 /* Bootstrap Modal Fixes */
-.modal.show {
+/* Custom Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     z-index: 2000 !important;
     pointer-events: auto !important;
 }
 
-.modal {
+.modal.show {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
     z-index: 2000 !important;
+    pointer-events: auto !important;
 }
 
 .modal-dialog {
@@ -1081,6 +1096,28 @@ body.modal-open .sidebar-overlay {
 .action-buttons {
     display: flex;
     gap: 0.5rem;
+    pointer-events: auto !important;
+}
+
+.action-buttons .btn {
+    pointer-events: auto !important;
+    z-index: 10;
+}
+
+.action-buttons button {
+    pointer-events: auto !important;
+    z-index: 10;
+}
+
+/* Table cells and rows */
+table tbody tr,
+table tbody td,
+table tbody td .action-buttons {
+    pointer-events: auto !important;
+}
+
+table td button {
+    pointer-events: auto !important;
 }
 
 .inline-form {

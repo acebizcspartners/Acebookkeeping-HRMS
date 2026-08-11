@@ -87,19 +87,19 @@
                             <td>
                                 {% if leave.revocation_requested %}
                                 <div class="action-buttons">
-                                    <button class="btn btn-success btn-sm" onclick="showApproveRevocationModal({{ leave.id }}, '{{ leave.user.username }}', '{{ leave.revocation_reason|default('No reason provided', true) }}')" title="Approve Revocation">
+                                    <button type="button" class="btn btn-success btn-sm" style="pointer-events: auto !important;" onclick="showApproveRevocationModal({{ leave.id }}, '{{ leave.user.username }}', '{{ leave.revocation_reason|default('No reason provided', true) }}'); return false;" title="Approve Revocation">
                                         <i class="fas fa-check"></i> Approve
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="showRejectRevocationModal({{ leave.id }}, '{{ leave.user.username }}')" title="Reject Revocation">
+                                    <button type="button" class="btn btn-danger btn-sm" style="pointer-events: auto !important;" onclick="showRejectRevocationModal({{ leave.id }}, '{{ leave.user.username }}'); return false;" title="Reject Revocation">
                                         <i class="fas fa-times"></i> Reject
                                     </button>
                                 </div>
                                 {% elif leave.status == 'pending' %}
                                 <div class="action-buttons">
-                                    <button class="btn btn-success btn-sm" onclick="showApproveModal({{ leave.id }}, '{{ leave.user.username }}')">
+                                    <button type="button" class="btn btn-success btn-sm approve-btn" style="pointer-events: auto !important; cursor: pointer; z-index: 100;" data-leave-id="{{ leave.id }}" data-username="{{ leave.user.username }}">
                                         <i class="fas fa-check"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="showRejectModal({{ leave.id }}, '{{ leave.user.username }}')">
+                                    <button type="button" class="btn btn-danger btn-sm reject-btn" style="pointer-events: auto !important; cursor: pointer; z-index: 100;" data-leave-id="{{ leave.id }}" data-username="{{ leave.user.username }}">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
@@ -270,5 +270,62 @@
             }
         });
     });
+
+    // Add event listeners to action buttons
+    function attachButtonListeners() {
+        const approveButtons = document.querySelectorAll('button.approve-btn');
+        const rejectButtons = document.querySelectorAll('button.reject-btn');
+
+        console.log('Approve buttons found:', approveButtons.length);
+        console.log('Reject buttons found:', rejectButtons.length);
+
+        // Approve buttons
+        approveButtons.forEach((btn, index) => {
+            console.log('Attaching approve listener to button', index);
+            btn.removeEventListener('click', handleApproveClick);
+            btn.addEventListener('click', handleApproveClick);
+        });
+
+        // Reject buttons
+        rejectButtons.forEach((btn, index) => {
+            console.log('Attaching reject listener to button', index);
+            btn.removeEventListener('click', handleRejectClick);
+            btn.addEventListener('click', handleRejectClick);
+        });
+    }
+
+    function handleApproveClick(e) {
+        console.log('Approve button clicked!');
+        e.preventDefault();
+        e.stopPropagation();
+        const leaveId = this.getAttribute('data-leave-id');
+        const username = this.getAttribute('data-username');
+        console.log('Leave ID:', leaveId, 'Username:', username);
+        if (leaveId && username) {
+            showApproveModal(parseInt(leaveId), username);
+        }
+        return false;
+    }
+
+    function handleRejectClick(e) {
+        console.log('Reject button clicked!');
+        e.preventDefault();
+        e.stopPropagation();
+        const leaveId = this.getAttribute('data-leave-id');
+        const username = this.getAttribute('data-username');
+        console.log('Leave ID:', leaveId, 'Username:', username);
+        if (leaveId && username) {
+            showRejectModal(parseInt(leaveId), username);
+        }
+        return false;
+    }
+
+    // Attach listeners on page load
+    document.addEventListener('DOMContentLoaded', attachButtonListeners);
+
+    // Also attach immediately in case DOM is already loaded
+    if (document.readyState !== 'loading') {
+        attachButtonListeners();
+    }
 </script>
 {% endblock %}
