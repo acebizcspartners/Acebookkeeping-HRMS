@@ -182,7 +182,7 @@ python app.py
 
 The app will:
 - Create database tables
-- Create default admin user (username: `admin`, password: `admin123`)
+- Create default admin user (username: `Rohan_AA`, password: `ADmm`)
 - Initialize leave balances
 
 ---
@@ -196,7 +196,7 @@ python app.py
 
 Access the application:
 - **URL:** http://localhost:5000
-- **Admin Login:** admin / admin123
+- **Admin Login:** Rohan_AA / ADmm
 
 ### First Steps
 1. Login with admin account
