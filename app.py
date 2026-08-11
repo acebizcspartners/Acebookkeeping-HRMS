@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Monthly leave accrual rates (in HOURS)
-ANNUAL_LEAVE_MONTHLY_CREDIT = 9.2    # 9.2 hours per month (110.4 hours/year)
+ANNUAL_LEAVE_MONTHLY_CREDIT = 9.25    # 9.25 hours per month (111 hours/year)
 SICK_LEAVE_MONTHLY_CREDIT = 7.36     # 7.36 hours per month (88.32 hours/year)
 
 def get_accrued_leave(month=None):
