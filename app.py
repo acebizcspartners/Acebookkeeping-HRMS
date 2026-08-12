@@ -1857,11 +1857,19 @@ def add_performance_review():
     flash('Performance review added!', 'success')
     return redirect(url_for('performance_reviews'))
 
+# Employee: View Training Programs
+@app.route('/training')
+@login_required
+def training_list():
+    """View training programs - accessible to all employees"""
+    trainings = Training.query.all()
+    return render_template('training.html', trainings=trainings)
+
 # Admin: Training Management
 @app.route('/admin/training')
 @login_required
 @admin_required
-def training_list():
+def training_admin():
     """View training programs - accessible to all users"""
 
     if current_user.role in ['admin', 'manager']:
@@ -1918,7 +1926,7 @@ def add_training():
     db.session.commit()
 
     flash('Training added and assigned to all employees!', 'success')
-    return redirect(url_for('training_list'))
+    return redirect(url_for('training_admin'))
 
 @app.route('/admin/training/<int:training_id>/delete', methods=['POST'])
 @login_required
@@ -1929,7 +1937,7 @@ def delete_training(training_id):
     db.session.delete(training)
     db.session.commit()
     flash(f'Training "{title}" deleted successfully!', 'success')
-    return redirect(url_for('training_list'))
+    return redirect(url_for('training_admin'))
 
 # Admin: Salary Deductions Management
 @app.route('/admin/deductions')
