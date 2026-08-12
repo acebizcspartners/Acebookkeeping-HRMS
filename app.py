@@ -1205,6 +1205,25 @@ def update_role(user_id):
 
     return redirect(url_for('employees'))
 
+@app.route('/employee/<int:user_id>/update-employment', methods=['POST'])
+@login_required
+@admin_required
+def update_employment(user_id):
+    """Update employee designation and reporting manager"""
+    user = User.query.get_or_404(user_id)
+
+    designation = request.form.get('designation')
+    reporting_manager = request.form.get('reporting_manager')
+
+    if designation:
+        user.designation = designation
+    if reporting_manager:
+        user.reporting_manager = reporting_manager
+
+    db.session.commit()
+    flash(f'Employment details updated for {user.username}', 'success')
+    return redirect(url_for('employees'))
+
 @app.route('/employee/<int:user_id>/salary', methods=['GET', 'POST'])
 @login_required
 @admin_required
