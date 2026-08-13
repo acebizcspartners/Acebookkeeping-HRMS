@@ -11,7 +11,7 @@
             <p class="text-muted mb-0">{{ ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][invoice.month-1] }} {{ invoice.year }}</p>
         </div>
         <div class="col-auto">
-            <button onclick="window.print()" class="btn btn-primary me-2">
+            <button onclick="printPayslip()" class="btn btn-primary me-2">
                 <i class="fas fa-print me-1"></i> Print / Save PDF
             </button>
             <a href="{% if current_user.role == 'admin' %}{{ url_for('admin_invoices') }}{% else %}{{ url_for('my_invoices') }}{% endif %}" class="btn btn-secondary">
@@ -323,4 +323,34 @@
         margin: 0 auto;
     }
 </style>
+
+<script>
+function printPayslip() {
+    // Store current scroll position
+    const scrollPos = window.scrollY;
+
+    // Scroll to top before printing
+    window.scrollTo(0, 0);
+
+    // Small delay to ensure scroll completes
+    setTimeout(() => {
+        // Open print dialog
+        const printWindow = window.print();
+
+        // Alert user to disable headers/footers if needed
+        setTimeout(() => {
+            const userChoice = confirm('If you see the URL in the print preview, please:\n\n' +
+                '1. Click "More settings" in the print dialog\n' +
+                '2. Toggle OFF "Headers and footers"\n\n' +
+                'Then click Print.\n\n' +
+                'Do you want to proceed?');
+
+            if (!userChoice) {
+                // Restore scroll position if user cancels
+                window.scrollTo(0, scrollPos);
+            }
+        }, 100);
+    }, 100);
+}
+</script>
 {% endblock %}
