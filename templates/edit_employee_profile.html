@@ -143,7 +143,7 @@
                         <div class="mb-3">
                             <label for="joining_date" class="form-label">Joining Date</label>
                             <input type="date" class="form-control" id="joining_date" name="joining_date"
-                                   value="{% if profile and profile.joining_date %}{{ profile.joining_date.strftime('%Y-%m-%d') }}{% endif %}">
+                                   value="{% if profile and profile.joining_date %}{{ profile.joining_date.strftime('%Y-%m-%d') }}{% elif user.date_of_joining %}{{ user.date_of_joining.strftime('%Y-%m-%d') }}{% endif %}">
                         </div>
 
                         <div class="mb-3">

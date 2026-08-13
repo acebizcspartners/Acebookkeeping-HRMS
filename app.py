@@ -1209,16 +1209,19 @@ def update_role(user_id):
 @login_required
 @admin_required
 def update_employment(user_id):
-    """Update employee designation and reporting manager"""
+    """Update employee designation, reporting manager, and date of joining"""
     user = User.query.get_or_404(user_id)
 
     designation = request.form.get('designation')
     reporting_manager = request.form.get('reporting_manager')
+    date_of_joining = request.form.get('date_of_joining')
 
     if designation:
         user.designation = designation
     if reporting_manager:
         user.reporting_manager = reporting_manager
+    if date_of_joining:
+        user.date_of_joining = datetime.strptime(date_of_joining, '%Y-%m-%d').date()
 
     db.session.commit()
     flash(f'Employment details updated for {user.username}', 'success')
@@ -1333,7 +1336,9 @@ def edit_employee_profile(user_id):
 
         joining_date_str = request.form.get('joining_date')
         if joining_date_str:
-            profile.joining_date = datetime.strptime(joining_date_str, '%Y-%m-%d').date()
+            joining_date = datetime.strptime(joining_date_str, '%Y-%m-%d').date()
+            profile.joining_date = joining_date
+            user.date_of_joining = joining_date
 
         profile.employment_type = request.form.get('employment_type')
         profile.pan_number = request.form.get('pan_number')

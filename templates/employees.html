@@ -56,7 +56,7 @@
                             <td>
                                 <div class="action-buttons" style="display: flex; gap: 5px;">
                                     <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editEmployeeModal"
-                                        onclick="editEmployee({{ user.id }}, '{{ user.username }}', '{{ user.designation or '' }}', '{{ user.reporting_manager or '' }}')">
+                                        onclick="editEmployee({{ user.id }}, '{{ user.username }}', '{{ user.designation or '' }}', '{{ user.reporting_manager or '' }}', '{{ user.date_of_joining.strftime('%Y-%m-%d') if user.date_of_joining else '' }}')">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                     {% if user.id != current_user.id %}
@@ -140,6 +140,10 @@
                         <input type="text" class="form-control" id="reporting_manager" name="reporting_manager"
                                placeholder="e.g., John Doe">
                     </div>
+                    <div class="mb-3">
+                        <label for="date_of_joining" class="form-label">Date of Joining</label>
+                        <input type="date" class="form-control" id="date_of_joining" name="date_of_joining">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -151,10 +155,11 @@
 </div>
 
 <script>
-function editEmployee(userId, username, designation, reportingManager) {
+function editEmployee(userId, username, designation, reportingManager, dateOfJoining) {
     document.getElementById('employee_name').value = username;
     document.getElementById('designation').value = designation;
     document.getElementById('reporting_manager').value = reportingManager;
+    document.getElementById('date_of_joining').value = dateOfJoining;
 
     const form = document.getElementById('editEmployeeForm');
     form.action = `/employee/${userId}/update-employment`;
