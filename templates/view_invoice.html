@@ -326,31 +326,7 @@
 
 <script>
 function printPayslip() {
-    // Store current scroll position
-    const scrollPos = window.scrollY;
-
-    // Scroll to top before printing
-    window.scrollTo(0, 0);
-
-    // Small delay to ensure scroll completes
-    setTimeout(() => {
-        // Open print dialog
-        const printWindow = window.print();
-
-        // Alert user to disable headers/footers if needed
-        setTimeout(() => {
-            const userChoice = confirm('If you see the URL in the print preview, please:\n\n' +
-                '1. Click "More settings" in the print dialog\n' +
-                '2. Toggle OFF "Headers and footers"\n\n' +
-                'Then click Print.\n\n' +
-                'Do you want to proceed?');
-
-            if (!userChoice) {
-                // Restore scroll position if user cancels
-                window.scrollTo(0, scrollPos);
-            }
-        }, 100);
-    }, 100);
+    window.print();
 }
 </script>
 {% endblock %}
