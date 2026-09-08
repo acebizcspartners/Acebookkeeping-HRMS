@@ -32,7 +32,7 @@
                 {% for review in reviews %}
                 <tr>
                     <td><strong>{{ review.user.username }}</strong></td>
-                    <td>{{ review.period_start.strftime('%d %b') }} - {{ review.period_end.strftime('%d %b %Y') }}</td>
+                    <td>{{ review.period_start.strftime('%d/%m/%Y') }} - {{ review.period_end.strftime('%d/%m/%Y') }}</td>
                     <td><span class="badge bg-success">{{ "%.1f"|format(review.performance_rating) }}/5</span></td>
                     <td>{{ "%.1f"|format(review.technical_skills) }}/5</td>
                     <td>{{ "%.1f"|format(review.communication) }}/5</td>

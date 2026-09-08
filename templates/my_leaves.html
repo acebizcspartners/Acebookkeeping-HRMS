@@ -36,8 +36,8 @@
                                     {{ leave.leave_type|capitalize }}
                                 </span>
                             </td>
-                            <td>{{ leave.start_date.strftime('%d %b, %Y') }}</td>
-                            <td>{{ leave.end_date.strftime('%d %b, %Y') }}</td>
+                            <td>{{ leave.start_date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ leave.end_date.strftime('%d/%m/%Y') }}</td>
                             <td>{{ leave.hours }} hrs</td>
                             <td class="reason-cell">
                                 <span class="reason-text" title="{{ leave.reason }}">
@@ -53,7 +53,7 @@
                                     {% endif %}
                                 </span>
                             </td>
-                            <td>{{ leave.applied_on.strftime('%d %b, %Y') }}</td>
+                            <td>{{ leave.applied_on.strftime('%d/%m/%Y') }}</td>
                             <td>
                                 {% if leave.status == 'pending' %}
                                 <form method="POST" action="{{ url_for('cancel_leave', leave_id=leave.id) }}" class="inline-form">

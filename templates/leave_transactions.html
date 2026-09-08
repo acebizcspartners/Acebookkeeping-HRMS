@@ -97,7 +97,7 @@
                         {% for txn in transactions %}
                         <tr class="transaction-row {{ txn.type }}">
                             <td>
-                                <span class="transaction-date">{{ txn.date.strftime('%d %b, %Y') }}</span>
+                                <span class="transaction-date">{{ txn.date.strftime('%d/%m/%Y') }}</span>
                             </td>
                             <td>
                                 <span class="transaction-description">{{ txn.description }}</span>

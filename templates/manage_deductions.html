@@ -183,10 +183,10 @@
                             </td>
                             <td>{{ deduction.reason }}</td>
                             <td><strong class="text-danger">₹{{ "%.2f"|format(deduction.amount) }}</strong></td>
-                            <td>{{ deduction.applied_from.strftime('%d %b %Y') }}</td>
+                            <td>{{ deduction.applied_from.strftime('%d/%m/%Y') }}</td>
                             <td>
                                 {% if deduction.applied_to %}
-                                    {{ deduction.applied_to.strftime('%d %b %Y') }}
+                                    {{ deduction.applied_to.strftime('%d/%m/%Y') }}
                                 {% else %}
                                     <span class="badge bg-warning">Ongoing</span>
                                 {% endif %}

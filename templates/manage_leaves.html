@@ -64,7 +64,7 @@
                                 </span>
                             </td>
                             <td>
-                                {{ leave.start_date.strftime('%d %b') }} - {{ leave.end_date.strftime('%d %b, %Y') }}
+                                {{ leave.start_date.strftime('%d/%m/%Y') }} - {{ leave.end_date.strftime('%d/%m/%Y') }}
                             </td>
                             <td>{{ leave.hours }} hrs</td>
                             <td class="reason-cell">
@@ -83,7 +83,7 @@
                                 </span>
                                 {% endif %}
                             </td>
-                            <td>{{ leave.applied_on.strftime('%d %b, %Y') }}</td>
+                            <td>{{ leave.applied_on.strftime('%d/%m/%Y') }}</td>
                             <td>
                                 {% if leave.revocation_requested %}
                                 <div class="action-buttons">

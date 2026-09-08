@@ -62,7 +62,7 @@
                         </div>
                         <div class="col-6">
                             <p class="text-muted small">DOB</p>
-                            <p class="mb-0"><strong>{{ user.date_of_birth.strftime('%d %b %Y') if user.date_of_birth else 'N/A' }}</strong></p>
+                            <p class="mb-0"><strong>{{ user.date_of_birth.strftime('%d/%m/%Y') if user.date_of_birth else 'N/A' }}</strong></p>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -78,7 +78,7 @@
                     <div class="row mb-3">
                         <div class="col-6">
                             <p class="text-muted small">Date of Joining</p>
-                            <p class="mb-0"><strong>{{ user.date_of_joining.strftime('%d %b %Y') if user.date_of_joining else 'N/A' }}</strong></p>
+                            <p class="mb-0"><strong>{{ user.date_of_joining.strftime('%d/%m/%Y') if user.date_of_joining else 'N/A' }}</strong></p>
                         </div>
                         <div class="col-6">
                             <p class="text-muted small">Reporting Manager</p>
@@ -109,7 +109,7 @@
                     <div class="row mb-3">
                         <div class="col-6">
                             <p class="text-muted small">Date of Joining</p>
-                            <p class="mb-0"><strong>{{ user.date_of_joining.strftime('%d %b %Y') if user.date_of_joining else 'N/A' }}</strong></p>
+                            <p class="mb-0"><strong>{{ user.date_of_joining.strftime('%d/%m/%Y') if user.date_of_joining else 'N/A' }}</strong></p>
                         </div>
                         <div class="col-6">
                             <p class="text-muted small">Reporting Manager</p>
@@ -228,8 +228,8 @@
                                             {{ leave.leave_type|upper }}
                                         </span>
                                     </td>
-                                    <td>{{ leave.start_date.strftime('%d %b %Y') }}</td>
-                                    <td>{{ leave.end_date.strftime('%d %b %Y') }}</td>
+                                    <td>{{ leave.start_date.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ leave.end_date.strftime('%d/%m/%Y') }}</td>
                                     <td><strong>{{ leave.hours|round(1) }} hrs</strong></td>
                                     <td>
                                         {% if leave.status == 'approved' %}
@@ -268,7 +268,7 @@
                             <tbody>
                                 {% for att in attendance_records %}
                                 <tr>
-                                    <td>{{ att.date.strftime('%d %b %Y') }}</td>
+                                    <td>{{ att.date.strftime('%d/%m/%Y') }}</td>
                                     <td>
                                         {% if att.status == 'present' %}
                                             <span class="badge bg-success">Present</span>
@@ -310,8 +310,8 @@
                                 <tr>
                                     <td><strong>{{ ded.reason }}</strong></td>
                                     <td class="text-danger">₹{{ "%.2f"|format(ded.amount) }}</td>
-                                    <td>{{ ded.applied_from.strftime('%d %b %Y') }}</td>
-                                    <td>{{ ded.applied_to.strftime('%d %b %Y') if ded.applied_to else 'Ongoing' }}</td>
+                                    <td>{{ ded.applied_from.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ ded.applied_to.strftime('%d/%m/%Y') if ded.applied_to else 'Ongoing' }}</td>
                                     <td><small>{{ ded.description or '-' }}</small></td>
                                 </tr>
                                 {% endfor %}

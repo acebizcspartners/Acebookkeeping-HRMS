@@ -443,7 +443,7 @@
                                     </h6>
                                     <small class="text-muted d-block">
                                         Type: <span class="badge bg-light text-dark">{{ doc.doc_type|capitalize }}</span>
-                                        • Assigned: {{ doc.assigned_at.strftime('%d %b, %Y') }}
+                                        • Assigned: {{ doc.assigned_at.strftime('%d/%m/%Y') }}
                                     </small>
                                 </div>
                                 <div class="col-auto">
@@ -495,7 +495,7 @@
                                         </span>
                                     </td>
                                     <td class="small text-muted">
-                                        {{ leave.start_date.strftime('%d %b') }} - {{ leave.end_date.strftime('%d %b, %Y') }}
+                                        {{ leave.start_date.strftime('%d/%m/%Y') }} - {{ leave.end_date.strftime('%d/%m/%Y') }}
                                     </td>
                                     <td>
                                         {% if leave.status == 'approved' %}
@@ -508,7 +508,7 @@
                                             <span class="badge bg-secondary">{{ leave.status|capitalize }}</span>
                                         {% endif %}
                                     </td>
-                                    <td class="small text-muted">{{ leave.applied_on.strftime('%d %b, %Y') }}</td>
+                                    <td class="small text-muted">{{ leave.applied_on.strftime('%d/%m/%Y') }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -656,7 +656,7 @@
                                     {% endif %}
 
                                     <p class="text-sm text-muted small mb-1">
-                                        <i class="fas fa-calendar"></i> {{ training.start_date.strftime('%d %b') }} - {{ training.end_date.strftime('%d %b %Y') }}
+                                        <i class="fas fa-calendar"></i> {{ training.start_date.strftime('%d/%m/%Y') }} - {{ training.end_date.strftime('%d/%m/%Y') }}
                                     </p>
 
                                     {% if training.trainer %}

@@ -46,7 +46,7 @@
                             <small class="text-muted d-block">Date of Birth</small>
                             <p class="mb-0">
                                 {% if user.date_of_birth %}
-                                    <strong>{{ user.date_of_birth.strftime('%b %d, %Y') }}</strong>
+                                    <strong>{{ user.date_of_birth.strftime('%d/%m/%Y') }}</strong>
                                 {% else %}
                                     <span class="text-muted">Not provided</span>
                                 {% endif %}
@@ -75,7 +75,7 @@
                     </div>
                     <hr>
                     <small class="text-muted d-block">Member Since</small>
-                    <p class="mb-0"><strong>{{ user.created_at.strftime('%b %d, %Y') }}</strong></p>
+                    <p class="mb-0"><strong>{{ user.created_at.strftime('%d/%m/%Y') }}</strong></p>
                 </div>
             </div>
         </div>
@@ -201,7 +201,7 @@
                         <small class="text-muted d-block">Date of Joining</small>
                         <p class="mb-0">
                             {% if user.date_of_joining %}
-                                <strong>{{ user.date_of_joining.strftime('%b %d, %Y') }}</strong>
+                                <strong>{{ user.date_of_joining.strftime('%d/%m/%Y') }}</strong>
                             {% else %}
                                 <span class="text-muted">Not provided</span>
                             {% endif %}

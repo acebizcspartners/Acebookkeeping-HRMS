@@ -13,8 +13,6 @@ import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
-from functools import lru_cache
-from datetime import datetime, timedelta
 
 # Load environment variables from .env file (override=True so edits to .env
 # take effect on reload, instead of being masked by env vars inherited from
@@ -1198,7 +1196,7 @@ def approve_leave(leave_id):
             leave_type=leave.leave_type,
             transaction_type='debit',
             days=hours,
-            description=f'Leave taken ({leave.start_date.strftime("%d %b")} - {leave.end_date.strftime("%d %b, %Y")}) - {hours} hrs',
+            description=f'Leave taken ({leave.start_date.strftime("%d/%m/%Y")} - {leave.end_date.strftime("%d/%m/%Y")}) - {hours} hrs',
             reference_id=leave.id,
             transaction_date=leave.start_date
         )
@@ -1356,7 +1354,7 @@ def approve_revocation(leave_id):
             leave_type=leave.leave_type,
             transaction_type='credit',
             days=hours,
-            description=f'Leave revoked - restored ({leave.start_date.strftime("%d %b")} - {leave.end_date.strftime("%d %b, %Y")}) - {hours} hrs',
+            description=f'Leave revoked - restored ({leave.start_date.strftime("%d/%m/%Y")} - {leave.end_date.strftime("%d/%m/%Y")}) - {hours} hrs',
             reference_id=leave.id,
             transaction_date=datetime.now().date()
         )
@@ -1711,7 +1709,7 @@ def finalize_salary(month, year):
     # Check if already finalized
     existing = SalaryFinalization.query.filter_by(month=month, year=year).first()
     if existing:
-        flash(f'Salary for this month is already finalized!', 'warning')
+        flash('Salary for this month is already finalized!', 'warning')
         return redirect(url_for('process_salary', month=month, year=year))
 
     # Get all active employees
@@ -1740,14 +1738,6 @@ def finalize_salary(month, year):
                 month_end = datetime(year + 1, 1, 1).date() - timedelta(days=1)
             else:
                 month_end = datetime(year, month + 1, 1).date() - timedelta(days=1)
-
-            # Count present days
-            present_days = Attendance.query.filter(
-                Attendance.user_id == emp.id,
-                Attendance.date >= month_start,
-                Attendance.date <= month_end,
-                Attendance.status == 'present'
-            ).count()
 
             # Get deductions
             deductions = Deduction.query.filter(
@@ -2185,7 +2175,6 @@ def debug_working_hours():
         data = response.json()
 
         # Find current user's data
-        user_data = None
         if isinstance(data, dict) and 'activity' in data:
             activities = data['activity']
             user_records = [a for a in activities if a.get('user', '').lower() == current_user.email.lower()]
@@ -2627,7 +2616,7 @@ def deduct_minus_leave(user_id):
         db.session.commit()
         flash(f'✅ Salary deduction created for {user.username}! Leave balance reset to 0.', 'success')
     else:
-        flash(f'No negative balance found for this employee.', 'info')
+        flash('No negative balance found for this employee.', 'info')
 
     return redirect(url_for('manage_leave_balance'))
 
@@ -2637,9 +2626,6 @@ def deduct_minus_leave(user_id):
 def carry_forward_leave(user_id):
     """Carry forward negative leave balance to next month (no salary deduction)"""
     user = User.query.get_or_404(user_id)
-
-    annual_balance = user.get_leave_balance('annual')
-    sick_balance = user.get_leave_balance('sick')
 
     flash(f'✅ Negative leave balance for {user.username} marked for carry forward. No salary deduction applied.', 'success')
     return redirect(url_for('manage_leave_balance'))
@@ -2670,7 +2656,7 @@ def undo_deduction(user_id):
         db.session.commit()
         flash(f'✅ Deduction undone for {user.username}. Leave balance restored.', 'success')
     else:
-        flash(f'No deduction found to undo for this employee.', 'info')
+        flash('No deduction found to undo for this employee.', 'info')
 
     return redirect(url_for('manage_leave_balance'))
 
@@ -2692,6 +2678,16 @@ def employee_onboarding():
         company_phone='98110 08636',
         company_email='info.acebookkeeping@gmail.com'
     )
+
+def to_ddmmyyyy(iso_date_str):
+    """Convert a 'YYYY-MM-DD' form value to 'DD/MM/YYYY' for display; leaves
+    non-ISO or empty input unchanged rather than raising."""
+    if not iso_date_str:
+        return iso_date_str
+    try:
+        return datetime.strptime(iso_date_str, '%Y-%m-%d').strftime('%d/%m/%Y')
+    except ValueError:
+        return iso_date_str
 
 @app.route('/admin/generate-onboarding-document', methods=['POST'])
 @login_required
@@ -2742,9 +2738,9 @@ def generate_onboarding_document():
 
     if doc_type == 'offer':
         doc_data.update({
-            'letter_date': request.form.get('letter_date', date.today().isoformat()),
+            'letter_date': to_ddmmyyyy(request.form.get('letter_date', date.today().isoformat())),
             'work_location': request.form.get('work_location', 'Office – Tilak Nagar, Delhi'),
-            'start_date': request.form.get('start_date', ''),
+            'start_date': to_ddmmyyyy(request.form.get('start_date', '')),
         })
     elif doc_type == 'agreement':
         doc_data.update({
@@ -2768,8 +2764,8 @@ def generate_onboarding_document():
         })
     elif doc_type == 'increment':
         doc_data.update({
-            'letter_date': request.form.get('letter_date', date.today().isoformat()),
-            'effective_from': request.form.get('effective_from', date.today().isoformat()),
+            'letter_date': to_ddmmyyyy(request.form.get('letter_date', date.today().isoformat())),
+            'effective_from': to_ddmmyyyy(request.form.get('effective_from', date.today().isoformat())),
             'old_annual': request.form.get('old_annual', salary.monthly_salary * 12),
             'new_annual': request.form.get('new_annual', salary.monthly_salary * 12),
         })

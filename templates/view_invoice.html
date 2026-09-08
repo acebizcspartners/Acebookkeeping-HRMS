@@ -36,7 +36,7 @@
                     <div class="col-md-6 text-end">
                         <h6 class="fw-bold mb-2" style="color: #2c3e50;">PAY SLIP</h6>
                         <small class="text-muted d-block">Slip #: {{ user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</small>
-                        <small class="text-muted d-block">Generated: {{ invoice.generated_on.strftime('%d %b %Y') }}</small>
+                        <small class="text-muted d-block">Generated: {{ invoice.generated_on.strftime('%d/%m/%Y') }}</small>
                     </div>
                 </div>
             </div>
@@ -163,11 +163,11 @@
             <div class="mb-3">
                 {% if invoice.status == 'paid' %}
                     <span class="badge p-2" style="font-size: 12px; background-color: #f0f0f0; color: #333; border: 1px solid #333;">
-                        PAID - {{ invoice.paid_on.strftime('%d %b %Y') }}
+                        PAID - {{ invoice.paid_on.strftime('%d/%m/%Y') }}
                     </span>
                 {% else %}
                     <span class="badge p-2" style="font-size: 12px; background-color: #f0f0f0; color: #333; border: 1px solid #333;">
-                        GENERATED - {{ invoice.generated_on.strftime('%d %b %Y') }}
+                        GENERATED - {{ invoice.generated_on.strftime('%d/%m/%Y') }}
                     </span>
                 {% endif %}
             </div>

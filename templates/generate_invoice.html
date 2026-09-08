@@ -24,7 +24,7 @@
                             {% for leave in approved_leaves %}
                             <li>
                                 {{ leave.leave_type|capitalize }} -
-                                {{ leave.start_date.strftime('%d %b') }} to {{ leave.end_date.strftime('%d %b %Y') }}
+                                {{ leave.start_date.strftime('%d/%m/%Y') }} to {{ leave.end_date.strftime('%d/%m/%Y') }}
                                 ({{ leave.hours }} hrs)
                             </li>
                             {% endfor %}
@@ -171,7 +171,7 @@
                     <p class="h5 mb-3">₹{{ "%.2f"|format(salary.hourly_rate) }}/hr</p>
 
                     <p class="mb-2"><strong>Effective From:</strong></p>
-                    <p class="mb-3">{{ salary.effective_from.strftime('%d %b %Y') }}</p>
+                    <p class="mb-3">{{ salary.effective_from.strftime('%d/%m/%Y') }}</p>
 
                     <hr>
 
