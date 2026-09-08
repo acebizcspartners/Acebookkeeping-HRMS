@@ -40,7 +40,7 @@
                 <span style="color: #666;">{{ doc.employee.email }}</span>
             </p>
             <p style="font-weight: bold; text-decoration: underline; margin: 20px 0 10px 0;">
-                Re: Letter of Offer – [Position]
+                Re: Letter of Offer – {{ doc.employee.designation or '[Position]' }}
             </p>
             <p>Dear {{ doc.employee.username }},</p>
             <p>Congratulations! We are delighted to welcome you to the <strong>{{ doc.company_name }}</strong> family.</p>

@@ -559,7 +559,7 @@ def get_activtrak_working_hours(email, from_date, to_date):
     # Create cache key
     cache_key = f"{email}_{from_date}_{to_date}"
 
-    # Check if data is in cache and not expired (cache for 1 hour)
+    # Check if data is in the fast in-process cache and not expired (1 hour)
     if cache_key in _activtrak_cache:
         if datetime.now() < _cache_expiry.get(cache_key, datetime.now()):
             print(f"[ActiveTrak] Cache hit for {email}")
