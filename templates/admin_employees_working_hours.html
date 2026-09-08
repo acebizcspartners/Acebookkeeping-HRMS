@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}All Employees Working Hours - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-hourglass-half"></i> All Employees Working Hours</h1>
+            <p class="text-muted">{{ month_year }} - ActiveTrak Data</p>
+        </div>
+        <a href="{{ url_for('view_all_salaries') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted">Total Employees</small>
+                    <h3 class="mb-0">{{ employees_data|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted">With Data</small>
+                    <h3 class="mb-0">{{ employees_data|selectattr('working_hours')|list|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted">No Data</small>
+                    <h3 class="mb-0">{{ employees_data|rejectattr('working_hours')|list|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0"><i class="fas fa-table"></i> Employee Working Hours</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Employee Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Work Hours</th>
+                        <th>Productive Hours</th>
+                        <th>Screen Time</th>
+                        <th>Days Present</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees_data %}
+                    <tr>
+                        <td><strong>{{ emp.username }}</strong></td>
+                        <td><small>{{ emp.email }}</small></td>
+                        <td>{{ emp.department or '-' }}</td>
+                        {% if emp.working_hours %}
+                            <td>
+                                <span class="badge bg-primary">{{ emp.working_hours.total_work_hours }} hrs</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ emp.working_hours.total_productive_hours }} hrs</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-purple">{{ emp.working_hours.total_screen_hours }} hrs</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ emp.working_hours.present_days }}/{{ emp.working_hours.total_days }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">Active</span>
+                            </td>
+                        {% else %}
+                            <td colspan="5" class="text-muted text-center">
+                                <small><i class="fas fa-info-circle"></i> No data from ActiveTrak</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning">No Data</span>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Details Section -->
+    {% if employees_data|selectattr('working_hours')|list|length > 0 %}
+    <div class="row g-4 mt-4">
+        {% for emp in employees_data %}
+            {% if emp.working_hours %}
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">{{ emp.username }} <small class="text-muted">({{ emp.email }})</small></h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <p class="text-muted small mb-1"><i class="fas fa-hourglass-half"></i> Work Hours</p>
+                                <h5>{{ emp.working_hours.total_work_hours }}</h5>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <p class="text-muted small mb-1"><i class="fas fa-star"></i> Productive</p>
+                                <h5>{{ emp.working_hours.total_productive_hours }}</h5>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <p class="text-muted small mb-1"><i class="fas fa-desktop"></i> Screen Time</p>
+                                <h5>{{ emp.working_hours.total_screen_hours }}</h5>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <p class="text-muted small mb-1"><i class="fas fa-calendar-check"></i> Days Present</p>
+                                <h5>{{ emp.working_hours.present_days }}/{{ emp.working_hours.total_days }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .badge.bg-purple {
+        background-color: #8b5cf6 !important;
+    }
+</style>
+{% endblock %}

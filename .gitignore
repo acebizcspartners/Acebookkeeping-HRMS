@@ -1,5 +1,6 @@
 venv/
 instance/
+leave_management.db
 __pycache__/
 *.pyc
 .vercel/

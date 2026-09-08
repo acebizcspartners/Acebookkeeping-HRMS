@@ -68,6 +68,14 @@
                                             <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
                                         </select>
                                     </form>
+                                    {% if user.role != 'admin' %}
+                                    <form method="POST" action="{{ url_for('delete_employee', user_id=user.id) }}" style="display: inline;" onsubmit="return confirmRemoveEmployee('{{ user.username }}')">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Remove employee who has left">
+                                            <i class="fas fa-user-minus"></i> Remove
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                     {% else %}
                                     <span class="text-muted text-sm">Current User</span>
                                     {% endif %}
@@ -155,6 +163,14 @@
 </div>
 
 <script>
+function confirmRemoveEmployee(username) {
+    return confirm(
+        `Are you sure you want to PERMANENTLY remove ${username}?\n\n` +
+        `This will delete their leave history, salary, payslips, attendance and all other records.\n\n` +
+        `This action CANNOT be undone.`
+    );
+}
+
 function editEmployee(userId, username, designation, reportingManager, dateOfJoining) {
     document.getElementById('employee_name').value = username;
     document.getElementById('designation').value = designation;

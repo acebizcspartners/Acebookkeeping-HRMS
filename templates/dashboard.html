@@ -117,6 +117,302 @@
         {% endif %}
     </div>
 
+    <!-- Admin: All Employees Working Hours -->
+    {% if all_employees_hours and current_user.role in ['admin', 'manager'] %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-users"></i> All Employees Working Hours (Current Month)</h5>
+            <span class="badge bg-primary">{{ all_employees_hours|length }} Employees</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Total Hours</th>
+                        <th>Productive</th>
+                        <th>Active vs Idle</th>
+                        <th>Days Present</th>
+                        <th>Status</th>
+                        <th>Day-wise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in all_employees_hours %}
+                    <tr data-user-id="{{ emp.user_id }}" data-email="{{ emp.email }}">
+                        <td>
+                            <strong>{{ emp.username }}</strong>
+                            <br><small class="text-muted">{{ emp.email }}</small>
+                        </td>
+                        <td>{{ emp.department or '-' }}</td>
+                        {% if emp.working_hours %}
+                            <td><span class="badge bg-primary">{{ emp.working_hours.total_screen_hours }} hrs</span></td>
+                            <td><span class="badge bg-info">{{ emp.working_hours.total_productive_hours }} hrs</span></td>
+                            <td>
+                                <small class="text-success"><i class="fas fa-keyboard"></i> {{ emp.working_hours.active_vs_idle.active }} hrs</small>
+                                <br>
+                                <small class="text-warning"><i class="fas fa-pause-circle"></i> {{ emp.working_hours.active_vs_idle.idle }} hrs</small>
+                            </td>
+                            <td><span class="badge bg-success">{{ emp.working_hours.present_days }}/{{ emp.working_hours.total_days }}</span></td>
+                            <td><span class="badge bg-success">Active</span></td>
+                        {% else %}
+                            <td class="text-muted text-center"><small class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></small></td>
+                            <td class="text-muted text-center"><small class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></small></td>
+                            <td class="text-muted text-center"><small class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></small></td>
+                            <td class="text-muted text-center"><small class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></small></td>
+                            <td><span class="badge bg-warning">Loading...</span></td>
+                        {% endif %}
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-secondary toggle-daily-details" data-target="daily-details-{{ emp.user_id }}" disabled>
+                                <i class="fas fa-chevron-down"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="daily-details-{{ emp.user_id }}" class="daily-details-row" style="display: none;">
+                        <td colspan="8" class="bg-light">
+                            <div id="daily-breakdown-{{ emp.user_id }}" class="p-2">
+                                <p class="text-muted text-center mb-0"><small>Loading day-wise data...</small></p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // Load employee working hours data asynchronously after page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const employees = {{ all_employees_hours|tojson }};
+            employees.forEach(emp => {
+                if (!emp.working_hours) {
+                    fetch(`/api/employee-working-hours/${emp.user_id}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            updateEmployeeRow(emp.user_id, data.working_hours);
+                        })
+                        .catch(error => {
+                            console.log(`Error fetching data for ${emp.email}`);
+                            updateEmployeeRow(emp.user_id, null);
+                        });
+                }
+            });
+
+            // Toggle day-wise details row on button click
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.toggle-daily-details');
+                if (!btn || btn.disabled) return;
+                const targetRow = document.getElementById(btn.getAttribute('data-target'));
+                if (!targetRow) return;
+                const isHidden = targetRow.style.display === 'none';
+                targetRow.style.display = isHidden ? '' : 'none';
+                btn.innerHTML = isHidden
+                    ? '<i class="fas fa-chevron-up"></i> Hide'
+                    : '<i class="fas fa-chevron-down"></i> View';
+            });
+        });
+
+        function updateEmployeeRow(userId, workingHours) {
+            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+            const toggleBtn = document.querySelector(`.toggle-daily-details[data-target="daily-details-${userId}"]`);
+
+            if (row && workingHours) {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 8) {
+                    cells[2].innerHTML = `<span class="badge bg-primary">${workingHours.total_screen_hours} hrs</span>`;
+                    cells[3].innerHTML = `<span class="badge bg-info">${workingHours.total_productive_hours} hrs</span>`;
+                    cells[4].innerHTML = `
+                        <small class="text-success"><i class="fas fa-keyboard"></i> ${workingHours.active_vs_idle.active} hrs</small>
+                        <br>
+                        <small class="text-warning"><i class="fas fa-pause-circle"></i> ${workingHours.active_vs_idle.idle} hrs</small>
+                    `;
+                    cells[5].innerHTML = `<span class="badge bg-success">${workingHours.present_days}/${workingHours.total_days}</span>`;
+                    cells[6].innerHTML = `<span class="badge bg-success">Active</span>`;
+                }
+                if (toggleBtn) toggleBtn.disabled = false;
+            } else if (row) {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 8) {
+                    const notTracked = '<small class="text-muted">&mdash;</small>';
+                    cells[2].innerHTML = notTracked;
+                    cells[3].innerHTML = notTracked;
+                    cells[4].innerHTML = notTracked;
+                    cells[5].innerHTML = notTracked;
+                    cells[6].innerHTML = `<span class="badge bg-secondary" title="No email/name match found in ActiveTrak this month">User not in ActiveTrak</span>`;
+                }
+                if (toggleBtn) toggleBtn.disabled = true;
+            }
+
+            renderDailyBreakdown(userId, workingHours ? workingHours.daily_breakdown : []);
+        }
+
+        function renderDailyBreakdown(userId, dailyBreakdown) {
+            const container = document.getElementById(`daily-breakdown-${userId}`);
+            if (!container) return;
+
+            if (!dailyBreakdown || dailyBreakdown.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center mb-0"><small>User not added in ActiveTracker — no data to show</small></p>';
+                return;
+            }
+
+            const rows = dailyBreakdown.map(day => `
+                <tr>
+                    <td>${day.date}</td>
+                    <td>${day.total_hours} hrs</td>
+                    <td class="text-success">${day.active_hours} hrs</td>
+                    <td class="text-warning">${day.idle_hours} hrs</td>
+                    <td class="text-info">${day.productive_hours} hrs</td>
+                    <td><small>${day.first_activity || '-'}</small></td>
+                    <td><small>${day.last_activity || '-'}</small></td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <table class="table table-sm table-bordered bg-white mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Active</th>
+                            <th>Idle</th>
+                            <th>Productive</th>
+                            <th>First Activity</th>
+                            <th>Last Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+    </script>
+    {% endif %}
+
+    <!-- Employee: Working Hours Summary (From ActiveTrak) -->
+    {% if working_hours_summary %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3b82f6;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-hourglass-half"></i> Total Hours</p>
+                            <h4 class="mb-0">{{ working_hours_summary.total_screen_hours }}</h4>
+                            <small class="text-muted">this month</small>
+                        </div>
+                        <div class="badge bg-primary-light p-2" style="background-color: rgba(59, 130, 246, 0.1);">
+                            <i class="fas fa-hourglass-half" style="color: #3b82f6;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #06b6d4;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-star"></i> Productive Hours</p>
+                            <h4 class="mb-0">{{ working_hours_summary.total_productive_hours }}</h4>
+                            <small class="text-muted">active work</small>
+                        </div>
+                        <div class="badge bg-info-light p-2" style="background-color: rgba(6, 182, 212, 0.1);">
+                            <i class="fas fa-star" style="color: #06b6d4;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #8b5cf6;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-keyboard"></i> Active Time</p>
+                            <h4 class="mb-0">{{ working_hours_summary.active_vs_idle.active }}</h4>
+                            <small class="text-muted">hrs</small>
+                        </div>
+                        <div class="badge bg-purple-light p-2" style="background-color: rgba(139, 92, 246, 0.1);">
+                            <i class="fas fa-keyboard" style="color: #8b5cf6;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #14b8a6;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-pause-circle"></i> Idle Time</p>
+                            <h4 class="mb-0">{{ working_hours_summary.active_vs_idle.idle }}</h4>
+                            <small class="text-muted">hrs</small>
+                        </div>
+                        <div class="badge bg-success-light p-2" style="background-color: rgba(20, 184, 166, 0.1);">
+                            <i class="fas fa-pause-circle" style="color: #14b8a6;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Details & Attendance -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Attendance Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <p class="text-muted small mb-1">Days Present</p>
+                            <h4 class="mb-0">{{ working_hours_summary.present_days }} <small class="text-muted">/{{ working_hours_summary.total_days }}</small></h4>
+                        </div>
+                        <div class="col-4">
+                            <p class="text-muted small mb-1">Attendance Rate</p>
+                            <h4 class="mb-0">{% if working_hours_summary.total_days > 0 %}{{ (working_hours_summary.present_days / working_hours_summary.total_days * 100)|int }}%{% else %}0%{% endif %}</h4>
+                        </div>
+                        <div class="col-4">
+                            <p class="text-muted small mb-1">Offline Meetings</p>
+                            <h4 class="mb-0">{{ working_hours_summary.offline_meetings }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Time Span</h5>
+                </div>
+                <div class="card-body">
+                    {% if working_hours_summary.first_activity %}
+                    <div class="mb-3">
+                        <p class="text-muted small mb-1">First Activity</p>
+                        <p class="mb-0">{{ working_hours_summary.first_activity }}</p>
+                    </div>
+                    {% endif %}
+                    {% if working_hours_summary.last_activity %}
+                    <div>
+                        <p class="text-muted small mb-1">Last Activity</p>
+                        <p class="mb-0">{{ working_hours_summary.last_activity }}</p>
+                    </div>
+                    {% endif %}
+                    {% if not working_hours_summary.first_activity and not working_hours_summary.last_activity %}
+                    <p class="text-muted text-center py-3"><small>No activity recorded</small></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Assigned Documents Alert -->
     {% if assigned_documents %}
     <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">

@@ -13,9 +13,17 @@ import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+from functools import lru_cache
+from datetime import datetime, timedelta
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (override=True so edits to .env
+# take effect on reload, instead of being masked by env vars inherited from
+# the previous process via the Werkzeug auto-reloader)
+load_dotenv(override=True)
+
+# Cache for API results - cache_key: (email, from_date, to_date) -> result
+_activtrak_cache = {}
+_cache_expiry = {}
 
 # Monthly leave accrual rates (in HOURS)
 ANNUAL_LEAVE_MONTHLY_CREDIT = 9.25    # 9.25 hours per month (111 hours/year)
@@ -386,8 +394,14 @@ class Attendance(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(50), default='present')  # present, absent, annual, sick, lwp
+    work_hours = db.Column(db.Float, default=0)  # Total work hours from tracker
+    productive_hours = db.Column(db.Float, default=0)  # Productive hours
+    screen_time_hours = db.Column(db.Float, default=0)  # Screen time hours
+    source = db.Column(db.String(50), default='manual')  # active_tracker, manual
     remarks = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='attendance_records')
 
 class PerformanceReview(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -439,15 +453,6 @@ class EmployeeAsset(db.Model):
     status = db.Column(db.String(20), default='active')  # active, returned, damaged
     remarks = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Announcement(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    expires_at = db.Column(db.DateTime)
-    visibility = db.Column(db.String(20), default='all')  # all, department, specific
 
 class Holiday(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -542,6 +547,176 @@ def send_n8n_webhook(event, data):
             requests.post(webhook_url, json=payload, timeout=5)
         except Exception:
             pass
+
+def get_activtrak_working_hours(email, from_date, to_date):
+    """Fetch detailed working hours from ActiveTrak computers endpoint with caching and retry logic"""
+    api_url = os.environ.get('ACTIVTRAK_API_URL')
+    api_key = os.environ.get('ACTIVTRAK_API_KEY')
+
+    if not api_url or not api_key or api_key == 'your_api_key_here':
+        return None
+
+    # Create cache key
+    cache_key = f"{email}_{from_date}_{to_date}"
+
+    # Check if data is in cache and not expired (cache for 1 hour)
+    if cache_key in _activtrak_cache:
+        if datetime.now() < _cache_expiry.get(cache_key, datetime.now()):
+            print(f"[ActiveTrak] Cache hit for {email}")
+            return _activtrak_cache[cache_key]
+        else:
+            # Cache expired, remove it
+            del _activtrak_cache[cache_key]
+            del _cache_expiry[cache_key]
+
+    headers = {
+        'x-api-key': api_key,
+        'Content-Type': 'application/json'
+    }
+
+    params = {
+        'from': from_date.strftime('%Y-%m-%d'),
+        'to': to_date.strftime('%Y-%m-%d'),
+        # ActiveTrak paginates at ~150 records by default, which silently drops
+        # earlier dates once (users x days in range) exceeds that - request a
+        # page large enough to cover a full month for the whole org in one call.
+        'pageSize': 2000
+    }
+
+    # Retry logic - try up to 3 times with increasing timeout
+    max_retries = 3
+    timeout_values = [20, 30, 45]
+
+    for attempt in range(max_retries):
+        try:
+            timeout = timeout_values[attempt]
+            print(f"[ActiveTrak] Attempt {attempt + 1}/{max_retries} - Timeout: {timeout}s for {email}")
+
+            response = requests.get(api_url, headers=headers, params=params, timeout=timeout)
+            response.raise_for_status()
+
+            data = response.json()
+
+            # API returns { activity: [...] } - users endpoint, one record per user per day
+            if isinstance(data, dict) and 'activity' in data:
+                activities = data['activity']
+
+                # Find all records where this email matches the record's user field (case-insensitive)
+                user_computers = [
+                    a for a in activities
+                    if a.get('user', '').lower() == email.lower()
+                ]
+
+                if user_computers:
+                    # Sum up time across all computers and days
+                    total_active_time = sum(a.get('activeTime', {}).get('total', 0) for a in user_computers)
+                    total_passive_time = sum(a.get('passiveTime', {}).get('total', 0) for a in user_computers)
+                    total_productive = sum(a.get('activeTime', {}).get('productive', 0) for a in user_computers)
+                    total_time = sum(a.get('totalTime', 0) for a in user_computers)
+                    total_offline_meetings = sum(a.get('TotalOfflineMeetings', 0) for a in user_computers)
+
+                    # Days with data (totalTime > 0)
+                    active_days = [a for a in user_computers if a.get('totalTime', 0) > 0]
+                    present_days = len(active_days)
+
+                    # Day-wise breakdown (aggregated across computers per date, for UI display)
+                    daily_totals = {}
+                    for a in active_days:
+                        day_key = a.get('date', '')
+                        if not day_key:
+                            continue
+                        day = daily_totals.setdefault(day_key, {
+                            'date': day_key,
+                            'active_seconds': 0,
+                            'passive_seconds': 0,
+                            'productive_seconds': 0,
+                            'total_seconds': 0,
+                            'first_activity': None,
+                            'last_activity': None
+                        })
+                        day['active_seconds'] += a.get('activeTime', {}).get('total', 0)
+                        day['passive_seconds'] += a.get('passiveTime', {}).get('total', 0)
+                        day['productive_seconds'] += a.get('activeTime', {}).get('productive', 0)
+                        day['total_seconds'] += a.get('totalTime', 0)
+                        if a.get('firstActivity') and (not day['first_activity'] or a.get('firstActivity') < day['first_activity']):
+                            day['first_activity'] = a.get('firstActivity')
+                        if a.get('lastActivity') and (not day['last_activity'] or a.get('lastActivity') > day['last_activity']):
+                            day['last_activity'] = a.get('lastActivity')
+
+                    daily_breakdown = [
+                        {
+                            'date': day['date'],
+                            'active_hours': round(day['active_seconds'] / 3600, 2),
+                            'idle_hours': round(day['passive_seconds'] / 3600, 2),
+                            'productive_hours': round(day['productive_seconds'] / 3600, 2),
+                            'total_hours': round(day['total_seconds'] / 3600, 2),
+                            'first_activity': day['first_activity'],
+                            'last_activity': day['last_activity']
+                        }
+                        for day in sorted(daily_totals.values(), key=lambda d: d['date'])
+                    ]
+
+                    # Get first activity and last activity times
+                    first_activity = None
+                    last_activity = None
+                    for activity in sorted(user_computers, key=lambda x: x.get('date', '')):
+                        if activity.get('firstActivity') and not first_activity:
+                            first_activity = activity.get('firstActivity')
+                        if activity.get('lastActivity'):
+                            last_activity = activity.get('lastActivity')
+
+                    # Times are in seconds, convert to hours
+                    result = {
+                        'total_work_hours': round(total_active_time / 3600, 2),
+                        'total_active_time_seconds': total_active_time,
+                        'total_passive_time_seconds': total_passive_time,
+                        'total_productive_hours': round(total_productive / 3600, 2),
+                        'total_screen_hours': round(total_time / 3600, 2),
+                        'total_time_seconds': total_time,
+                        'present_days': present_days,
+                        'total_days': (to_date - from_date).days + 1,
+                        'first_activity': first_activity,
+                        'last_activity': last_activity,
+                        'offline_meetings': total_offline_meetings,
+                        'daily_records': active_days,
+                        'daily_breakdown': daily_breakdown,
+                        'active_vs_idle': {
+                            'active': round(total_active_time / 3600, 2),
+                            'idle': round(total_passive_time / 3600, 2)
+                        }
+                    }
+                    print(f"[ActiveTrak] Success for {email} on attempt {attempt + 1} - Found {len(user_computers)} computer records")
+
+                    # Cache the result for 1 hour
+                    _activtrak_cache[cache_key] = result
+                    _cache_expiry[cache_key] = datetime.now() + timedelta(hours=1)
+
+                    return result
+                print(f"[ActiveTrak] No matching computer records for {email} - checked {len(activities)} activity entries for {from_date} to {to_date}")
+            else:
+                print(f"[ActiveTrak] Unexpected API response shape for {email}: keys={list(data.keys()) if isinstance(data, dict) else type(data)}")
+            return None
+
+        except requests.exceptions.Timeout:
+            print(f"[ActiveTrak] Timeout on attempt {attempt + 1} (timeout={timeout_values[attempt]}s) for {email}")
+            if attempt == max_retries - 1:
+                print(f"[ActiveTrak] Max retries reached for {email}")
+                return None
+            continue
+
+        except requests.exceptions.ConnectionError as e:
+            print(f"[ActiveTrak] Connection error on attempt {attempt + 1} for {email}: {str(e)}")
+            if attempt == max_retries - 1:
+                return None
+            continue
+
+        except Exception as e:
+            print(f"[ActiveTrak] Error on attempt {attempt + 1} for {email}: {str(e)}")
+            if attempt == max_retries - 1:
+                return None
+            continue
+
+    return None
 
 def generate_otp():
     """Generate a 6-digit OTP"""
@@ -874,13 +1049,49 @@ def dashboard():
     assigned_documents = OnboardingDocument.query.filter_by(user_id=current_user.id)\
         .order_by(OnboardingDocument.assigned_at.desc()).all()
 
+    # Get working hours from ActiveTrak API - Current month only
+    today = datetime.now().date()
+    month_start = date(today.year, today.month, 1)
+    if today.month == 12:
+        month_end = date(today.year + 1, 1, 1) - timedelta(days=1)
+    else:
+        month_end = date(today.year, today.month + 1, 1) - timedelta(days=1)
+
+    working_hours_summary = None
+    all_employees_hours = None
+
+    if current_user.role in ['admin', 'manager']:
+        # Admins: Don't fetch data here, load via AJAX after page renders
+        # This prevents blocking the page load for 5+ minutes
+        all_employees = User.query.filter_by(role='employee').all()
+        all_employees_hours = [
+            {
+                'user_id': emp.id,
+                'username': emp.username,
+                'email': emp.email,
+                'department': emp.department,
+                'working_hours': None  # Will be fetched via AJAX
+            }
+            for emp in all_employees
+        ]
+        print(f"[Dashboard] Admin view: {len(all_employees_hours)} employees (data will load async)")
+    else:
+        # Employees see only their own working hours
+        working_hours_summary = get_activtrak_working_hours(current_user.email, month_start, month_end)
+        if working_hours_summary:
+            print(f"[Dashboard] Working hours for {current_user.email}: {working_hours_summary}")
+        else:
+            print(f"[Dashboard] No working hours data found for {current_user.email} ({month_start} to {month_end})")
+
     return render_template('dashboard.html',
                          balance=balance,
                          leave_info=leave_info,
                          recent_leaves=recent_leaves,
                          pending_count=pending_count,
                          active_trainings=active_trainings,
-                         assigned_documents=assigned_documents)
+                         assigned_documents=assigned_documents,
+                         working_hours_summary=working_hours_summary,
+                         all_employees_hours=all_employees_hours)
 
 @app.route('/apply-leave', methods=['GET', 'POST'])
 @login_required
@@ -1186,6 +1397,74 @@ def reject_revocation(leave_id):
 def employees():
     users = User.query.all()
     return render_template('employees.html', users=users)
+
+@app.route('/employee/<int:user_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_employee(user_id):
+    """Permanently remove an employee who has left the company, along with
+    all of their own records (leaves, salary, attendance, etc.)."""
+    if user_id == current_user.id:
+        flash('You cannot remove your own account.', 'error')
+        return redirect(url_for('employees'))
+
+    user = User.query.get_or_404(user_id)
+
+    if user.role == 'admin':
+        flash('Admin accounts cannot be removed from here.', 'error')
+        return redirect(url_for('employees'))
+
+    # If this person ever acted as the admin/approver on someone ELSE's
+    # record (a NOT NULL foreign key), we can't null it out or delete those
+    # other employees' records - block instead of corrupting/losing that data.
+    blocking = []
+    if SalaryFinalization.query.filter_by(finalized_by=user.id).first():
+        blocking.append('salary finalizations they performed')
+    if Deduction.query.filter_by(created_by=user.id).first():
+        blocking.append('deductions they created for other employees')
+    if LeaveAdjustment.query.filter_by(created_by=user.id).first():
+        blocking.append('leave adjustments they created for other employees')
+    if OnboardingDocument.query.filter_by(assigned_by=user.id).first():
+        blocking.append('onboarding documents they assigned to other employees')
+    if PerformanceReview.query.filter_by(reviewer_id=user.id).first():
+        blocking.append('performance reviews they authored for other employees')
+
+    if blocking:
+        flash(f"Can't remove {user.username}: they have {', '.join(blocking)} on record. Reassign those first.", 'error')
+        return redirect(url_for('employees'))
+
+    try:
+        # Clear this user from nullable "who did this" fields on other people's records
+        Leave.query.filter_by(reviewed_by=user.id).update({'reviewed_by': None})
+        Department.query.filter_by(manager_id=user.id).update({'manager_id': None})
+        EmployeeProfile.query.filter_by(manager_id=user.id).update({'manager_id': None})
+
+        # Delete this employee's own records
+        LeaveTransaction.query.filter_by(user_id=user.id).delete()
+        Leave.query.filter_by(user_id=user.id).delete()
+        LeaveBalance.query.filter_by(user_id=user.id).delete()
+        PaymentInvoice.query.filter_by(user_id=user.id).delete()
+        Salary.query.filter_by(user_id=user.id).delete()
+        Deduction.query.filter_by(user_id=user.id).delete()
+        LeaveAdjustment.query.filter_by(user_id=user.id).delete()
+        OnboardingDocument.query.filter_by(user_id=user.id).delete()
+        EmergencyContact.query.filter_by(user_id=user.id).delete()
+        EmployeeDocument.query.filter_by(user_id=user.id).delete()
+        Attendance.query.filter_by(user_id=user.id).delete()
+        PerformanceReview.query.filter_by(user_id=user.id).delete()
+        EmployeeTraining.query.filter_by(user_id=user.id).delete()
+        EmployeeAsset.query.filter_by(user_id=user.id).delete()
+        EmployeeProfile.query.filter_by(user_id=user.id).delete()
+
+        username = user.username
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'{username} has been permanently removed.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Could not remove employee: {str(e)}', 'error')
+
+    return redirect(url_for('employees'))
 
 @app.route('/employee/<int:user_id>/update-role', methods=['POST'])
 @login_required
@@ -1798,6 +2077,166 @@ def leave_stats():
         })
     return jsonify({})
 
+@app.route('/api/working-hours')
+@login_required
+def api_working_hours():
+    """Get working hours for current user from ActiveTrak API"""
+    from_date_str = request.args.get('from_date')
+    to_date_str = request.args.get('to_date')
+
+    if not from_date_str or not to_date_str:
+        today = datetime.now().date()
+        from_date = date(today.year, today.month, 1)
+        if today.month == 12:
+            to_date = date(today.year + 1, 1, 1) - timedelta(days=1)
+        else:
+            to_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+    else:
+        from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date()
+        to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date()
+
+    working_hours = get_activtrak_working_hours(current_user.email, from_date, to_date)
+
+    if working_hours:
+        return jsonify(working_hours)
+    return jsonify({'error': 'Unable to fetch working hours from ActiveTrak'}), 503
+
+@app.route('/api/working-hours/employee/<int:user_id>')
+@login_required
+@admin_required
+def api_employee_working_hours(user_id):
+    """Get working hours for specific employee (admin only)"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    from_date_str = request.args.get('from_date')
+    to_date_str = request.args.get('to_date')
+
+    if not from_date_str or not to_date_str:
+        today = datetime.now().date()
+        from_date = date(today.year, today.month, 1)
+        if today.month == 12:
+            to_date = date(today.year + 1, 1, 1) - timedelta(days=1)
+        else:
+            to_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+    else:
+        from_date = datetime.strptime(from_date_str, '%Y-%m-%d').date()
+        to_date = datetime.strptime(to_date_str, '%Y-%m-%d').date()
+
+    working_hours = get_activtrak_working_hours(user.email, from_date, to_date)
+
+    if working_hours:
+        return jsonify(working_hours)
+    return jsonify({'error': 'Unable to fetch working hours from ActiveTrak'}), 503
+
+@app.route('/api/employee-working-hours/<int:user_id>')
+@login_required
+@admin_required
+def get_employee_working_hours_api(user_id):
+    """Get working hours for specific employee (AJAX endpoint)"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    today = datetime.now().date()
+    month_start = date(today.year, today.month, 1)
+    if today.month == 12:
+        month_end = date(today.year + 1, 1, 1) - timedelta(days=1)
+    else:
+        month_end = date(today.year, today.month + 1, 1) - timedelta(days=1)
+
+    working_hours = get_activtrak_working_hours(user.email, month_start, month_end)
+
+    return jsonify({
+        'user_id': user_id,
+        'email': user.email,
+        'working_hours': working_hours
+    })
+
+@app.route('/api/debug/working-hours')
+@login_required
+def debug_working_hours():
+    """Debug endpoint to check raw API data"""
+    api_url = os.environ.get('ACTIVTRAK_API_URL')
+    api_key = os.environ.get('ACTIVTRAK_API_KEY')
+
+    today = datetime.now().date()
+    from_date = date(today.year, today.month, 1)
+    if today.month == 12:
+        to_date = date(today.year + 1, 1, 1) - timedelta(days=1)
+    else:
+        to_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+
+    try:
+        headers = {
+            'x-api-key': api_key,
+            'Content-Type': 'application/json'
+        }
+
+        params = {
+            'from': from_date.strftime('%Y-%m-%d'),
+            'to': to_date.strftime('%Y-%m-%d')
+        }
+
+        response = requests.get(api_url, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+
+        data = response.json()
+
+        # Find current user's data
+        user_data = None
+        if isinstance(data, dict) and 'activity' in data:
+            activities = data['activity']
+            user_records = [a for a in activities if a.get('user', '').lower() == current_user.email.lower()]
+
+            return jsonify({
+                'status': 'success',
+                'current_user_email': current_user.email,
+                'date_range': f"{from_date} to {to_date}",
+                'total_records_in_api': len(data.get('activity', [])),
+                'user_records_found': len(user_records),
+                'sample_user_records': user_records[:3] if user_records else [],
+                'sample_all_records': data.get('activity', [])[:2] if data.get('activity') else [],
+                'summary': get_activtrak_working_hours(current_user.email, from_date, to_date)
+            })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'error_type': type(e).__name__
+        }), 500
+
+@app.route('/admin/all-employees-working-hours')
+@login_required
+@admin_required
+def all_employees_working_hours():
+    """View all employees' working hours for current month (admin only)"""
+    today = datetime.now().date()
+    from_date = date(today.year, today.month, 1)
+    if today.month == 12:
+        to_date = date(today.year + 1, 1, 1) - timedelta(days=1)
+    else:
+        to_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+
+    employees = User.query.filter_by(role='employee').all()
+    employees_data = []
+
+    for emp in employees:
+        if emp.email:
+            working_hours = get_activtrak_working_hours(emp.email, from_date, to_date)
+            employees_data.append({
+                'user_id': emp.id,
+                'username': emp.username,
+                'email': emp.email,
+                'department': emp.department,
+                'working_hours': working_hours
+            })
+
+    return render_template('admin_employees_working_hours.html',
+                         employees_data=employees_data,
+                         month_year=f"{today.strftime('%B %Y')}")
+
 # HRMS FEATURES
 
 # Attendance Management
@@ -1813,6 +2252,55 @@ def auto_mark_attendance_route():
         flash(f'Error marking attendance: {str(e)}', 'error')
 
     return redirect(url_for('view_all_salaries'))
+
+@app.route('/admin/activtrak-test', methods=['GET'])
+@login_required
+@admin_required
+def activtrak_test():
+    """Test ActiveTrak API integration - debug endpoint"""
+    try:
+        today = datetime.now().date()
+        from_date = date(today.year, today.month, 1)
+        if today.month == 12:
+            to_date = date(today.year + 1, 1, 1) - timedelta(days=1)
+        else:
+            to_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+
+        api_url = os.environ.get('ACTIVTRAK_API_URL')
+        api_key = os.environ.get('ACTIVTRAK_API_KEY')
+
+        if not api_url or not api_key:
+            return jsonify({'error': 'API configuration missing'}), 400
+
+        headers = {
+            'x-api-key': api_key,
+            'Content-Type': 'application/json'
+        }
+
+        params = {
+            'from': from_date.strftime('%Y-%m-%d'),
+            'to': to_date.strftime('%Y-%m-%d')
+        }
+
+        response = requests.get(api_url, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+
+        raw_data = response.json()
+
+        return jsonify({
+            'status': 'success',
+            'message': 'ActiveTrak API connection successful',
+            'request_params': params,
+            'response_sample': raw_data[:1] if isinstance(raw_data, list) else raw_data,
+            'total_records': len(raw_data) if isinstance(raw_data, list) else 'Not a list',
+            'raw_response': raw_data
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'error_type': type(e).__name__
+        }), 500
 
 # Employee Profile
 # Emergency Contacts
@@ -2347,27 +2835,6 @@ def hr_analytics():
         total_leaves=total_leaves
     )
 
-# Admin: Announcements
-@app.route('/announcements')
-@login_required
-def announcements():
-    announcements = Announcement.query.order_by(Announcement.created_at.desc()).all()
-    return render_template('announcements.html', announcements=announcements)
-
-@app.route('/admin/announcement/add', methods=['POST'])
-@login_required
-@admin_required
-def add_announcement():
-    announcement = Announcement(
-        title=request.form.get('title'),
-        content=request.form.get('content'),
-        created_by=current_user.id
-    )
-    db.session.add(announcement)
-    db.session.commit()
-    flash('Announcement posted!', 'success')
-    return redirect(url_for('announcements'))
-
 # Holiday Calendar Routes
 @app.route('/holidays')
 @login_required
@@ -2484,6 +2951,24 @@ def init_db():
             if 'hours' not in leave_columns:
                 db.session.execute(text('ALTER TABLE leave ADD COLUMN hours FLOAT DEFAULT 0'))
                 db.session.commit()
+
+            # Add new columns to attendance table if missing
+            try:
+                att_columns = [col['name'] for col in inspector.get_columns('attendance')]
+                if 'work_hours' not in att_columns:
+                    db.session.execute(text('ALTER TABLE attendance ADD COLUMN work_hours FLOAT DEFAULT 0'))
+                    db.session.commit()
+                if 'productive_hours' not in att_columns:
+                    db.session.execute(text('ALTER TABLE attendance ADD COLUMN productive_hours FLOAT DEFAULT 0'))
+                    db.session.commit()
+                if 'screen_time_hours' not in att_columns:
+                    db.session.execute(text('ALTER TABLE attendance ADD COLUMN screen_time_hours FLOAT DEFAULT 0'))
+                    db.session.commit()
+                if 'source' not in att_columns:
+                    db.session.execute(text("ALTER TABLE attendance ADD COLUMN source VARCHAR(50) DEFAULT 'manual'"))
+                    db.session.commit()
+            except Exception as e:
+                print(f'Attendance table migration: {e}')
 
             # Add new columns to payment_invoice table if missing
             try:

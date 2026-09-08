@@ -60,9 +60,6 @@
             <li><a href="{{ url_for('my_documents') }}" class="{% if request.endpoint == 'my_documents' or request.endpoint == 'view_document' %}active{% endif %}">
                 <i class="fas fa-file-contract"></i> My Documents
             </a></li>
-            <li><a href="{{ url_for('announcements') }}" class="{% if request.endpoint == 'announcements' %}active{% endif %}">
-                <i class="fas fa-bell"></i> Announcements
-            </a></li>
             <li><a href="{{ url_for('training_list') }}" class="{% if request.endpoint == 'training_list' %}active{% endif %}">
                 <i class="fas fa-graduation-cap"></i> Training
             </a></li>
