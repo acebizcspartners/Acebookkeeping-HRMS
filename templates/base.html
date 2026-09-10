@@ -104,7 +104,7 @@
                 </div>
             </div>
             <div class="nav-divider"></div>
-            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout" onclick="sessionStorage.clear();">
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>

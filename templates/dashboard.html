@@ -182,21 +182,36 @@
         </div>
     </div>
     <script>
-        // Load employee working hours data asynchronously after page loads
+        // Load employee working hours data once per browser session. Once a
+        // employee's data has been fetched, it's kept in sessionStorage and
+        // reused on every later dashboard visit - no repeat ActiveTrak call -
+        // until the tab/browser is closed or the user logs out (both clear
+        // sessionStorage), rather than re-fetching on every page load.
+        const ACTIVTRAK_SESSION_PREFIX = 'activtrak_emp_';
+
         document.addEventListener('DOMContentLoaded', function() {
             const employees = {{ all_employees_hours|tojson }};
             employees.forEach(emp => {
-                if (!emp.working_hours) {
-                    fetch(`/api/employee-working-hours/${emp.user_id}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            updateEmployeeRow(emp.user_id, data.working_hours);
-                        })
-                        .catch(error => {
-                            console.log(`Error fetching data for ${emp.email}`);
-                            updateEmployeeRow(emp.user_id, null);
-                        });
+                if (emp.working_hours) return;
+
+                const cached = sessionStorage.getItem(ACTIVTRAK_SESSION_PREFIX + emp.user_id);
+                if (cached) {
+                    updateEmployeeRow(emp.user_id, JSON.parse(cached));
+                    return;
                 }
+
+                fetch(`/api/employee-working-hours/${emp.user_id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.working_hours) {
+                            sessionStorage.setItem(ACTIVTRAK_SESSION_PREFIX + emp.user_id, JSON.stringify(data.working_hours));
+                        }
+                        updateEmployeeRow(emp.user_id, data.working_hours);
+                    })
+                    .catch(error => {
+                        console.log(`Error fetching data for ${emp.email}`);
+                        updateEmployeeRow(emp.user_id, null);
+                    });
             });
 
             // Toggle day-wise details row on button click

@@ -51,7 +51,7 @@
                                     {{ user.role|capitalize }}
                                 </span>
                             </td>
-                            <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ user.date_of_joining.strftime('%d/%m/%Y') if user.date_of_joining else user.created_at.strftime('%d/%m/%Y') }}</td>
                             {% if current_user.role == 'admin' %}
                             <td>
                                 <div class="action-buttons" style="display: flex; gap: 5px;">

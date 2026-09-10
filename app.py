@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, date
 from functools import wraps
@@ -71,8 +71,8 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Session timeout configuration (10 minutes inactivity)
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
+# Session timeout configuration (60 minutes inactivity)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -107,7 +107,7 @@ csrf = CSRFProtect(app)
 @app.before_request
 def session_timeout():
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=10)
+    app.permanent_session_lifetime = timedelta(minutes=60)
     session.modified = True
 
     if current_user.is_authenticated:
@@ -118,6 +118,13 @@ def session_timeout():
 def unauthorized():
     flash('Your session has expired. Please login again.', 'warning')
     return redirect(url_for('login', timeout='1'))
+
+# CSRF error handler - shows a friendly message instead of a raw 400 page
+# when a form is submitted after the session has expired (10 min inactivity)
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    flash('Your session expired while this page was open. Please log in again and retry.', 'warning')
+    return redirect(url_for('login'))
 
 # Models
 class User(UserMixin, db.Model):
@@ -465,22 +472,65 @@ class Holiday(db.Model):
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         return days[self.holiday_date.weekday()]
 
-def auto_mark_attendance():
-    """Auto-mark all employees as present for current month (Mon-Fri only)"""
-    from datetime import date as dateclass
+def get_default_payroll_month():
+    """Which month/year payroll screens should default to.
+
+    Payroll for a month is processed early in the *next* month (e.g. September
+    is processed 1-10 October), so during the first 10 days of a month we
+    default to last month; after that, to the current month."""
+    today = datetime.now().date()
+    if today.day <= 10:
+        if today.month == 1:
+            return 12, today.year - 1
+        return today.month - 1, today.year
+    return today.month, today.year
+
+def get_expected_working_days(month, year):
+    """Count Mon-Fri days in a month, excluding company holidays."""
+    from dateutil.relativedelta import relativedelta
+    month_start = date(year, month, 1)
+    month_end = (month_start + relativedelta(months=1)) - timedelta(days=1)
+
+    holiday_dates = {
+        h.holiday_date for h in Holiday.query.filter(
+            Holiday.holiday_date >= month_start,
+            Holiday.holiday_date <= month_end
+        ).all()
+    }
+
+    count = 0
+    current_date = month_start
+    while current_date <= month_end:
+        if current_date.weekday() < 5 and current_date not in holiday_dates:
+            count += 1
+        current_date += timedelta(days=1)
+    return count
+
+def auto_mark_attendance(month=None, year=None):
+    """Auto-mark all employees as present for the given month (Mon-Fri,
+    excluding company holidays). Defaults to get_default_payroll_month()."""
     from dateutil.relativedelta import relativedelta
 
-    today = datetime.now().date()
-    month_start = dateclass(today.year, today.month, 1)
-    month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+    if month is None or year is None:
+        month, year = get_default_payroll_month()
+
+    month_start = date(year, month, 1)
+    month_end = (month_start + relativedelta(months=1)) - timedelta(days=1)
+
+    holiday_dates = {
+        h.holiday_date for h in Holiday.query.filter(
+            Holiday.holiday_date >= month_start,
+            Holiday.holiday_date <= month_end
+        ).all()
+    }
 
     employees = User.query.filter_by(role='employee').all()
 
     for emp in employees:
         current_date = month_start
         while current_date <= month_end:
-            # Only Mon-Fri (weekday 0-4)
-            if current_date.weekday() < 5:
+            # Only Mon-Fri (weekday 0-4), and skip company holidays
+            if current_date.weekday() < 5 and current_date not in holiday_dates:
                 # Check if attendance already exists
                 existing = Attendance.query.filter_by(
                     user_id=emp.id,
@@ -498,6 +548,7 @@ def auto_mark_attendance():
             current_date += timedelta(days=1)
 
     db.session.commit()
+    return month, year
 
 def record_leave_transaction(user_id, leave_type, transaction_type, days, description, reference_id=None, transaction_date=None):
     """Record a leave transaction (credit or debit)"""
@@ -1642,11 +1693,15 @@ def edit_employee_profile(user_id):
 @admin_required
 def process_salary():
     """Bulk salary calculation and processing page"""
-    month = request.args.get('month', datetime.now().month, type=int)
-    year = request.args.get('year', datetime.now().year, type=int)
+    default_month, default_year = get_default_payroll_month()
+    month = request.args.get('month', default_month, type=int)
+    year = request.args.get('year', default_year, type=int)
+
+    expected_days = get_expected_working_days(month, year)
 
     employees = User.query.filter_by(role='employee').all()
     employees_data = []
+    missing_attendance_count = 0
 
     for emp in employees:
         salary = Salary.query.filter_by(user_id=emp.id, is_active=True).first()
@@ -1654,10 +1709,9 @@ def process_salary():
             continue
 
         # Get attendance for this month
-        from datetime import date as dateclass
         from dateutil.relativedelta import relativedelta
-        month_start = dateclass(year, month, 1)
-        month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+        month_start = date(year, month, 1)
+        month_end = (month_start + relativedelta(months=1)) - timedelta(days=1)
 
         attendance = Attendance.query.filter(
             Attendance.user_id == emp.id,
@@ -1666,6 +1720,8 @@ def process_salary():
         ).all()
 
         present_days = len([a for a in attendance if a.status == 'present'])
+        if present_days == 0:
+            missing_attendance_count += 1
 
         # Calculate salary
         monthly_salary = salary.monthly_salary
@@ -1684,6 +1740,7 @@ def process_salary():
             'user': emp,
             'salary': salary,
             'present_days': present_days,
+            'expected_days': expected_days,
             'manual_deduction': total_deduction,
             'total_deduction': total_deduction,
             'net_salary': net_salary,
@@ -1693,11 +1750,21 @@ def process_salary():
     month_name = ['', 'January', 'February', 'March', 'April', 'May', 'June',
                   'July', 'August', 'September', 'October', 'November', 'December'][month]
 
+    today = datetime.now().date()
+    finalization = SalaryFinalization.query.filter_by(month=month, year=year).first()
+    month_has_ended = date(year, month, 1) < date(today.year, today.month, 1)
+    can_finalize = finalization is None and month_has_ended
+
     return render_template('process_salary.html',
         employees_data=employees_data,
         month=month,
         year=year,
-        month_name=month_name
+        month_name=month_name,
+        expected_days=expected_days,
+        missing_attendance_count=missing_attendance_count,
+        finalization=finalization,
+        month_has_ended=month_has_ended,
+        can_finalize=can_finalize
     )
 
 @app.route('/admin/finalize-salary/<int:month>/<int:year>', methods=['POST'])
@@ -1705,6 +1772,12 @@ def process_salary():
 @admin_required
 def finalize_salary(month, year):
     """Finalize salary and generate payslips for all employees"""
+
+    # Can only finalize a month that has fully ended
+    today = datetime.now().date()
+    if date(year, month, 1) >= date(today.year, today.month, 1):
+        flash('You can only finalize a month after it has fully ended.', 'error')
+        return redirect(url_for('process_salary', month=month, year=year))
 
     # Check if already finalized
     existing = SalaryFinalization.query.filter_by(month=month, year=year).first()
@@ -2233,14 +2306,23 @@ def all_employees_working_hours():
 @login_required
 @admin_required
 def auto_mark_attendance_route():
-    """Auto-mark all employees as present for current month (Mon-Fri)"""
+    """Auto-mark all employees as present for the selected month (Mon-Fri, excluding holidays)"""
+    month = request.form.get('month', type=int)
+    year = request.form.get('year', type=int)
+    if not month or not year:
+        month, year = get_default_payroll_month()
+
+    month_names = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December']
+
     try:
-        auto_mark_attendance()
-        flash('Attendance auto-marked for all employees (Mon-Fri only) for current month!', 'success')
+        marked_month, marked_year = auto_mark_attendance(month, year)
+        flash(f'Attendance auto-marked for all employees (Mon-Fri, excluding holidays) for {month_names[marked_month]} {marked_year}!', 'success')
     except Exception as e:
         flash(f'Error marking attendance: {str(e)}', 'error')
+        marked_month, marked_year = month, year
 
-    return redirect(url_for('view_all_salaries'))
+    return redirect(url_for('process_salary', month=marked_month, year=marked_year))
 
 @app.route('/admin/activtrak-test', methods=['GET'])
 @login_required
