@@ -23,20 +23,20 @@
                         <path class="circle" stroke-dasharray="{{ ((leave_info.annual_available / leave_info.annual_accrued * 100) if leave_info.annual_accrued > 0 else 0)|round }}, 100"
                               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
-                    <div class="balance-number">{{ leave_info.annual_available }}</div>
+                    <div class="balance-number">{{ "%.2f"|format(leave_info.annual_available) }}</div>
                 </div>
                 <div class="balance-details">
                     <div class="detail-row">
                         <span>Accrued (Month {{ current_month }})</span>
-                        <span>{{ leave_info.annual_accrued }} hrs</span>
+                        <span>{{ "%.2f"|format(leave_info.annual_accrued) }} hrs</span>
                     </div>
                     <div class="detail-row">
                         <span>Used</span>
-                        <span>{{ leave_info.annual_used }} hrs</span>
+                        <span>{{ "%.2f"|format(leave_info.annual_used) }} hrs</span>
                     </div>
                     <div class="detail-row highlight">
                         <span>Available</span>
-                        <span>{{ leave_info.annual_available }} hrs</span>
+                        <span>{{ "%.2f"|format(leave_info.annual_available) }} hrs</span>
                     </div>
                 </div>
             </div>
@@ -54,20 +54,20 @@
                         <path class="circle" stroke-dasharray="{{ ((leave_info.sick_available / leave_info.sick_accrued * 100) if leave_info.sick_accrued > 0 else 0)|round }}, 100"
                               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
-                    <div class="balance-number">{{ leave_info.sick_available }}</div>
+                    <div class="balance-number">{{ "%.2f"|format(leave_info.sick_available) }}</div>
                 </div>
                 <div class="balance-details">
                     <div class="detail-row">
                         <span>Accrued (Month {{ current_month }})</span>
-                        <span>{{ leave_info.sick_accrued }} hrs</span>
+                        <span>{{ "%.2f"|format(leave_info.sick_accrued) }} hrs</span>
                     </div>
                     <div class="detail-row">
                         <span>Used</span>
-                        <span>{{ leave_info.sick_used }} hrs</span>
+                        <span>{{ "%.2f"|format(leave_info.sick_used) }} hrs</span>
                     </div>
                     <div class="detail-row highlight">
                         <span>Available</span>
-                        <span>{{ leave_info.sick_available }} hrs</span>
+                        <span>{{ "%.2f"|format(leave_info.sick_available) }} hrs</span>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                     <svg viewBox="0 0 36 36" class="circular-chart">
                         <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
-                    <div class="balance-number">{{ leave_info.lwp_used }}</div>
+                    <div class="balance-number">{{ "%.2f"|format(leave_info.lwp_used) }}</div>
                 </div>
                 <div class="balance-details">
                     <div class="detail-row">
@@ -91,7 +91,7 @@
                     </div>
                     <div class="detail-row highlight">
                         <span>Total Hours Taken</span>
-                        <span>{{ leave_info.lwp_used }} hrs</span>
+                        <span>{{ "%.2f"|format(leave_info.lwp_used) }} hrs</span>
                     </div>
                 </div>
             </div>

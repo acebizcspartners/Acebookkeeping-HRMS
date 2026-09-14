@@ -65,10 +65,10 @@
                         <div class="progress">
                             <div class="progress-bar bg-success" role="progressbar"
                                  style="width: {{ (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 }}%">
-                                {{ "%.1f"|format(leave_info.annual_available) }} hrs
+                                {{ "%.2f"|format(leave_info.annual_available) }} hrs
                             </div>
                         </div>
-                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.annual_used) }} / Accrued: {{ "%.1f"|format(leave_info.annual_accrued) }}</small>
+                        <small class="text-muted">Used: {{ "%.2f"|format(leave_info.annual_used) }} / Accrued: {{ "%.2f"|format(leave_info.annual_accrued) }}</small>
                     </div>
 
                     <div class="mb-3">
@@ -76,15 +76,15 @@
                         <div class="progress">
                             <div class="progress-bar bg-info" role="progressbar"
                                  style="width: {{ (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 }}%">
-                                {{ "%.1f"|format(leave_info.sick_available) }} hrs
+                                {{ "%.2f"|format(leave_info.sick_available) }} hrs
                             </div>
                         </div>
-                        <small class="text-muted">Used: {{ "%.1f"|format(leave_info.sick_used) }} / Accrued: {{ "%.1f"|format(leave_info.sick_accrued) }}</small>
+                        <small class="text-muted">Used: {{ "%.2f"|format(leave_info.sick_used) }} / Accrued: {{ "%.2f"|format(leave_info.sick_accrued) }}</small>
                     </div>
 
                     <div>
                         <p class="text-muted mb-1">LWP Used</p>
-                        <p>{{ "%.1f"|format(leave_info.lwp_used) }} hours</p>
+                        <p>{{ "%.2f"|format(leave_info.lwp_used) }} hours</p>
                     </div>
                 </div>
             </div>

@@ -40,25 +40,25 @@
                     {% if leave_type != 'lwp' %}
                     <div class="stat">
                         <span class="stat-value">
-                            {% if leave_type == 'annual' %}{{ leave_info.annual_accrued }}{% else %}{{ leave_info.sick_accrued }}{% endif %}
+                            {% if leave_type == 'annual' %}{{ "%.2f"|format(leave_info.annual_accrued) }}{% else %}{{ "%.2f"|format(leave_info.sick_accrued) }}{% endif %}
                         </span>
                         <span class="stat-label">Total Credited (hrs)</span>
                     </div>
                     <div class="stat">
                         <span class="stat-value text-danger">
-                            {% if leave_type == 'annual' %}{{ leave_info.annual_used }}{% else %}{{ leave_info.sick_used }}{% endif %}
+                            {% if leave_type == 'annual' %}{{ "%.2f"|format(leave_info.annual_used) }}{% else %}{{ "%.2f"|format(leave_info.sick_used) }}{% endif %}
                         </span>
                         <span class="stat-label">Used (hrs)</span>
                     </div>
                     <div class="stat">
                         <span class="stat-value text-success">
-                            {% if leave_type == 'annual' %}{{ leave_info.annual_available }}{% else %}{{ leave_info.sick_available }}{% endif %}
+                            {% if leave_type == 'annual' %}{{ "%.2f"|format(leave_info.annual_available) }}{% else %}{{ "%.2f"|format(leave_info.sick_available) }}{% endif %}
                         </span>
                         <span class="stat-label">Available (hrs)</span>
                     </div>
                     {% else %}
                     <div class="stat">
-                        <span class="stat-value text-danger">{{ leave_info.lwp_used }}</span>
+                        <span class="stat-value text-danger">{{ "%.2f"|format(leave_info.lwp_used) }}</span>
                         <span class="stat-label">Total Hours Taken</span>
                     </div>
                     {% endif %}

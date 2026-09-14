@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
 from functools import wraps
 import random
 import os
@@ -27,8 +28,30 @@ _cache_expiry = {}
 ANNUAL_LEAVE_MONTHLY_CREDIT = 9.25    # 9.25 hours per month (111 hours/year)
 SICK_LEAVE_MONTHLY_CREDIT = 7.36     # 7.36 hours per month (88.32 hours/year)
 
-def get_accrued_leave(month=None):
-    """Calculate accrued leave hours based on current month (credits start from February)"""
+# Until an employee completes this many months they get one sick leave and no
+# annual leave; the normal company-wide accrual starts once they cross it.
+PROBATION_MONTHS = 6
+
+def months_since(start_date, on_date=None):
+    """Whole months elapsed since start_date (a partial month doesn't count)."""
+    if on_date is None:
+        on_date = datetime.now().date()
+    months = (on_date.year - start_date.year) * 12 + (on_date.month - start_date.month)
+    if on_date.day < start_date.day:
+        months -= 1
+    return months
+
+def get_accrued_leave(month=None, date_of_joining=None):
+    """Calculate accrued leave hours based on current month (credits start from February).
+
+    An employee still inside their first PROBATION_MONTHS gets exactly one sick
+    leave and no annual leave, regardless of the calendar month."""
+    if date_of_joining and months_since(date_of_joining) < PROBATION_MONTHS:
+        return {
+            'annual': 0.0,
+            'sick': SICK_LEAVE_MONTHLY_CREDIT
+        }
+
     if month is None:
         month = datetime.now().month
     # Credits start from February, so Jan=0 months, Feb=1 month, Mar=2 months, etc.
@@ -112,6 +135,30 @@ def session_timeout():
 
     if current_user.is_authenticated:
         session['_user_id'] = current_user.id
+
+# Years whose leave balances this process has already opened, so the check below
+# costs one query per process rather than one per request.
+_leave_year_opened = set()
+
+@app.before_request
+def open_leave_year():
+    """On the first request of a new calendar year, roll everyone's closing
+    balance forward into the new year."""
+    if not current_user.is_authenticated:
+        return
+
+    year = datetime.now().year
+    if year in _leave_year_opened:
+        return
+
+    try:
+        created = carry_forward_leave_balances(year)
+        _leave_year_opened.add(year)
+        if created:
+            print(f'[Leave] Opened {year} for {created} employee(s), carrying balances forward')
+    except Exception as e:
+        db.session.rollback()
+        print(f'[Leave] Could not open leave year {year}: {e}')
 
 # Unauthorized handler (session expired)
 @login_manager.unauthorized_handler
@@ -211,19 +258,99 @@ class LeaveBalance(db.Model):
     sick_leave_used = db.Column(db.Float, default=0)
     annual_leave_used = db.Column(db.Float, default=0)
     lwp_used = db.Column(db.Float, default=0)
+    # Each employee's own entitlement baseline, set by admin from the HR balance
+    # sheet. Tenure, carry-forward and mid-year joining all differ per person,
+    # so this is stored rather than derived. The monthly credit is added on top
+    # of it from accrued_as_of onwards. Falls back to the company-wide accrual
+    # calculation when not set.
+    annual_accrued = db.Column(db.Float, nullable=True)
+    sick_accrued = db.Column(db.Float, nullable=True)
+    accrued_as_of = db.Column(db.Date, nullable=True)
+
+    user = db.relationship('User', backref='leave_balances')
+
+    def get_entitlement(self):
+        """The employee's entitlement now: stored baseline plus monthly credits since."""
+        date_of_joining = self.user.date_of_joining if self.user else None
+
+        # No admin-set balance: fall back to the company-wide calculation, which
+        # applies the probation rule (one sick leave, no annual) on its own.
+        if self.annual_accrued is None and self.sick_accrued is None:
+            accrued = get_accrued_leave(date_of_joining=date_of_joining)
+            return accrued['annual'], accrued['sick']
+
+        # Admin has set this employee's balance, so it stands as-is. Monthly
+        # credits stay paused until they finish probation.
+        if date_of_joining and months_since(date_of_joining) < PROBATION_MONTHS:
+            return (self.annual_accrued or 0), (self.sick_accrued or 0)
+
+        # Credits run from the baseline date, or from when probation ended if later
+        credit_from = self.accrued_as_of or date(self.year, 1, 1)
+        if date_of_joining:
+            probation_end = date_of_joining + relativedelta(months=PROBATION_MONTHS)
+            probation_end = date(probation_end.year, probation_end.month, 1)
+            if probation_end > credit_from:
+                credit_from = probation_end
+
+        months_credited = max(0, months_since(credit_from))
+        annual = (self.annual_accrued or 0) + months_credited * ANNUAL_LEAVE_MONTHLY_CREDIT
+        sick = (self.sick_accrued or 0) + months_credited * SICK_LEAVE_MONTHLY_CREDIT
+        return annual, sick
 
     def get_available_leave(self):
-        """Calculate available leave based on monthly accrual"""
-        accrued = get_accrued_leave()
+        """Calculate available leave from the employee's entitlement minus what they've used"""
+        annual_accrued, sick_accrued = self.get_entitlement()
         return {
-            'annual_accrued': accrued['annual'],
-            'sick_accrued': accrued['sick'],
-            'annual_available': round(accrued['annual'] - self.annual_leave_used, 2),
-            'sick_available': round(accrued['sick'] - self.sick_leave_used, 2),
+            'annual_accrued': round(annual_accrued, 2),
+            'sick_accrued': round(sick_accrued, 2),
+            'annual_available': round(annual_accrued - self.annual_leave_used, 2),
+            'sick_available': round(sick_accrued - self.sick_leave_used, 2),
             'annual_used': self.annual_leave_used,
             'sick_used': self.sick_leave_used,
             'lwp_used': self.lwp_used
         }
+
+def carry_forward_leave_balances(year=None):
+    """Open a new leave year for everyone, carrying last year's closing balance
+    forward as the new baseline. Safe to call repeatedly - it only creates rows
+    that don't exist yet."""
+    today = datetime.now().date()
+    if year is None:
+        year = today.year
+
+    # The balance carried over is whatever it is *today*, so credits must resume
+    # from this month - not from January, which would re-credit the months in
+    # between if this runs late (e.g. the app wasn't opened until March).
+    resume_from = date(today.year, today.month, 1) if today.year == year else date(year, 1, 1)
+
+    created = 0
+    for user in User.query.all():
+        if LeaveBalance.query.filter_by(user_id=user.id, year=year).first():
+            continue
+
+        previous = LeaveBalance.query.filter_by(user_id=user.id, year=year - 1).first()
+        if previous:
+            closing = previous.get_available_leave()
+            annual_baseline = closing['annual_available']
+            sick_baseline = closing['sick_available']
+        else:
+            annual_baseline = sick_baseline = None
+
+        db.session.add(LeaveBalance(
+            user_id=user.id,
+            year=year,
+            annual_accrued=annual_baseline,
+            sick_accrued=sick_baseline,
+            accrued_as_of=resume_from,
+            annual_leave_used=0,
+            sick_leave_used=0,
+            lwp_used=0
+        ))
+        created += 1
+
+    if created:
+        db.session.commit()
+    return created
 
 class PasswordResetOTP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -3022,6 +3149,17 @@ def init_db():
             lb_columns = [col['name'] for col in inspector.get_columns('leave_balance')]
             if 'lwp_used' not in lb_columns:
                 db.session.execute(text('ALTER TABLE leave_balance ADD COLUMN lwp_used FLOAT DEFAULT 0'))
+                db.session.commit()
+
+            # Add per-employee entitlement columns to leave_balance if missing
+            if 'annual_accrued' not in lb_columns:
+                db.session.execute(text('ALTER TABLE leave_balance ADD COLUMN annual_accrued FLOAT'))
+                db.session.commit()
+            if 'sick_accrued' not in lb_columns:
+                db.session.execute(text('ALTER TABLE leave_balance ADD COLUMN sick_accrued FLOAT'))
+                db.session.commit()
+            if 'accrued_as_of' not in lb_columns:
+                db.session.execute(text('ALTER TABLE leave_balance ADD COLUMN accrued_as_of DATE'))
                 db.session.commit()
 
             # Add hours column to leave table if missing

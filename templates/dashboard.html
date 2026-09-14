@@ -28,14 +28,14 @@
                             <p class="text-muted small mb-1"><i class="fas fa-umbrella-beach"></i> Annual Leave</p>
                             <h4 class="mb-0">
                                 {% if leave_info %}
-                                    {{ leave_info.annual_available|int }}
+                                    {{ "%.2f"|format(leave_info.annual_available) }}
                                 {% else %}
                                     --
                                 {% endif %}
                             </h4>
                             <small class="text-muted">
                                 {% if leave_info %}
-                                    of {{ leave_info.annual_accrued|int }} hrs available
+                                    of {{ "%.2f"|format(leave_info.annual_accrued) }} hrs available
                                 {% endif %}
                             </small>
                         </div>
@@ -55,14 +55,14 @@
                             <p class="text-muted small mb-1"><i class="fas fa-briefcase-medical"></i> Sick Leave</p>
                             <h4 class="mb-0">
                                 {% if leave_info %}
-                                    {{ leave_info.sick_available|int }}
+                                    {{ "%.2f"|format(leave_info.sick_available) }}
                                 {% else %}
                                     --
                                 {% endif %}
                             </h4>
                             <small class="text-muted">
                                 {% if leave_info %}
-                                    of {{ leave_info.sick_accrued|int }} hrs available
+                                    of {{ "%.2f"|format(leave_info.sick_accrued) }} hrs available
                                 {% endif %}
                             </small>
                         </div>
@@ -82,7 +82,7 @@
                             <p class="text-muted small mb-1"><i class="fas fa-ban"></i> LWP Used</p>
                             <h4 class="mb-0">
                                 {% if leave_info %}
-                                    {{ leave_info.lwp_used|int }}
+                                    {{ "%.2f"|format(leave_info.lwp_used) }}
                                 {% else %}
                                     0
                                 {% endif %}
