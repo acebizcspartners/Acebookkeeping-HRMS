@@ -1348,6 +1348,15 @@ def approve_leave(leave_id):
     leave = Leave.query.get_or_404(leave_id)
     comments = request.form.get('comments', '')
 
+    # Approving twice would deduct the balance twice, so only approve a leave
+    # that hasn't been deducted yet (pending, or previously rejected).
+    if leave.status == 'approved':
+        flash('This leave is already approved.', 'warning')
+        return redirect(url_for('manage_leaves'))
+    if leave.status == 'revoked':
+        flash('This leave was revoked and cannot be approved again.', 'warning')
+        return redirect(url_for('manage_leaves'))
+
     leave.status = 'approved'
     leave.reviewed_by = current_user.id
     leave.reviewed_on = datetime.utcnow()
@@ -1427,10 +1436,43 @@ def reject_leave(leave_id):
     leave = Leave.query.get_or_404(leave_id)
     comments = request.form.get('comments', '')
 
+    if leave.status == 'rejected':
+        flash('This leave is already rejected.', 'warning')
+        return redirect(url_for('manage_leaves'))
+
+    # Rejecting a leave that was already approved has to give the hours back,
+    # otherwise they stay deducted from the employee's balance forever.
+    was_approved = leave.status == 'approved'
+
     leave.status = 'rejected'
     leave.reviewed_by = current_user.id
     leave.reviewed_on = datetime.utcnow()
     leave.comments = comments
+
+    if was_approved:
+        hours = leave.hours
+        balance = LeaveBalance.query.filter_by(
+            user_id=leave.user_id,
+            year=datetime.now().year
+        ).first()
+
+        if balance:
+            if leave.leave_type == 'sick':
+                balance.sick_leave_used = max(0, balance.sick_leave_used - hours)
+            elif leave.leave_type == 'annual':
+                balance.annual_leave_used = max(0, balance.annual_leave_used - hours)
+            elif leave.leave_type == 'lwp':
+                balance.lwp_used = max(0, balance.lwp_used - hours)
+
+            record_leave_transaction(
+                user_id=leave.user_id,
+                leave_type=leave.leave_type,
+                transaction_type='credit',
+                days=hours,
+                description=f'Approved leave rejected - restored ({leave.start_date.strftime("%d/%m/%Y")} - {leave.end_date.strftime("%d/%m/%Y")}) - {hours} hrs',
+                reference_id=leave.id,
+                transaction_date=datetime.now().date()
+            )
 
     db.session.commit()
 

@@ -146,8 +146,9 @@
                         <div class="col-md-4">
                             <p class="text-muted small">Annual Leave</p>
                             <div class="progress mb-2" style="height: 25px;">
-                                {% set annual_pct = (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 %}
-                                <div class="progress-bar bg-success" style="width: {{ annual_pct }}%;" role="progressbar">
+                                {% set annual_total = leave_info.annual_available + leave_info.annual_used %}
+                                {% set annual_pct = 100 if leave_info.annual_available < 0 else ((leave_info.annual_available / annual_total * 100) if annual_total > 0 else 0) %}
+                                <div class="progress-bar {{ 'bg-danger' if leave_info.annual_available < 0 else 'bg-success' }}" style="width: {{ annual_pct }}%;" role="progressbar">
                                     <small class="text-white fw-bold">{{ "%.2f"|format(leave_info.annual_available) }} hrs</small>
                                 </div>
                             </div>
@@ -156,8 +157,9 @@
                         <div class="col-md-4">
                             <p class="text-muted small">Sick Leave</p>
                             <div class="progress mb-2" style="height: 25px;">
-                                {% set sick_pct = (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 %}
-                                <div class="progress-bar bg-info" style="width: {{ sick_pct }}%;" role="progressbar">
+                                {% set sick_total = leave_info.sick_available + leave_info.sick_used %}
+                                {% set sick_pct = 100 if leave_info.sick_available < 0 else ((leave_info.sick_available / sick_total * 100) if sick_total > 0 else 0) %}
+                                <div class="progress-bar {{ 'bg-danger' if leave_info.sick_available < 0 else 'bg-info' }}" style="width: {{ sick_pct }}%;" role="progressbar">
                                     <small class="text-white fw-bold">{{ "%.2f"|format(leave_info.sick_available) }} hrs</small>
                                 </div>
                             </div>

@@ -63,8 +63,8 @@
                     <div class="mb-3">
                         <p class="text-muted mb-1">Annual Leave</p>
                         <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar"
-                                 style="width: {{ (leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0 }}%">
+                            <div class="progress-bar {{ 'bg-danger' if leave_info.annual_available < 0 else 'bg-success' }}" role="progressbar"
+                                 style="width: {{ 100 if leave_info.annual_available < 0 else ((leave_info.annual_available / (leave_info.annual_available + leave_info.annual_used) * 100) if (leave_info.annual_available + leave_info.annual_used) > 0 else 0) }}%">
                                 {{ "%.2f"|format(leave_info.annual_available) }} hrs
                             </div>
                         </div>
@@ -74,8 +74,8 @@
                     <div class="mb-3">
                         <p class="text-muted mb-1">Sick Leave</p>
                         <div class="progress">
-                            <div class="progress-bar bg-info" role="progressbar"
-                                 style="width: {{ (leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0 }}%">
+                            <div class="progress-bar {{ 'bg-danger' if leave_info.sick_available < 0 else 'bg-info' }}" role="progressbar"
+                                 style="width: {{ 100 if leave_info.sick_available < 0 else ((leave_info.sick_available / (leave_info.sick_available + leave_info.sick_used) * 100) if (leave_info.sick_available + leave_info.sick_used) > 0 else 0) }}%">
                                 {{ "%.2f"|format(leave_info.sick_available) }} hrs
                             </div>
                         </div>
