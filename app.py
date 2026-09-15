@@ -2019,6 +2019,35 @@ def finalize_salary(month, year):
     flash(f'✅ Salary finalized! {payslips_created} payslips generated for {month}/{year}', 'success')
     return redirect(url_for('process_salary', month=month, year=year))
 
+@app.route('/admin/revert-salary/<int:month>/<int:year>', methods=['POST'])
+@login_required
+@admin_required
+def revert_salary(month, year):
+    """Undo a payroll finalization so the month can be corrected and finalized again."""
+    finalization = SalaryFinalization.query.filter_by(month=month, year=year).first()
+    if not finalization:
+        flash('This month is not finalized, so there is nothing to revert.', 'warning')
+        return redirect(url_for('process_salary', month=month, year=year))
+
+    invoices = PaymentInvoice.query.filter_by(month=month, year=year).all()
+
+    # A payslip that has already been paid out shouldn't be silently deleted
+    paid = [i for i in invoices if i.status == 'paid']
+    if paid:
+        names = ', '.join(sorted({i.user.username for i in paid if i.user}))
+        flash(f"Can't revert: {len(paid)} payslip(s) are already marked paid ({names}). "
+              f"Mark them unpaid first if you really need to revert.", 'error')
+        return redirect(url_for('process_salary', month=month, year=year))
+
+    for invoice in invoices:
+        db.session.delete(invoice)
+    db.session.delete(finalization)
+    db.session.commit()
+
+    flash(f'Payroll for {month}/{year} reverted - {len(invoices)} payslip(s) removed. '
+          f'You can review the figures and finalize again.', 'success')
+    return redirect(url_for('process_salary', month=month, year=year))
+
 @app.route('/admin/salaries')
 @login_required
 @admin_required
