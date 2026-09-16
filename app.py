@@ -235,6 +235,10 @@ class Leave(db.Model):
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     hours = db.Column(db.Float, nullable=False, default=0)  # leave hours requested
+    # Which part of the day the leave covers - set for half day and custom hours,
+    # empty for a full day. Stored as "HH:MM" exactly as the form sends it.
+    from_time = db.Column(db.String(5), nullable=True)
+    to_time = db.Column(db.String(5), nullable=True)
     reason = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected, revoked
     applied_on = db.Column(db.DateTime, default=datetime.utcnow)
@@ -1278,6 +1282,9 @@ def apply_leave():
         end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
         hours = float(request.form.get('hours', 0))
         reason = request.form.get('reason')
+        # Only sent for half day / custom hours; a full day has no time range
+        from_time = request.form.get('from_time') or None
+        to_time = request.form.get('to_time') or None
 
         if end_date < start_date:
             flash('End date cannot be before start date', 'error')
@@ -1293,6 +1300,8 @@ def apply_leave():
             start_date=start_date,
             end_date=end_date,
             hours=hours,
+            from_time=from_time,
+            to_time=to_time,
             reason=reason
         )
         db.session.add(leave)
@@ -1310,6 +1319,9 @@ def apply_leave():
             'end_date': str(end_date),
             'hours': hours,
             'days': f'{hours} hrs ({days_count} day{"s" if days_count > 1 else ""})',
+            'from_time': from_time or '',
+            'to_time': to_time or '',
+            'time_range': f'{from_time} - {to_time}' if from_time and to_time else '',
             'reason': reason,
             'department': current_user.department
         })
@@ -1423,6 +1435,9 @@ def approve_leave(leave_id):
         'end_date': str(leave.end_date),
         'hours': hours,
         'days': f'{hours} hrs ({days_count} day{"s" if days_count > 1 else ""})',
+        'from_time': leave.from_time or '',
+        'to_time': leave.to_time or '',
+        'time_range': f'{leave.from_time} - {leave.to_time}' if leave.from_time and leave.to_time else '',
         'approved_by': current_user.username
     })
 
@@ -1487,6 +1502,9 @@ def reject_leave(leave_id):
         'end_date': str(leave.end_date),
         'hours': leave.hours,
         'days': f'{leave.hours} hrs ({days_count} day{"s" if days_count > 1 else ""})',
+        'from_time': leave.from_time or '',
+        'to_time': leave.to_time or '',
+        'time_range': f'{leave.from_time} - {leave.to_time}' if leave.from_time and leave.to_time else '',
         'reason': comments,
         'rejected_by': current_user.username
     })
@@ -3237,6 +3255,14 @@ def init_db():
             leave_columns = [col['name'] for col in inspector.get_columns('leave')]
             if 'hours' not in leave_columns:
                 db.session.execute(text('ALTER TABLE leave ADD COLUMN hours FLOAT DEFAULT 0'))
+                db.session.commit()
+
+            # Add half-day / custom-hours time range columns if missing
+            if 'from_time' not in leave_columns:
+                db.session.execute(text('ALTER TABLE leave ADD COLUMN from_time VARCHAR(5)'))
+                db.session.commit()
+            if 'to_time' not in leave_columns:
+                db.session.execute(text('ALTER TABLE leave ADD COLUMN to_time VARCHAR(5)'))
                 db.session.commit()
 
             # Add new columns to attendance table if missing

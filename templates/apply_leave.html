@@ -77,7 +77,7 @@
                             <select id="duration_type" class="form-select form-select-lg" required>
                                 <option value="">-- Select Duration Type --</option>
                                 <option value="full_day">Full Day (7.36 hours)</option>
-                                <option value="half_day">Half Day (3.68 hours)</option>
+                                <option value="half_day">Half Day (select time)</option>
                                 <option value="custom">Custom Hours</option>
                             </select>
                         </div>
@@ -411,10 +411,8 @@
         if (type === 'full_day') {
             hrsPerDay = HOURS_PER_DAY;
             total = days * HOURS_PER_DAY;
-        } else if (type === 'half_day') {
-            hrsPerDay = HOURS_PER_DAY / 2;
-            total = days * (HOURS_PER_DAY / 2);
-        } else if (type === 'custom') {
+        } else if (type === 'half_day' || type === 'custom') {
+            // Dono me hours From/To time se nikalte hain
             hrsPerDay = parseFloat(customHours.value) || 0;
             total = days * hrsPerDay;
         }
@@ -433,11 +431,17 @@
     }
 
     durationType.addEventListener('change', function() {
-        if (this.value === 'custom') {
+        if (this.value === 'custom' || this.value === 'half_day') {
             customHoursRow.style.display = 'flex';
             fromTime.setAttribute('required', 'required');
             toTime.setAttribute('required', 'required');
             customHours.setAttribute('required', 'required');
+            // Half day ke liye ek sensible default time - employee badal sakta hai
+            if (this.value === 'half_day' && !fromTime.value && !toTime.value) {
+                fromTime.value = '09:00';
+                toTime.value = '12:41';
+                calculateTimeHours();
+            }
         } else {
             customHoursRow.style.display = 'none';
             fromTime.removeAttribute('required');
@@ -479,7 +483,7 @@
             alert('Please fill in dates and duration correctly');
             return;
         }
-        if (durationType.value === 'custom' && (!fromTime.value || !toTime.value)) {
+        if ((durationType.value === 'custom' || durationType.value === 'half_day') && (!fromTime.value || !toTime.value)) {
             e.preventDefault();
             alert('Please select both From Time and To Time');
             return;
