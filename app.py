@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
@@ -718,6 +719,38 @@ def record_leave_transaction(user_id, leave_type, transaction_type, days, descri
     db.session.add(transaction)
     return transaction
 
+# One-click approve/reject links sent in the n8n email. The token is signed
+# with SECRET_KEY so it can't be guessed or pointed at a different leave, and
+# it stops working after this many seconds.
+LEAVE_ACTION_TOKEN_MAX_AGE = 7 * 24 * 60 * 60  # 7 days
+
+
+def make_leave_action_token(leave_id, action):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='leave-email-action')
+    return serializer.dumps({'leave_id': leave_id, 'action': action})
+
+
+def read_leave_action_token(token):
+    """Returns (leave_id, action) or (None, error_message)."""
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='leave-email-action')
+    try:
+        data = serializer.loads(token, max_age=LEAVE_ACTION_TOKEN_MAX_AGE)
+    except SignatureExpired:
+        return None, 'This link has expired. Please open the portal to action this leave.'
+    except BadSignature:
+        return None, 'This link is not valid.'
+    return (data.get('leave_id'), data.get('action')), None
+
+
+def public_url_for(endpoint, **values):
+    """Absolute URL for links that travel outside the app (emails).
+    APP_BASE_URL wins so links stay correct behind Vercel's proxy."""
+    base = os.environ.get('APP_BASE_URL')
+    if base:
+        return base.rstrip('/') + url_for(endpoint, **values)
+    return url_for(endpoint, _external=True, **values)
+
+
 def send_n8n_webhook(event, data):
     """Send webhook to n8n for email notifications"""
     webhook_url = os.environ.get('N8N_WEBHOOK_URL')
@@ -1310,8 +1343,17 @@ def apply_leave():
         # Calculate days count
         days_count = (end_date - start_date).days + 1
 
+        # One-click action links for the approval email
+        approve_url = public_url_for('leave_email_action',
+                                     token=make_leave_action_token(leave.id, 'approve'))
+        reject_url = public_url_for('leave_email_action',
+                                    token=make_leave_action_token(leave.id, 'reject'))
+
         # Send n8n webhook for email notification
         send_n8n_webhook('leave_applied', {
+            'leave_id': leave.id,
+            'approve_url': approve_url,
+            'reject_url': reject_url,
             'employee_name': current_user.username,
             'employee_email': current_user.email,
             'leave_type': leave_type,
@@ -1353,24 +1395,19 @@ def manage_leaves():
             .order_by(Leave.applied_on.desc()).all()
     return render_template('manage_leaves.html', leaves=leaves, status_filter=status_filter)
 
-@app.route('/leave/<int:leave_id>/approve', methods=['POST'])
-@login_required
-@admin_required
-def approve_leave(leave_id):
-    leave = Leave.query.get_or_404(leave_id)
-    comments = request.form.get('comments', '')
-
+def perform_leave_approval(leave, reviewer, comments=''):
+    """Approve a leave: deduct the balance, log the transaction, mark attendance
+    and notify. Shared by the admin page and the one-click email link.
+    Returns an error message if it can't be approved, else None."""
     # Approving twice would deduct the balance twice, so only approve a leave
     # that hasn't been deducted yet (pending, or previously rejected).
     if leave.status == 'approved':
-        flash('This leave is already approved.', 'warning')
-        return redirect(url_for('manage_leaves'))
+        return 'This leave is already approved.'
     if leave.status == 'revoked':
-        flash('This leave was revoked and cannot be approved again.', 'warning')
-        return redirect(url_for('manage_leaves'))
+        return 'This leave was revoked and cannot be approved again.'
 
     leave.status = 'approved'
-    leave.reviewed_by = current_user.id
+    leave.reviewed_by = reviewer.id
     leave.reviewed_on = datetime.utcnow()
     leave.comments = comments
 
@@ -1438,29 +1475,32 @@ def approve_leave(leave_id):
         'from_time': leave.from_time or '',
         'to_time': leave.to_time or '',
         'time_range': f'{leave.from_time} - {leave.to_time}' if leave.from_time and leave.to_time else '',
-        'approved_by': current_user.username
+        'approved_by': reviewer.username
     })
 
-    flash('Leave approved successfully!', 'success')
-    return redirect(url_for('manage_leaves'))
+    return None
 
-@app.route('/leave/<int:leave_id>/reject', methods=['POST'])
+@app.route('/leave/<int:leave_id>/approve', methods=['POST'])
 @login_required
 @admin_required
-def reject_leave(leave_id):
+def approve_leave(leave_id):
     leave = Leave.query.get_or_404(leave_id)
-    comments = request.form.get('comments', '')
+    error = perform_leave_approval(leave, current_user, request.form.get('comments', ''))
+    flash(error or 'Leave approved successfully!', 'warning' if error else 'success')
+    return redirect(url_for('manage_leaves'))
 
+def perform_leave_rejection(leave, reviewer, comments=''):
+    """Reject a leave, giving the hours back if it had already been approved.
+    Shared by the admin page and the one-click email link."""
     if leave.status == 'rejected':
-        flash('This leave is already rejected.', 'warning')
-        return redirect(url_for('manage_leaves'))
+        return 'This leave is already rejected.'
 
     # Rejecting a leave that was already approved has to give the hours back,
     # otherwise they stay deducted from the employee's balance forever.
     was_approved = leave.status == 'approved'
 
     leave.status = 'rejected'
-    leave.reviewed_by = current_user.id
+    leave.reviewed_by = reviewer.id
     leave.reviewed_on = datetime.utcnow()
     leave.comments = comments
 
@@ -1506,11 +1546,57 @@ def reject_leave(leave_id):
         'to_time': leave.to_time or '',
         'time_range': f'{leave.from_time} - {leave.to_time}' if leave.from_time and leave.to_time else '',
         'reason': comments,
-        'rejected_by': current_user.username
+        'rejected_by': reviewer.username
     })
 
-    flash('Leave rejected.', 'info')
+    return None
+
+@app.route('/leave/<int:leave_id>/reject', methods=['POST'])
+@login_required
+@admin_required
+def reject_leave(leave_id):
+    leave = Leave.query.get_or_404(leave_id)
+    error = perform_leave_rejection(leave, current_user, request.form.get('comments', ''))
+    flash(error or 'Leave rejected.', 'warning' if error else 'info')
     return redirect(url_for('manage_leaves'))
+
+@app.route('/leave/action/<token>')
+def leave_email_action(token):
+    """One-click approve/reject from the notification email. No login - the
+    signed token in the link is what authorises it, and it expires in 7 days."""
+    parsed, token_error = read_leave_action_token(token)
+    if token_error:
+        return render_template('leave_action_result.html', ok=False, message=token_error), 400
+
+    leave_id, action = parsed
+    leave = Leave.query.filter_by(id=leave_id).first()
+    if not leave:
+        return render_template('leave_action_result.html', ok=False,
+                               message='This leave application no longer exists.'), 404
+
+    # The link acts on behalf of an admin, but nobody is logged in - attribute
+    # it to an admin account so reviewed_by stays valid.
+    reviewer = User.query.filter_by(role='admin').first()
+    if not reviewer:
+        return render_template('leave_action_result.html', ok=False,
+                               message='No admin account found to record this action.'), 500
+
+    if action == 'approve':
+        error = perform_leave_approval(leave, reviewer, 'Approved from email')
+        done_message = 'Leave approved'
+    elif action == 'reject':
+        error = perform_leave_rejection(leave, reviewer, 'Rejected from email')
+        done_message = 'Leave rejected'
+    else:
+        return render_template('leave_action_result.html', ok=False,
+                               message='Unknown action in this link.'), 400
+
+    employee = User.query.filter_by(id=leave.user_id).first()
+    return render_template('leave_action_result.html',
+                           ok=error is None,
+                           message=error or done_message,
+                           leave=leave,
+                           employee=employee)
 
 @app.route('/leave/<int:leave_id>/cancel', methods=['POST'])
 @login_required

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ message }} - HRMS{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 560px; margin-top: 4rem;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center p-5">
+            {% if ok %}
+                <div class="mb-3" style="font-size: 3.5rem; color: #10b981;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="mb-3">{{ message }}</h3>
+            {% else %}
+                <div class="mb-3" style="font-size: 3.5rem; color: #f59e0b;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h4 class="mb-3">{{ message }}</h4>
+            {% endif %}
+
+            {% if leave and employee %}
+            <div class="text-start bg-light rounded p-3 mb-4">
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Employee</span>
+                    <strong>{{ employee.username }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Leave type</span>
+                    <strong>{{ leave.leave_type|capitalize }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Dates</span>
+                    <strong>
+                        {{ leave.start_date.strftime('%d/%m/%Y') }}
+                        {% if leave.end_date != leave.start_date %} - {{ leave.end_date.strftime('%d/%m/%Y') }}{% endif %}
+                    </strong>
+                </div>
+                {% if leave.from_time and leave.to_time %}
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Time</span>
+                    <strong>{{ leave.from_time }} - {{ leave.to_time }}</strong>
+                </div>
+                {% endif %}
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Hours</span>
+                    <strong>{{ "%.2f"|format(leave.hours) }} hrs</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Status</span>
+                    <strong class="{% if leave.status == 'approved' %}text-success{% elif leave.status == 'rejected' %}text-danger{% endif %}">
+                        {{ leave.status|capitalize }}
+                    </strong>
+                </div>
+            </div>
+            {% endif %}
+
+            <a href="{{ url_for('manage_leaves') }}" class="btn btn-primary">
+                <i class="fas fa-tasks"></i> Open Manage Leaves
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
