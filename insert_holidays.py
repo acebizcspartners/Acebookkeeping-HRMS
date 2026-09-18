@@ -24,11 +24,11 @@ holidays_data = [
     ("Independence Day", "2025-08-15", "National Holiday"),
     ("Janmashtami", "2025-08-16", "Festival"),
     ("Dussehra", "2025-10-02", "Festival"),
-    ("Mahatma Gandhi Birthday", "2025-10-02", "National Holiday"),
+    ("Mahatma Gandhi Jayanti", "2025-10-02", "National Holiday"),
     ("Diwali", "2025-10-20", "Festival"),
     ("Goverdhan Puja", "2025-10-21", "Festival"),
     ("Bhai Dooj", "2025-10-22", "Festival"),
-    ("Guru Nanak's Birthday", "2025-11-05", "Festival"),
+    ("Guru Nanak Jayanti", "2025-11-05", "Festival"),
     ("Christmas Day", "2025-12-25", "Festival"),
 
     # 2026 holidays
@@ -42,11 +42,11 @@ holidays_data = [
     ("Independence Day", "2026-08-15", "National Holiday"),
     ("Janmashtami", "2026-09-04", "Festival"),
     ("Dussehra", "2026-10-20", "Festival"),
-    ("Mahatma Gandhi Birthday", "2026-10-02", "National Holiday"),
+    ("Mahatma Gandhi Jayanti", "2026-10-02", "National Holiday"),
     ("Diwali", "2026-11-08", "Festival"),
     ("Goverdhan Puja", "2026-11-09", "Festival"),
     ("Bhai Dooj", "2026-11-10", "Festival"),
-    ("Guru Nanak's Birthday", "2026-11-24", "Festival"),
+    ("Guru Nanak Jayanti", "2026-11-24", "Festival"),
     ("Christmas Day", "2026-12-25", "Festival"),
 ]
 

@@ -197,15 +197,9 @@
                         <tr>
                             <td><strong>{{ emp.username }}</strong></td>
                             <td>{{ emp.email }}</td>
+                            <td>{{ emp.designation or 'N/A' }}</td>
                             <td>
-                                {% if emp.profile %}
-                                    {{ emp.profile.designation or 'N/A' }}
-                                {% else %}
-                                    N/A
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% set salary = emp.salary[0] if emp.salary else None %}
+                                {% set salary = emp.salaries | selectattr('is_active') | first %}
                                 {% if salary %}
                                     ₹{{ "{:,.2f}".format(salary.monthly_salary * 12) }}
                                 {% else %}

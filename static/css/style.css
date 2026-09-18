@@ -9,7 +9,7 @@
     --warning: #f59e0b;
     --info: #3b82f6;
 
-    --sick-color: #ef4444;
+    --sick-color: #0ea5e9;
     --casual-color: #f59e0b;
     --annual-color: #10b981;
 
@@ -1160,7 +1160,7 @@ table td button {
 }
 
 .balance-card.sick .balance-header {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
 }
 
 .balance-card.casual .balance-header {

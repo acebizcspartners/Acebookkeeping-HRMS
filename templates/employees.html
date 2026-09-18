@@ -54,30 +54,31 @@
                             <td>{{ user.date_of_joining.strftime('%d/%m/%Y') if user.date_of_joining else user.created_at.strftime('%d/%m/%Y') }}</td>
                             {% if current_user.role == 'admin' %}
                             <td>
-                                <div class="action-buttons" style="display: flex; gap: 5px;">
-                                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editEmployeeModal"
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-sm btn-outline-primary action-icon" data-bs-toggle="modal" data-bs-target="#editEmployeeModal"
+                                        title="Edit details"
                                         onclick="editEmployee({{ user.id }}, '{{ user.username }}', '{{ user.designation or '' }}', '{{ user.reporting_manager or '' }}', '{{ user.date_of_joining.strftime('%Y-%m-%d') if user.date_of_joining else '' }}')">
-                                        <i class="fas fa-edit"></i> Edit
+                                        <i class="fas fa-edit"></i>
                                     </button>
                                     {% if user.id != current_user.id %}
-                                    <form method="POST" action="{{ url_for('update_role', user_id=user.id) }}" style="display: inline;">
+                                    <form method="POST" action="{{ url_for('update_role', user_id=user.id) }}">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                                        <select name="role" class="role-select" onchange="this.form.submit()" style="padding: 4px; font-size: 12px;">
+                                        <select name="role" class="form-select form-select-sm role-select" onchange="this.form.submit()" title="Change role">
                                             <option value="employee" {% if user.role == 'employee' %}selected{% endif %}>Employee</option>
                                             <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>
                                             <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
                                         </select>
                                     </form>
                                     {% if user.role != 'admin' %}
-                                    <form method="POST" action="{{ url_for('delete_employee', user_id=user.id) }}" style="display: inline;" onsubmit="return confirmRemoveEmployee('{{ user.username }}')">
+                                    <form method="POST" action="{{ url_for('delete_employee', user_id=user.id) }}" onsubmit="return confirmRemoveEmployee('{{ user.username }}')">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Remove employee who has left">
-                                            <i class="fas fa-user-minus"></i> Remove
+                                        <button type="submit" class="btn btn-sm btn-outline-danger action-icon" title="Remove {{ user.username }}">
+                                            <i class="fas fa-user-minus"></i>
                                         </button>
                                     </form>
                                     {% endif %}
                                     {% else %}
-                                    <span class="text-muted text-sm">Current User</span>
+                                    <span class="text-muted small">Current user</span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -116,10 +117,40 @@
         cursor: pointer;
     }
 
+    /* Icon-only buttons keep all three actions on one line - the full-width
+       labelled versions overflowed the card and got clipped */
     .action-buttons {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         align-items: center;
+        white-space: nowrap;
+    }
+
+    .action-buttons form {
+        margin: 0;
+    }
+
+    .action-buttons .action-icon {
+        width: 32px;
+        padding: 4px 0;
+        line-height: 1.4;
+    }
+
+    .action-buttons .role-select {
+        width: auto;
+        min-width: 105px;
+        font-size: 12px;
+        padding: 3px 24px 3px 8px;
+    }
+
+    /* .card sets overflow:hidden globally, which clips the table's own
+       horizontal scrollbar - keep the scroll usable on this page */
+    .card {
+        overflow: visible;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
     }
 </style>
 
