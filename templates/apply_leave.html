@@ -169,33 +169,47 @@
                     <h5 class="mb-0"><i class="fas fa-chart-pie text-primary"></i> Your Leave Balance</h5>
                 </div>
                 <div class="card-body">
+                    {% if leave_info %}
+                    {% set annual_pct = (leave_info.annual_available / leave_info.annual_accrued * 100) if leave_info.annual_accrued > 0 else 0 %}
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-muted">Annual Leave</span>
-                            <span class="badge bg-success">64.4 hrs</span>
+                            <span class="badge {{ 'bg-danger' if leave_info.annual_available < 0 else 'bg-success' }}">
+                                {{ "%.2f"|format(leave_info.annual_available) }} hrs
+                            </span>
                         </div>
                         <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: 60%;"></div>
+                            <div class="progress-bar {{ 'bg-danger' if leave_info.annual_available < 0 else 'bg-success' }}"
+                                 style="width: {{ 100 if leave_info.annual_available < 0 else annual_pct }}%;"></div>
                         </div>
                     </div>
+
+                    {% set sick_pct = (leave_info.sick_available / leave_info.sick_accrued * 100) if leave_info.sick_accrued > 0 else 0 %}
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-muted">Sick Leave</span>
-                            <span class="badge bg-warning">51.5 hrs</span>
+                            <span class="badge {{ 'bg-danger' if leave_info.sick_available < 0 else 'bg-info' }}">
+                                {{ "%.2f"|format(leave_info.sick_available) }} hrs
+                            </span>
                         </div>
                         <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-warning" style="width: 45%;"></div>
+                            <div class="progress-bar {{ 'bg-danger' if leave_info.sick_available < 0 else 'bg-info' }}"
+                                 style="width: {{ 100 if leave_info.sick_available < 0 else sick_pct }}%;"></div>
                         </div>
                     </div>
+
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-muted">LWP Used</span>
-                            <span class="badge bg-danger">0 hrs</span>
+                            <span class="badge bg-danger">{{ "%.2f"|format(leave_info.lwp_used) }} hrs</span>
                         </div>
                         <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-danger" style="width: 0%;"></div>
+                            <div class="progress-bar bg-danger" style="width: {{ 100 if leave_info.lwp_used > 0 else 0 }}%;"></div>
                         </div>
                     </div>
+                    {% else %}
+                    <p class="text-muted small mb-0">Leave balance not set up yet. Please contact your administrator.</p>
+                    {% endif %}
                 </div>
             </div>
 

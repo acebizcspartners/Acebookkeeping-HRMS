@@ -315,6 +315,67 @@ class LeaveBalance(db.Model):
             'lwp_used': self.lwp_used
         }
 
+def build_credit_history(user, balance, leave_type, year):
+    """Credit rows for the transactions page, matching what the balance shows.
+
+    The balance comes from LeaveBalance.get_entitlement(), so the history has to
+    follow the same rules: nothing before the employee joined, a frozen
+    entitlement while they're on probation, and an opening line when an admin
+    has set their balance from the HR sheet."""
+    rate = ANNUAL_LEAVE_MONTHLY_CREDIT if leave_type == 'annual' else SICK_LEAVE_MONTHLY_CREDIT
+    date_of_joining = user.date_of_joining
+    today = datetime.now().date()
+    last_month = today.month if year == today.year else 12
+    entries = []
+
+    # Joined in a later year - nothing to show yet
+    if date_of_joining and date_of_joining.year > year:
+        return entries
+
+    # On probation: the entitlement is fixed, so show it as one line rather
+    # than pretending monthly credits happened
+    if date_of_joining and months_since(date_of_joining) < PROBATION_MONTHS:
+        info = balance.get_available_leave() if balance else None
+        amount = info[f'{leave_type}_accrued'] if info else 0
+        if amount:
+            entries.append({
+                'date': date_of_joining,
+                'days': amount,
+                'description': 'Leave credited on joining'
+            })
+        return entries
+
+    stored = None
+    if balance:
+        stored = balance.annual_accrued if leave_type == 'annual' else balance.sick_accrued
+
+    if stored is not None:
+        # Admin set this balance - show it as the opening figure, then credits
+        opening_date = balance.accrued_as_of or date(year, 1, 1)
+        entries.append({
+            'date': opening_date,
+            'days': stored,
+            'description': f'Opening balance as at {opening_date.strftime("%d/%m/%Y")}'
+        })
+        first_credit_month = opening_date.month + 1
+    else:
+        # Company-wide accrual starts in February
+        first_credit_month = 2
+        # ...but never before the month the employee joined
+        if date_of_joining and date_of_joining.year == year:
+            first_credit_month = max(first_credit_month, date_of_joining.month + 1)
+
+    for month in range(first_credit_month, last_month + 1):
+        credit_date = date(year, month, 1)
+        entries.append({
+            'date': credit_date,
+            'days': rate,
+            'description': f'Monthly credit for {credit_date.strftime("%B %Y")}'
+        })
+
+    return entries
+
+
 def carry_forward_leave_balances(year=None):
     """Open a new leave year for everyone, carrying last year's closing balance
     forward as the new baseline. Safe to call repeatedly - it only creates rows
@@ -1309,6 +1370,12 @@ def dashboard():
 @app.route('/apply-leave', methods=['GET', 'POST'])
 @login_required
 def apply_leave():
+    balance = LeaveBalance.query.filter_by(
+        user_id=current_user.id,
+        year=datetime.now().year
+    ).first()
+    leave_info = balance.get_available_leave() if balance else None
+
     if request.method == 'POST':
         leave_type = request.form.get('leave_type')
         start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
@@ -1321,11 +1388,11 @@ def apply_leave():
 
         if end_date < start_date:
             flash('End date cannot be before start date', 'error')
-            return render_template('apply_leave.html')
+            return render_template('apply_leave.html', leave_info=leave_info)
 
         if hours <= 0:
             flash('Please enter valid leave hours', 'error')
-            return render_template('apply_leave.html')
+            return render_template('apply_leave.html', leave_info=leave_info)
 
         leave = Leave(
             user_id=current_user.id,
@@ -1371,7 +1438,7 @@ def apply_leave():
         flash('Leave application submitted successfully!', 'success')
         return redirect(url_for('my_leaves'))
 
-    return render_template('apply_leave.html')
+    return render_template('apply_leave.html', leave_info=leave_info)
 
 @app.route('/my-leaves')
 @login_required
@@ -2375,17 +2442,18 @@ def leave_transactions():
     transactions = []
     running_balance = 0
 
-    # Add monthly credits (LWP has no credits)
+    # Add credits (LWP has no credits). These have to mirror what the balance
+    # card shows - a new joiner must not see credits for months before they
+    # joined, and someone on probation gets their one entitlement, not monthly
+    # credits.
     if leave_type in ['annual', 'sick']:
-        credit_rate = ANNUAL_LEAVE_MONTHLY_CREDIT if leave_type == 'annual' else SICK_LEAVE_MONTHLY_CREDIT
-        for month in range(2, current_month + 1):  # Credits start from February
-            credit_date = datetime(year, month, 1).date()
-            running_balance += credit_rate
+        for credit in build_credit_history(current_user, balance, leave_type, year):
+            running_balance += credit['days']
             transactions.append({
-                'date': credit_date,
+                'date': credit['date'],
                 'type': 'credit',
-                'days': credit_rate,
-                'description': f'Monthly credit for {credit_date.strftime("%B %Y")}',
+                'days': credit['days'],
+                'description': credit['description'],
                 'balance': round(running_balance, 2)
             })
 
