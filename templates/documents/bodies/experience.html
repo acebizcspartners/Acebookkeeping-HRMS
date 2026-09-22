@@ -1,0 +1,48 @@
+{% set p = doc.pronoun %}
+<div class="lh-body">
+    <p>{{ doc.letter_date }}</p>
+
+    <p>
+        <span class="bold">{{ doc.employee.username }}</span>
+        {% if doc.address %}<br>{{ doc.address }}{% endif %}
+    </p>
+
+    <p class="re-line">Re: Experience Letter</p>
+
+    <p>To Whomsoever It May Concern,</p>
+
+    {% if doc.currently_working %}
+    <p>This is to confirm that <span class="bold">{{ doc.employee.username }}</span> has been employed with
+       <span class="bold">{{ doc.company_name }}</span> as
+       <span class="bold">{{ doc.job_title or '[Position]' }}</span> since
+       <span class="bold">{{ doc.joining_date or '___________' }}</span> and is currently working with us.</p>
+
+    <p>During {{ p.poss }} tenure with us, {{ p.subj }} {{ p.has }} been demonstrating a strong work ethic,
+       professional integrity, and a genuine commitment to delivering quality work. We find {{ p.obj }} to be
+       a reliable and dedicated member of our team.</p>
+
+    <p>We have no hesitation in recommending {{ p.obj }} to any prospective employer or institution that may
+       require this confirmation.</p>
+    {% else %}
+    <p>This is to confirm that <span class="bold">{{ doc.employee.username }}</span> was employed with
+       <span class="bold">{{ doc.company_name }}</span> as
+       <span class="bold">{{ doc.job_title or '[Position]' }}</span> from
+       <span class="bold">{{ doc.joining_date or '___________' }}</span> to
+       <span class="bold">{{ doc.last_working_day or '___________' }}</span>.</p>
+
+    <p>During {{ p.poss }} tenure with us, {{ p.subj }} demonstrated a strong work ethic, professional
+       integrity, and a genuine commitment to delivering quality work. We found {{ p.obj }} to be a reliable
+       and dedicated member of our team.</p>
+
+    <p>We wish {{ p.obj }} all the very best in {{ p.poss }} future endeavours and have no hesitation in
+       recommending {{ p.obj }} to any prospective employer.</p>
+    {% endif %}
+
+    <p>Yours sincerely,</p>
+</div>
+
+<div class="lh-sig">
+    <p class="sig-name">{{ doc.signatory }}</p>
+    <p>{{ doc.signatory_title }}</p>
+    <p>{{ doc.company_name }}</p>
+</div>

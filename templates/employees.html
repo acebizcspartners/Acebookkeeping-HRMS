@@ -4,8 +4,13 @@
 
 {% block content %}
 <div class="page-container">
-    <div class="page-header">
-        <h1><i class="fas fa-users"></i> Employee Management</h1>
+    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h1 class="mb-0"><i class="fas fa-users"></i> Employee Management</h1>
+        {% if current_user.role == 'admin' %}
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+            <i class="fas fa-user-plus"></i> Add Employee
+        </button>
+        {% endif %}
     </div>
 
     <div class="card">
@@ -153,6 +158,78 @@
         overflow-x: auto;
     }
 </style>
+
+<!-- Add Employee Modal -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title"><i class="fas fa-user-plus text-success"></i> Add New Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_employee') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="add_username" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_username" name="username" required
+                                   placeholder="e.g., Arpitha Shetty">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="add_email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="add_email" name="email" required
+                                   placeholder="e.g., arpitha@acebiz.com.au">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="add_password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="add_password" name="password" required
+                                   placeholder="Employee will use this to log in">
+                            <small class="text-muted">At least 8 characters, with an uppercase, a lowercase and a digit.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="add_date_of_joining" class="form-label">Date of Joining</label>
+                            <input type="date" class="form-control" id="add_date_of_joining" name="date_of_joining">
+                            <small class="text-muted">Leave accrual and the 6-month probation rule are based on this.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="add_department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="add_department" name="department"
+                                   placeholder="e.g., Accountant">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="add_designation" class="form-label">Designation</label>
+                            <input type="text" class="form-control" id="add_designation" name="designation"
+                                   placeholder="e.g., Accounts Assistant">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="add_reporting_manager" class="form-label">Reporting Manager</label>
+                            <input type="text" class="form-control" id="add_reporting_manager" name="reporting_manager"
+                                   placeholder="e.g., Ankit">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="add_role" class="form-label">Role</label>
+                            <select class="form-select" id="add_role" name="role">
+                                <option value="employee" selected>Employee</option>
+                                <option value="manager">Manager</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-user-plus"></i> Add Employee
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Edit Employee Modal -->
 <div class="modal fade" id="editEmployeeModal" tabindex="-1">

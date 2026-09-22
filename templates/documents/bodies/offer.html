@@ -1,0 +1,59 @@
+<div class="lh-body">
+    <p>{{ doc.letter_date }}</p>
+
+    <p>
+        <span class="bold">{{ doc.employee.username }}</span>
+        {% if doc.employee.email %}<br><span style="color:#6B7280;">{{ doc.employee.email }}</span>{% endif %}
+    </p>
+
+    <p class="re-line">Re: Letter of Offer &ndash; {{ doc.employee.designation or '[Position]' }}</p>
+
+    <p>Dear {{ doc.employee.username }},</p>
+
+    <p>Congratulations! We are delighted to welcome you to the <span class="bold">{{ doc.company_name }}</span> family.</p>
+
+    <p>Following our recent discussions, we are happy to confirm our offer for the role of
+       <span class="bold">{{ doc.employee.designation or '[Position]' }}</span>, starting
+       <span class="bold">{{ doc.start_date or '___________' }}</span>. We truly believe you will be a
+       wonderful addition to the team and we cannot wait to get started.</p>
+
+    <p>Below are the details of your engagement:</p>
+
+    <p class="indent" style="margin:12px 0 12px 20px;">
+        <strong>Position:</strong> {{ doc.employee.designation or '[Position]' }}<br>
+        <strong>Location:</strong> {{ doc.work_location }}<br>
+        <strong>Start Date:</strong> {{ doc.start_date or '___________' }}<br>
+        <strong>Employment Type:</strong> Full-Time, Permanent<br>
+        <strong>Annual Package:</strong> INR {{ '{:,}'.format(doc.annual_salary) }} (statutory deductions applicable)
+    </p>
+
+    <p>We trust you will bring your best to the role and in return, we are committed to supporting your
+       growth every step of the way. You will be expected to maintain confidentiality of all client and
+       business information, and further details on our policies will be shared with you during onboarding.</p>
+
+    <p>Kindly sign and return a copy of this letter to confirm your acceptance. Please feel free to reach
+       out if you have any questions &mdash; we are always happy to help.</p>
+
+    <p>Once again, a very warm welcome to the team. Exciting times ahead!</p>
+
+    <p>Yours sincerely,</p>
+</div>
+
+<div class="lh-sig">
+    <p class="sig-name">{{ doc.signatory }}</p>
+    <p>{{ doc.signatory_title }}</p>
+    <p>{{ doc.company_name }}</p>
+</div>
+
+<div style="padding:0 48px;">
+    <div class="lh-acceptance">
+        <h3>ACCEPTANCE OF OFFER</h3>
+        <p style="font-size:13px;">I, the undersigned, confirm that I have read and understood the terms of
+           this offer and hereby accept the position of
+           <strong>{{ doc.employee.designation or '[Position]' }}</strong> with {{ doc.company_name }}
+           on the terms set out above.</p>
+        <div class="sig-line">Name:<span></span></div>
+        <div class="sig-line">Signature:<span></span></div>
+        <div class="sig-line">Date:<span></span></div>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+<div class="lh-body">
+    <p>{{ doc.letter_date }}</p>
+
+    <p>
+        <span class="bold">{{ doc.employee.username }}</span>
+        {% if doc.employee.email %}<br><span style="color:#6B7280;">{{ doc.employee.email }}</span>{% endif %}
+    </p>
+
+    <p class="re-line">Re: Salary Revision &ndash; {{ doc.employee.designation or '[Position]' }}</p>
+
+    <p>Dear {{ doc.employee.username }},</p>
+
+    <p>We are pleased to inform you that following your performance review, the management has decided to
+       revise your compensation with effect from <span class="bold">{{ doc.effective_from }}</span>.</p>
+
+    <p>We have been truly impressed with the dedication, consistency, and quality of work you have brought
+       to the team, and this revision is a reflection of our appreciation for your continued contribution.</p>
+
+    <p>Your revised salary details are as follows:</p>
+
+    <table class="doc-table">
+        <thead>
+            <tr>
+                <th>Component</th>
+                <th class="amt">Previous (INR/month)</th>
+                <th class="amt">Revised (INR/month)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Basic Salary</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.old_pay.basic) }}</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.new_pay.basic) }}</td>
+            </tr>
+            <tr>
+                <td>House Rent Allowance (HRA)</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.old_pay.hra) }}</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.new_pay.hra) }}</td>
+            </tr>
+            <tr>
+                <td>Special Allowance</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.old_pay.special) }}</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.new_pay.special) }}</td>
+            </tr>
+            <tr class="total-row">
+                <td>Gross Monthly Salary</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.old_pay.monthly) }}</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.new_pay.monthly) }}</td>
+            </tr>
+            <tr class="total-row">
+                <td>Annual CTC</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.old_annual|int) }}</td>
+                <td class="amt">&#8377;{{ '{:,}'.format(doc.new_annual|int) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% if doc.hike_percent %}
+    <p style="text-align:center;font-weight:700;color:#6B2D8B;">Increment: {{ doc.hike_percent }}%</p>
+    {% endif %}
+
+    <p>All other terms and conditions of your employment remain unchanged.</p>
+
+    <p>We look forward to your continued growth with us and are excited about what lies ahead. Once again,
+       congratulations &mdash; this is truly well deserved!</p>
+
+    <p>Kindly sign and return a copy of this letter as acknowledgement of the revised terms.</p>
+
+    <p>Yours sincerely,</p>
+</div>
+
+<div class="lh-sig">
+    <p class="sig-name">{{ doc.signatory }}</p>
+    <p>{{ doc.signatory_title }}</p>
+    <p>{{ doc.company_name }}</p>
+</div>
+
+<div style="padding:0 48px;">
+    <div class="lh-acceptance">
+        <h3>ACKNOWLEDGEMENT</h3>
+        <p style="font-size:13px;">I, <strong>{{ doc.employee.username }}</strong>, acknowledge receipt of this
+           letter and accept the revised salary terms with effect from
+           <strong>{{ doc.effective_from }}</strong>.</p>
+        <div class="sig-line">Signature:<span></span></div>
+        <div class="sig-line">Date:<span></span></div>
+    </div>
+</div>

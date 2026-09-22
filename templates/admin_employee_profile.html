@@ -198,6 +198,11 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets" type="button" role="tab">
+                        <i class="fas fa-laptop"></i> Assets Issued ({{ assets|selectattr('status', 'equalto', 'active')|list|length }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link" id="emergency-tab" data-bs-toggle="tab" data-bs-target="#emergency" type="button" role="tab">
                         <i class="fas fa-phone"></i> Emergency Contacts
                     </button>
@@ -322,6 +327,51 @@
                     </div>
                     {% else %}
                     <div class="alert alert-info mb-0">No active deductions.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Assets Issued Tab -->
+                <div class="tab-pane fade" id="assets" role="tabpanel">
+                    {% if assets %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>Serial / Model No.</th>
+                                    <th>Issued On</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                <tr>
+                                    <td><strong>{{ asset.asset_name or '-' }}</strong></td>
+                                    <td>{{ asset.serial_number or '-' }}</td>
+                                    <td>{{ asset.issue_date.strftime('%d/%m/%Y') if asset.issue_date else '-' }}</td>
+                                    <td>
+                                        {% if asset.status == 'returned' %}
+                                        <span class="badge bg-secondary">Returned{% if asset.return_date %} {{ asset.return_date.strftime('%d/%m/%Y') }}{% endif %}</span>
+                                        {% elif asset.status == 'damaged' %}
+                                        <span class="badge bg-danger">Damaged</span>
+                                        {% else %}
+                                        <span class="badge bg-success">In Possession</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><small>{{ asset.remarks or '-' }}</small></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        No assets on file for {{ user.username }}.
+                        Assets appear here once an
+                        <a href="{{ url_for('employee_onboarding') }}">Assets Declaration</a>
+                        is assigned to them.
+                    </div>
                     {% endif %}
                 </div>
 

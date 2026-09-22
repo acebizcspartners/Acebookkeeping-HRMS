@@ -31,7 +31,7 @@
                         <h5 class="fw-bold mb-1" style="color: #9333EA;">ACE BOOKKEEPING PVT LTD</h5>
                         <small class="text-muted d-block mb-2">CIN: U69201DC2026FTC469983</small>
                         <small class="text-muted d-block">1/27, 1st Floor, Mall Road, Tilak Nagar (west Delhi) 110018</small>
-                        <small class="text-muted d-block">+919910246739 | admin@acebiz.com.au</small>
+                        <small class="text-muted d-block">{{ company.phone }} | {{ company.email }}</small>
                     </div>
                     <div class="col-md-6 text-end">
                         <h6 class="fw-bold mb-2" style="color: #2c3e50;">PAY SLIP</h6>
@@ -176,7 +176,7 @@
             <div class="mt-4 pt-3" style="border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
                 <p class="mb-1" style="font-size: 11px;">This is a computer-generated salary slip and requires no signature.</p>
                 <p class="mb-0" style="font-size: 11px; font-weight: bold; color: #9333EA;">ACE BOOKKEEPING PVT LTD</p>
-                <p class="mb-0" style="font-size: 10px;">1/27, 1st Floor, Mall Road, Tilak Nagar (west Delhi) 110018 | +919910246739 | admin@acebiz.com.au</p>
+                <p class="mb-0" style="font-size: 10px;">1/27, 1st Floor, Mall Road, Tilak Nagar (west Delhi) 110018 | {{ company.phone }} | {{ company.email }}</p>
             </div>
 
         </div>

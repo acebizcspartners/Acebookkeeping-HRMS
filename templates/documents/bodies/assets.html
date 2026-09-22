@@ -1,0 +1,103 @@
+{% set is_remote = 'remote' in (doc.work_location or '')|lower %}
+<div class="agreement-body">
+    <p class="doc-heading" style="margin-bottom:4px;">COMPANY FIXED ASSETS DECLARATION</p>
+    <p style="text-align:center;font-style:italic;font-size:12px;color:#6B7280;margin-bottom:16px;">
+        Employee Acknowledgement of Company-Issued Assets
+    </p>
+
+    <div class="clause">
+        <p class="clause-title">1. EMPLOYEE DETAILS</p>
+        <table class="grid-table" style="width:80%;margin-left:20px;">
+            <tr><th style="width:40%;">Employee Name</th><td>{{ doc.employee.username }}</td></tr>
+            <tr><th>Position</th><td>{{ doc.employee.designation or 'N/A' }}</td></tr>
+            <tr><th>Employment Type</th><td>{{ doc.employment_type }}</td></tr>
+            <tr><th>Work Location</th><td>{{ doc.work_location }}</td></tr>
+            <tr><th>Date of Joining</th><td>{{ doc.employee.date_of_joining.strftime('%d/%m/%Y') if doc.employee.date_of_joining else 'N/A' }}</td></tr>
+        </table>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">2. ASSETS ISSUED</p>
+        <p class="clause-sub">The following Company assets have been issued to the Employee for use in the
+           performance of their duties:</p>
+        <table class="grid-table">
+            <tr>
+                <th style="width:40px;">#</th>
+                <th>Description</th>
+                <th>Serial / Model No.</th>
+                <th>Condition at Issue</th>
+                <th>Notes</th>
+            </tr>
+            {% for asset in doc.assets %}
+            <tr>
+                <td style="text-align:center;">{{ loop.index }}</td>
+                <td>{{ asset.description or asset.desc or '' }}</td>
+                <td>{{ asset.serial or '' }}</td>
+                <td>{{ asset.condition or 'New' }}</td>
+                <td>{{ asset.notes or '' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align:center;color:#6B7280;">No assets listed</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">3. CONDITIONS OF USE</p>
+        <p class="clause-subsub">- All Company assets must be used solely for legitimate business purposes of {{ doc.company_name }}.</p>
+        <p class="clause-subsub">- The Employee is responsible for the safe custody and reasonable care of all issued assets.</p>
+        <p class="clause-subsub">- Any damage, loss, or theft of Company assets must be reported to management immediately.</p>
+        <p class="clause-subsub">- The Employee must not transfer, loan, sell, or dispose of Company assets under any circumstances.</p>
+        <p class="clause-subsub">- Company assets remain the exclusive property of {{ doc.company_name }} at all times.</p>
+    </div>
+
+    {% if is_remote %}
+    <div class="clause">
+        <p class="clause-title">4. RETURN OF ASSETS</p>
+        <p class="clause-sub"><strong>4.1 Resignation or Termination Within 12 Months of Joining</strong></p>
+        <p class="clause-subsub">If the Employee's employment ends for any reason within twelve (12) months of the date of joining, all Company assets listed in this Declaration must be returned in good working condition. In this scenario:</p>
+        <p class="clause-subsub">- The cost of shipping, freight, or courier required to return the assets shall be borne entirely by the Employee.</p>
+        <p class="clause-subsub">- The Employee agrees to arrange and complete the return of all assets within seven (7) calendar days of the last working day.</p>
+
+        <p class="clause-sub"><strong>4.2 Resignation or Termination After 12 Months of Joining</strong></p>
+        <p class="clause-subsub">If the Employee's employment ends after completing twelve (12) months of continuous service, all Company assets must be returned in good working condition. In this scenario:</p>
+        <p class="clause-subsub">- The Company will bear the reasonable cost of shipping or courier required to return the assets.</p>
+        <p class="clause-subsub">- The Employee must return all assets within seven (7) calendar days of the last working day.</p>
+
+        <p class="clause-sub"><strong>4.3 Return Condition</strong></p>
+        <p class="clause-subsub">Assets must be returned in the same condition as issued, subject to fair wear and tear. Any damage beyond fair wear and tear will be assessed and the cost of repair or replacement may be deducted from the Employee's Full and Final Settlement.</p>
+
+        <p class="clause-sub"><strong>4.4 Failure to Return Assets</strong></p>
+        <p class="clause-subsub">If the Employee fails to return any Company asset within the required timeframe without reasonable justification:</p>
+        <p class="clause-subsub">- The Company reserves the right to deduct the estimated replacement value of any unreturned asset(s) from the Employee's Full and Final Settlement (FnF).</p>
+        <p class="clause-subsub">- Where the FnF settlement is insufficient to cover the full replacement cost, the Employee agrees that the outstanding amount constitutes a debt owed to the Company.</p>
+        <p class="clause-subsub">- The Company reserves the right to initiate appropriate legal proceedings under Indian law to recover the value of unreturned assets, including but not limited to civil proceedings for recovery of property and/or damages.</p>
+    </div>
+    {% endif %}
+
+    <div class="clause">
+        <p class="clause-title">{{ '5' if is_remote else '4' }}. EMPLOYEE ACKNOWLEDGEMENT</p>
+        <p class="clause-sub">I, {{ doc.employee.username }}, hereby acknowledge and confirm that:</p>
+        <p class="clause-subsub">- I have received the Company assets listed in Section 2 of this Declaration in the condition stated.</p>
+        <p class="clause-subsub">- I have read and understood the conditions of use and return obligations set out in this document.</p>
+        <p class="clause-subsub">- I agree to comply with all terms and conditions of this Fixed Assets Declaration.</p>
+        <p class="clause-subsub">- I understand and accept that failure to return Company assets may result in deduction from my Full and Final Settlement and/or legal action by the Company.</p>
+        <p class="clause-subsub">- I confirm that this Declaration forms part of my Employment Agreement with {{ doc.company_name }} and I have been given an opportunity to read and seek clarification on all terms prior to signing.</p>
+    </div>
+
+    <div class="sig-pair">
+        <div class="sig-block">
+            <p style="font-weight:700;margin-bottom:4px;">FOR AND ON BEHALF OF THE COMPANY</p>
+            <p style="font-weight:700;">{{ doc.company_name }}</p>
+            <p style="margin-top:40px;">Signature: _______________________</p>
+            <p style="margin-top:12px;">Full Name: {{ doc.signatory }}</p>
+            <p>{{ doc.signatory_title }}</p>
+        </div>
+        <div class="sig-block">
+            <p style="font-weight:700;margin-bottom:4px;">EMPLOYEE ACKNOWLEDGEMENT</p>
+            <p style="font-weight:700;">{{ doc.employee.username }}</p>
+            <p style="margin-top:40px;">Signature: _______________________</p>
+            <p style="margin-top:12px;">Date: _______________________</p>
+        </div>
+    </div>
+</div>

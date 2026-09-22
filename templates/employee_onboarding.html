@@ -22,7 +22,7 @@
             <h5 class="card-title mb-0"><i class="fas fa-file-alt"></i> Generate Documents</h5>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ url_for('generate_onboarding_document') }}">
+            <form method="POST" action="{{ url_for('generate_onboarding_document') }}" id="onboardingForm">
             
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="row mb-3">
@@ -36,16 +36,22 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><strong>Document Type</strong></label>
-                        <select class="form-select" name="doc_type" required>
-                            <option value="">-- Select Document --</option>
-                            <option value="offer">Offer Letter</option>
-                            <option value="agreement">Employment Agreement</option>
-                            <option value="assets">Assets Declaration</option>
-                            <option value="increment">Increment Letter</option>
-                        </select>
+                        <label class="form-label"><strong>Employee Details</strong></label>
+                        <div id="employeeSummary" class="form-control-plaintext small text-muted" style="min-height:38px;">
+                            Select an employee to load their details
+                        </div>
                     </div>
                 </div>
+
+                <input type="hidden" name="doc_type" id="doc_type" value="offer">
+
+                <ul class="nav nav-pills mb-3" id="docTabs">
+                    <li class="nav-item"><button type="button" class="nav-link active" data-doc="offer">Offer Letter</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-doc="agreement">Employment Agreement</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-doc="assets">Assets Declaration</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-doc="increment">Increment Letter</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-doc="experience">Experience Letter</button></li>
+                </ul>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -82,9 +88,26 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Employee Address</label>
-                            <input type="text" class="form-control" name="employee_address" placeholder="Full residential address">
+                            <input type="text" class="form-control" name="employee_address" data-autofill="address" placeholder="Full residential address">
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-control" name="job_title" data-autofill="designation" placeholder="e.g. Accountant">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Commencement Date</label>
+                            <input type="date" class="form-control" name="commencement_date" data-autofill="date_of_joining">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Employee Type</label>
+                            <select class="form-select" name="employee_status">
+                                <option value="New">New Employee (probation applies)</option>
+                                <option value="Existing">Existing Employee (no probation)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label">Probation Period</label>
                             <input type="text" class="form-control" name="probation_period" value="six (6) months">
                         </div>
@@ -115,18 +138,21 @@
                     <div id="assets-container">
                         <div class="asset-row mb-3">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" class="form-control asset-desc" placeholder="e.g. Lenovo Laptop">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" class="form-control asset-serial" placeholder="Serial / Model No.">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <select class="form-select asset-condition">
                                         <option value="New">New</option>
                                         <option value="Good">Good</option>
                                         <option value="Fair">Fair</option>
                                     </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control asset-notes" placeholder="Notes">
                                 </div>
                                 <div class="col-md-1">
                                     <button type="button" class="btn btn-sm btn-danger" onclick="removeAssetRow(this)">
@@ -139,6 +165,7 @@
                     <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="addAssetRow()">
                         <i class="fas fa-plus"></i> Add Another Asset
                     </button>
+                    <input type="hidden" name="assets" id="assetsJson">
                 </div>
 
                 <div id="increment-fields" style="display: none;">
@@ -164,9 +191,54 @@
                     </div>
                 </div>
 
+                <div id="experience-fields" style="display: none;">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Letter Date</label>
+                            <input type="date" class="form-control" name="letter_date" value="{{ today | default('') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-control" name="job_title" data-autofill="designation" placeholder="e.g. Accountant">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date of Joining</label>
+                            <input type="date" class="form-control" name="joining_date" data-autofill="date_of_joining">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="employment_status" id="expStatus">
+                                <option value="current">Currently Working</option>
+                                <option value="resigned">Resigned / Left</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4" id="lastWorkingDayWrap" style="display: none;">
+                            <label class="form-label">Last Working Day</label>
+                            <input type="date" class="form-control" name="last_working_day">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Gender (for pronouns)</label>
+                            <select class="form-select" name="gender" data-autofill="gender">
+                                <option value="">Use employee record</option>
+                                <option value="Male">Male (he/him)</option>
+                                <option value="Female">Female (she/her)</option>
+                                <option value="Other">Other (they/them)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Employee Address</label>
+                            <input type="text" class="form-control" name="employee_address" data-autofill="address" placeholder="Full residential address">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="alert alert-info" role="alert">
                     <i class="fas fa-info-circle"></i>
-                    Select an employee and document type, then click "Generate" to create the document for preview and printing.
+                    Pick an employee and a document tab &mdash; their saved details fill in automatically. Click Generate to preview and print.
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg">
@@ -216,42 +288,79 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const docTypeSelect = document.querySelector('select[name="doc_type"]');
-    const offerFields = document.getElementById('offer-fields');
-    const agreementFields = document.getElementById('agreement-fields');
-    const assetsFields = document.getElementById('assets-fields');
-    const incrementFields = document.getElementById('increment-fields');
+const DOC_PANES = ['offer', 'agreement', 'assets', 'increment', 'experience'];
 
-    docTypeSelect.addEventListener('change', function() {
-        // Hide all
-        offerFields.style.display = 'none';
-        agreementFields.style.display = 'none';
-        assetsFields.style.display = 'none';
-        incrementFields.style.display = 'none';
-
-        // Show selected
-        switch(this.value) {
-            case 'offer':
-                offerFields.style.display = 'block';
-                break;
-            case 'agreement':
-                agreementFields.style.display = 'block';
-                break;
-            case 'assets':
-                assetsFields.style.display = 'block';
-                break;
-            case 'increment':
-                incrementFields.style.display = 'block';
-                break;
-        }
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('#docTabs .nav-link').forEach(tab => {
+        tab.addEventListener('click', () => selectDocType(tab.dataset.doc));
     });
+    selectDocType('offer');
+
+    const expStatus = document.getElementById('expStatus');
+    if (expStatus) {
+        expStatus.addEventListener('change', function () {
+            document.getElementById('lastWorkingDayWrap').style.display =
+                this.value === 'resigned' ? 'block' : 'none';
+        });
+    }
 });
 
-function fillEmployeeData() {
+function selectDocType(docType) {
+    document.getElementById('doc_type').value = docType;
+
+    document.querySelectorAll('#docTabs .nav-link').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.doc === docType);
+    });
+
+    // Several panes reuse the same field names (work_location, letter_date,
+    // job_title...). Hidden panes still submit, so disable them - otherwise the
+    // wrong pane's value wins server-side.
+    DOC_PANES.forEach(name => {
+        const pane = document.getElementById(name + '-fields');
+        if (!pane) return;
+        const isActive = name === docType;
+        pane.style.display = isActive ? 'block' : 'none';
+        pane.querySelectorAll('input, select, textarea').forEach(el => {
+            el.disabled = !isActive;
+            // base.html swaps every date field for a flatpickr altInput, so the
+            // visible field is a sibling the pane loop would otherwise miss
+            if (el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = !isActive;
+        });
+    });
+}
+
+async function fillEmployeeData() {
     const empId = document.getElementById('employee_id').value;
-    if (empId) {
-        console.log('Employee selected:', empId);
+    const summary = document.getElementById('employeeSummary');
+    if (!empId) {
+        summary.textContent = 'Select an employee to load their details';
+        return;
+    }
+
+    summary.textContent = 'Loading...';
+    try {
+        const res = await fetch(`/api/employee/${empId}/onboarding-profile`);
+        const data = await res.json();
+        if (!data.ok) throw new Error('not found');
+
+        const emp = data.employee;
+        document.querySelectorAll('[data-autofill]').forEach(el => {
+            const value = emp[el.dataset.autofill];
+            if (value) el.value = value;
+        });
+
+        // Increment letter starts from the current package
+        if (data.salary.has_salary) {
+            const oldAnnual = document.querySelector('[name="old_annual"]');
+            if (oldAnnual && !oldAnnual.value) oldAnnual.value = data.salary.annual;
+        }
+
+        const bits = [emp.designation, emp.department].filter(Boolean).join(' · ');
+        summary.innerHTML = data.salary.has_salary
+            ? `${bits || 'No designation set'}<br>Annual package: ₹${Number(data.salary.annual).toLocaleString('en-IN')}`
+            : `${bits || 'No designation set'}<br><span class="text-danger">No salary configured — offer, agreement and increment letters need one.</span>`;
+    } catch (err) {
+        summary.textContent = 'Could not load employee details';
     }
 }
 
@@ -261,18 +370,21 @@ function addAssetRow() {
     row.className = 'asset-row mb-3';
     row.innerHTML = `
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="text" class="form-control asset-desc" placeholder="e.g. Lenovo Laptop">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="text" class="form-control asset-serial" placeholder="Serial / Model No.">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select class="form-select asset-condition">
                     <option value="New">New</option>
                     <option value="Good">Good</option>
                     <option value="Fair">Fair</option>
                 </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control asset-notes" placeholder="Notes">
             </div>
             <div class="col-md-1">
                 <button type="button" class="btn btn-sm btn-danger" onclick="removeAssetRow(this)">
@@ -288,26 +400,25 @@ function removeAssetRow(btn) {
     btn.closest('.asset-row').remove();
 }
 
-// Before form submission, collect assets data
-document.querySelector('form').addEventListener('submit', function(e) {
-    const docType = document.querySelector('select[name="doc_type"]').value;
-    if (docType === 'assets') {
-        const assets = [];
-        document.querySelectorAll('.asset-row').forEach(row => {
-            const desc = row.querySelector('.asset-desc').value;
-            const serial = row.querySelector('.asset-serial').value;
-            const condition = row.querySelector('.asset-condition').value;
-            if (desc || serial) {
-                assets.push({ desc, serial, condition });
-                // Add hidden inputs for form submission
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'assets';
-                input.value = JSON.stringify(assets);
-                this.appendChild(input);
-            }
+// Collect every asset row into ONE hidden input. The old code appended an
+// input per row, so the server only ever saw the first asset.
+document.getElementById('onboardingForm').addEventListener('submit', function () {
+    if (document.getElementById('doc_type').value !== 'assets') return;
+
+    const assets = [];
+    document.querySelectorAll('.asset-row').forEach(row => {
+        const description = row.querySelector('.asset-desc').value.trim();
+        const serial = row.querySelector('.asset-serial').value.trim();
+        if (!description && !serial) return;
+        assets.push({
+            description: description,
+            serial: serial,
+            condition: row.querySelector('.asset-condition').value,
+            notes: (row.querySelector('.asset-notes') || {}).value || ''
         });
-    }
+    });
+
+    document.getElementById('assetsJson').value = JSON.stringify(assets);
 });
 </script>
 {% endblock %}

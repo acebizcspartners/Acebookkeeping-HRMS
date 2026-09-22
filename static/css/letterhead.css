@@ -1,0 +1,213 @@
+/* Branded letterhead for HR documents (offer, agreement, assets, increment,
+   experience). Loaded only on document pages - deliberately kept away from
+   Bootstrap and style.css so the printed output stays exact. */
+
+:root {
+    --purple: #6B2D8B;
+    --purple-light: #8E4DAF;
+    --orange: #E8712B;
+    --bg: #F7F5F2;
+    --white: #FFF;
+    --text: #2D2D2D;
+    --text-light: #6B7280;
+    --border: #E5E7EB;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ---------- Toolbar (never printed) ---------- */
+.doc-toolbar {
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.doc-toolbar .doc-title { color: var(--white); font-family: 'Crimson Pro', serif; font-size: 19px; }
+.doc-toolbar .doc-sub { color: rgba(255,255,255,.75); font-size: 12px; }
+.doc-toolbar .btn-row { display: flex; gap: 8px; }
+
+.btn {
+    padding: 9px 20px;
+    border: none;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all .2s;
+}
+.btn-primary { background: var(--white); color: var(--purple); }
+.btn-orange { background: var(--orange); color: var(--white); }
+.btn-orange:hover { background: #D4651F; }
+.btn-ghost { background: rgba(255,255,255,.18); color: var(--white); }
+.btn-ghost:hover { background: rgba(255,255,255,.3); }
+
+.status-pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.status-pending { background: #FDE68A; color: #92400E; }
+.status-ok { background: #A7F3D0; color: #065F46; }
+.status-rejected { background: #FECACA; color: #991B1B; }
+
+.doc-page { padding: 22px 16px 40px; }
+
+/* ---------- Letter shell ---------- */
+.letter-preview {
+    background: var(--white);
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.65;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+}
+.letter-main { flex: 1; }
+
+/* tfoot before tbody + table-footer-group is what repeats the address
+   footer on every printed page */
+.print-table { width: 100%; border-collapse: collapse; }
+.print-table td { padding: 0; vertical-align: top; }
+.print-table tfoot { display: table-footer-group; }
+
+.lh-top-bar {
+    height: 18px;
+    background: linear-gradient(90deg, var(--purple) 0%, var(--purple) 70%, var(--orange) 70%, var(--orange) 100%);
+}
+.lh-header { padding: 12px 48px 14px; text-align: center; }
+.lh-company h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 22px;
+    color: var(--purple);
+    font-weight: 700;
+    letter-spacing: .5px;
+}
+.lh-company p { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+.lh-body { padding: 0 48px; font-size: 13px; }
+.lh-body p { margin-bottom: 10px; text-align: justify; }
+.lh-body .bold { font-weight: 700; }
+.lh-body .underline { text-decoration: underline; text-underline-offset: 3px; }
+.lh-body .re-line {
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin: 16px 0 12px;
+}
+.lh-body .indent { padding-left: 20px; }
+
+.lh-sig { padding: 0 48px 5px; }
+.lh-sig .sig-name { font-weight: 700; margin-top: 50px; }
+
+.lh-acceptance {
+    padding: 12px 0 10px;
+    border-top: 1.5px solid var(--purple);
+    margin: 16px 0 0;
+}
+.lh-acceptance h3 { font-weight: 700; font-size: 13px; margin-bottom: 10px; }
+.lh-acceptance .sig-line { margin-top: 20px; font-size: 13px; }
+.lh-acceptance .sig-line span {
+    display: inline-block;
+    width: 280px;
+    border-bottom: 1px solid #333;
+    margin-left: 8px;
+}
+
+.lh-footer {
+    background: #f8f8f8;
+    padding: 10px 48px 8px;
+    font-size: 12px;
+    color: var(--text-light);
+    text-align: center;
+    border-top: 1px solid var(--border);
+}
+.lh-footer .footer-line { margin-bottom: 1px; line-height: 1.4; }
+
+.lh-bottom-bar {
+    height: 10px;
+    background: linear-gradient(90deg, var(--purple) 0%, var(--purple) 65%, var(--orange) 65%, var(--orange) 100%);
+}
+
+/* ---------- Agreement / multi-clause documents ---------- */
+.agreement-body { padding: 0 48px; font-size: 12.5px; line-height: 1.7; }
+.agreement-body .doc-heading { text-align: center; font-weight: 700; font-size: 16px; margin: 18px 0; }
+.agreement-body .clause { margin-bottom: 14px; }
+.agreement-body .clause-title { font-weight: 700; margin-bottom: 4px; }
+.agreement-body .clause-sub { padding-left: 20px; margin-bottom: 6px; }
+.agreement-body .clause-subsub { padding-left: 40px; margin-bottom: 4px; font-size: 12px; }
+
+/* Tables used inside letters (salary components, assets, employee details) */
+.doc-table { width: 92%; margin: 10px auto; border-collapse: collapse; font-size: 12.5px; }
+.doc-table th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--purple);
+    font-weight: 700;
+}
+.doc-table td { padding: 6px 12px; border-bottom: 1px solid #eee; }
+.doc-table .amt { text-align: right; }
+.doc-table .total-row { font-weight: 700; }
+.doc-table .total-row td { border-top: 2px solid var(--purple); }
+
+.grid-table { width: 95%; margin: 8px auto; border-collapse: collapse; font-size: 12px; }
+.grid-table th, .grid-table td { padding: 8px; border: 1px solid #ddd; }
+.grid-table th { background: #f5f5f5; font-weight: 700; text-align: left; }
+
+.sig-pair { display: flex; justify-content: space-between; margin-top: 30px; font-size: 12.5px; gap: 24px; }
+.sig-pair .sig-block { width: 240px; }
+.sig-pair .sig-rule { border-top: 1px solid #333; padding-top: 8px; text-align: center; margin-top: 50px; }
+
+/* Trailing whitespace would otherwise push the repeating footer onto a page
+   of its own */
+.lh-body, .agreement-body { padding-bottom: 0 !important; margin-bottom: 0 !important; }
+.lh-sig { margin-bottom: 0 !important; }
+.lh-footer, .lh-bottom-bar { margin-bottom: 0 !important; }
+
+@media print {
+    .no-print, .doc-toolbar { display: none !important; }
+    body { background: var(--white); }
+    .doc-page { padding: 0; }
+    .letter-preview { border: none; margin: 0; padding: 0; max-width: none; }
+
+    /* keep the purple/orange bars in the printout */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .print-table { width: 100% !important; min-height: 98vh !important; }
+    .print-table tbody { height: 100%; }
+    .print-table tfoot td { padding: 0 !important; margin: 0 !important; }
+
+    .lh-footer {
+        background: var(--white) !important;
+        padding: 6px 15px 2px !important;
+        font-size: 11px !important;
+        border-top: 1px solid #ccc !important;
+    }
+    .lh-bottom-bar { height: 8px !important; }
+
+    @page { margin: 1cm 0cm 0cm 0cm; }
+    @page :first { margin: 0cm 0cm 0cm 0cm; }
+}
+
+@media (max-width: 640px) {
+    .lh-body, .lh-header, .lh-sig, .agreement-body { padding-left: 24px; padding-right: 24px; }
+    .lh-footer { padding-left: 20px; padding-right: 20px; }
+    .sig-pair { flex-direction: column; }
+}

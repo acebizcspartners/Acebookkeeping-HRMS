@@ -1,0 +1,224 @@
+{% set is_remote = 'remote' in (doc.work_location or '')|lower %}
+{% set is_new = doc.employee_status == 'New' %}
+<div class="agreement-body">
+    <p class="doc-heading">EMPLOYMENT AGREEMENT</p>
+
+    <div class="clause">
+        <p class="clause-title">1. PARTIES</p>
+        <p class="clause-sub">1.1 Employer: {{ doc.company_name }} (CIN: {{ doc.company_cin }}), {{ doc.company_address }} ("the Company").</p>
+        <p class="clause-sub">1.2 Employee: {{ doc.employee.username }}{% if doc.address %} residing at {{ doc.address }}{% endif %} ("the Employee").</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">2. APPOINTMENT &amp; DUTIES</p>
+        <p class="clause-sub">2.1 Position: {{ doc.job_title or doc.employee.designation or '[Position]' }}</p>
+        <p class="clause-sub">2.2 The Employee is engaged to perform the duties associated with the above position, as described in the Job Description attached hereto as Schedule A (if applicable). The Company reserves the right to reasonably vary or modify the Employee's duties from time to time based on business requirements.</p>
+        <p class="clause-sub">2.3 The Employee agrees to perform their duties diligently, honestly, and in the best interests of the Company and its clients.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">3. COMMENCEMENT DATE</p>
+        <p class="clause-sub">Employment under this Agreement commences on {{ doc.commencement_date or (doc.employee.date_of_joining.strftime('%d/%m/%Y') if doc.employee.date_of_joining else '___________') }}.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">4. PROBATIONARY PERIOD</p>
+        {% if is_new %}
+        <p class="clause-sub">4.1 The first {{ doc.probation_period }} of employment shall constitute a probationary period, during which the Company will assess the Employee's performance, conduct, attendance, and suitability for the role.</p>
+        <p class="clause-sub">4.2 During the probationary period, either party may terminate this Agreement by providing fourteen (14) calendar days' written notice.</p>
+        <p class="clause-sub">4.3 The Company reserves the right to extend the probationary period by up to three (3) additional months with written notice to the Employee.</p>
+        <p class="clause-sub">4.4 Upon successful completion of the probationary period, the Employee's appointment shall be confirmed in writing.</p>
+        {% else %}
+        <p class="clause-sub">4.1 Having regard to the Employee's prior professional experience and demonstrated competence, the Company has determined that a probationary period is not required. The Employee's appointment is confirmed with effect from the Commencement Date of this Agreement.</p>
+        {% endif %}
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">5. PLACE OF WORK</p>
+        {% if is_remote %}
+        <p class="clause-sub">5.1 The Employee shall work {{ doc.work_location }}.</p>
+        <p class="clause-sub">5.2 The Employee is responsible for maintaining a suitable, safe, and professional home working environment with reliable internet connectivity.</p>
+        {% else %}
+        <p class="clause-sub">5.1 The Employee's primary place of work shall be the Company's office at {{ doc.company_address }}, or such other location as the Company may reasonably designate from time to time with written notice.</p>
+        <p class="clause-sub">5.2 The Employee is expected to maintain a professional, clean, and organised workspace and to adhere to all office conduct, health, and safety standards as communicated by the Company. The Employee shall comply with the Company's office timings, access protocols, and any workplace policies in force from time to time.</p>
+        {% endif %}
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">6. HOURS OF WORK</p>
+        <p class="clause-sub">6.1 The Employee's standard working hours are {{ doc.hours_per_week }} hours per week. Specific daily working hours and shift schedules shall be mutually agreed between the Employee and the Company.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">7. REMUNERATION</p>
+        <p class="clause-sub">7.1 Annual Salary: INR {{ '{:,}'.format(doc.annual_salary) }} ({{ doc.annual_in_words }}) per annum, payable in equal monthly instalments of INR {{ '{:,}'.format(doc.monthly_salary) }}. The salary structure is as follows:</p>
+        <table class="doc-table" style="width:90%;">
+            <thead>
+                <tr><th>Component</th><th class="amt">Monthly (INR)</th><th class="amt">Annual (INR)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Basic Salary</td><td class="amt">&#8377;{{ '{:,}'.format(doc.basic) }}</td><td class="amt">&#8377;{{ '{:,}'.format(doc.basic * 12) }}</td></tr>
+                <tr><td>House Rent Allowance (HRA)</td><td class="amt">&#8377;{{ '{:,}'.format(doc.hra) }}</td><td class="amt">&#8377;{{ '{:,}'.format(doc.hra * 12) }}</td></tr>
+                <tr><td>Special Allowance</td><td class="amt">&#8377;{{ '{:,}'.format(doc.special) }}</td><td class="amt">&#8377;{{ '{:,}'.format(doc.special * 12) }}</td></tr>
+                <tr class="total-row"><td>Gross Salary</td><td class="amt">&#8377;{{ '{:,}'.format(doc.monthly_salary) }}</td><td class="amt">&#8377;{{ '{:,}'.format(doc.annual_salary) }}</td></tr>
+            </tbody>
+        </table>
+        <p class="clause-sub">7.2 Salary shall be credited to the Employee's nominated bank account on or before the 7th day of each calendar month for the preceding month.</p>
+        <p class="clause-sub">7.3 All statutory deductions, including Tax Deducted at Source (TDS) under the Income Tax Act, 1961, Professional Tax, EPF, and ESI contributions (where applicable), shall be deducted from the salary before payment.</p>
+        <p class="clause-sub">7.4 The Company will conduct an annual salary review at its discretion, based on performance and business conditions. There is no guarantee of a salary increment.</p>
+        <p class="clause-sub">7.5 The Company shall conduct a formal performance appraisal for all confirmed employees during the month of July each year ("Annual Appraisal Cycle"). The appraisal shall assess the Employee's overall performance, achievement of targets, professional development, conduct, and contribution to the Company during the preceding twelve-month period. The outcome of the Annual Appraisal may, at the Company's sole discretion, inform decisions relating to salary revision, role progression, training requirements, or performance improvement measures.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">8. STATUTORY BENEFITS &amp; DEDUCTIONS</p>
+        <p class="clause-sub">The following statutory entitlements apply to the extent required by Indian law:</p>
+        <p class="clause-sub">8.1 Where applicable, the Company will make contributions in respect of EPF (Employees' Provident Funds and Miscellaneous Provisions Act, 1952), ESI (Employees' State Insurance Act, 1948), and TDS (Income Tax Act, 1961). Applicable deductions will be reflected in the Employee's monthly payslip.</p>
+        <p class="clause-sub">8.2 The Employee shall become eligible for gratuity under the Payment of Gratuity Act, 1972 upon completion of five (5) years of continuous service.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">9. LEAVE ENTITLEMENTS</p>
+        <p class="clause-sub"><strong>9.1 Annual Leave (Privilege Leave)</strong></p>
+        <p class="clause-subsub">The Employee accrues 1.25 days of annual leave per completed calendar month, totalling fifteen (15) days per year.</p>
+        <p class="clause-subsub">Leave must be applied for in advance and is subject to manager approval.</p>
+        <p class="clause-subsub">Annual leave may be accumulated up to a maximum of seventy-five (75) days. Any balance in excess of 75 days will lapse at year end.</p>
+        <p class="clause-subsub">Accrued but untaken annual leave (up to a maximum of 75 days) as at the date of termination will be encashed and paid out in the Full and Final Settlement.</p>
+        <p class="clause-sub"><strong>9.2 Sick Leave (Medical Leave)</strong></p>
+        <p class="clause-subsub">The Employee accrues 1.0 day of sick leave per completed calendar month, totalling twelve (12) days per year.</p>
+        <p class="clause-subsub">Sick leave is non-cumulative and any unused balance lapses at year end.</p>
+        <p class="clause-subsub">For any absence exceeding two (2) consecutive days, a medical certificate from a registered medical practitioner must be provided.</p>
+        <p class="clause-subsub">Sick leave is not encashable upon termination.</p>
+        <p class="clause-sub"><strong>9.3 Public Holidays</strong></p>
+        <p class="clause-subsub">The Company observes a set of public holidays applicable to our India office. The approved holiday list will be shared with the Employee on their first day of joining and will be reviewed and updated at the start of each calendar year. The Company reserves the right to revise the holiday list from time to time based on operational requirements, with reasonable notice provided to all staff.</p>
+        <p class="clause-sub"><strong>9.4 Maternity Leave</strong></p>
+        <p class="clause-subsub">Female employees are entitled to maternity leave in accordance with the Maternity Benefit Act, 1961 (as amended), subject to eligibility conditions.</p>
+        <p class="clause-sub"><strong>9.5 Other Leave</strong></p>
+        <p class="clause-subsub">Any other leave (including bereavement, marriage, or emergency leave) is at the Company's discretion. Such leave must be applied for in writing, and approval is not guaranteed.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">10. COMPANY EQUIPMENT &amp; ASSETS</p>
+        <p class="clause-sub">The Company may issue equipment and assets to the Employee for use in performing their duties. All such assets are listed in the accompanying Fixed Assets Declaration, which forms a part of this Agreement.</p>
+        <p class="clause-sub">The Employee agrees to use Company assets only for legitimate business purposes, maintain them in good working condition, and return them in accordance with the terms of the Fixed Assets Declaration upon termination or demand.</p>
+        <p class="clause-sub">The cost of unreturned, damaged, or lost assets may be deducted from the Employee's Full and Final Settlement. The Company reserves all legal rights to recover the value of such assets.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">11. CONFIDENTIALITY &amp; DATA PROTECTION</p>
+        <p class="clause-sub">11.1 During and after employment, the Employee must not disclose, use, or misuse any confidential information belonging to the Company or its clients. Confidential information includes:</p>
+        <p class="clause-subsub">- Client data, tax information, financial records, and personal information.</p>
+        <p class="clause-subsub">- Business strategies, pricing, processes, methodologies, and systems.</p>
+        <p class="clause-subsub">- Login credentials, software, and IT infrastructure details.</p>
+        <p class="clause-subsub">- Any information that is clearly of a confidential or sensitive nature.</p>
+        <p class="clause-sub">11.2 The Employee shall handle all personal data in compliance with applicable data protection obligations under the Information Technology Act, 2000 and the Digital Personal Data Protection Act, 2023 (India).</p>
+        <p class="clause-sub">11.3 The Employee must immediately report any suspected data breach to the Company's management.</p>
+        <p class="clause-sub">11.4 This obligation survives the termination of this Agreement.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">12. INTELLECTUAL PROPERTY</p>
+        <p class="clause-sub">All work product, documents, software, tools, methodologies, inventions, and other materials created by the Employee in the course of employment are the sole property of the Company. The Employee assigns all such intellectual property rights to the Company. This is consistent with Section 17 of the Copyright Act, 1957 (India).</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">13. NON-SOLICITATION</p>
+        <p class="clause-sub">During employment and for twelve (12) months following termination, the Employee agrees not to:</p>
+        <p class="clause-subsub">- Directly or indirectly solicit or approach any client or prospective client of the Company with whom the Employee had material dealings.</p>
+        <p class="clause-subsub">- Induce or attempt to entice away any employee of the Company.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">14. POLICIES &amp; CODE OF CONDUCT</p>
+        <p class="clause-sub">The Employee agrees to comply with all Company policies, procedures, and codes of conduct as issued from time to time, including:</p>
+        <p class="clause-subsub">- Information security, IT acceptable use, and data handling policies.</p>
+        <p class="clause-subsub">- Anti-bribery, anti-corruption, and conflict of interest obligations.</p>
+        <p class="clause-subsub">- Workplace behaviour, anti-harassment, and equal opportunity standards.</p>
+        <p class="clause-sub">Copies of applicable policies will be provided on commencement and updated periodically.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">15. EXCLUSIVE EMPLOYMENT &amp; CONFLICT OF INTEREST</p>
+        <p class="clause-sub">15.1 The Employee agrees that their employment with the Company is on a full-time, exclusive basis. During the term of this Agreement, the Employee must not, without the prior written consent of the Company:</p>
+        <p class="clause-subsub">- Take up any other employment, contract work, freelance assignment, or paid engagement with any other employer, client, or third party.</p>
+        <p class="clause-subsub">- Operate, manage, or hold a financial interest in any business that competes with or conflicts with the interests of the Company.</p>
+        <p class="clause-subsub">- Use Company time, systems, equipment, or confidential information in the performance of any outside work or personal venture.</p>
+        <p class="clause-sub">15.2 If the Employee wishes to undertake any voluntary, honorary, or unpaid activity outside of their employment (including advisory roles, non-executive directorships, or community work), they must disclose this to the Company in writing prior to commencing such activity. The Company will consider such requests reasonably and respond in writing.</p>
+        <p class="clause-sub">15.3 Breach of Exclusive Employment Obligation:</p>
+        <p class="clause-subsub">If the Company discovers that the Employee has taken up outside employment or a conflicting engagement without prior written consent, the Company may, at its sole discretion, terminate this Agreement with immediate effect and without notice or payment in lieu.</p>
+        <p class="clause-subsub">Alternatively, where the Company determines the breach to be minor or unintentional, it may choose to initiate a discussion with the Employee and provide a reasonable opportunity to remedy the situation before deciding on any further action.</p>
+        <p class="clause-subsub">In either case, the Company reserves the right to recover any losses or damages arising from the breach of this clause.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">16. TERMINATION</p>
+        <p class="clause-sub"><strong>16.1 Notice Period</strong></p>
+        <p class="clause-subsub">Following confirmation of employment (after probation), either party may terminate this Agreement by providing {{ doc.notice_period }} written notice. The Company may elect to pay salary in lieu of notice, calculated on a pro-rata basis for the unexpired notice period.</p>
+        <p class="clause-sub"><strong>16.2 Termination for Cause</strong></p>
+        <p class="clause-subsub">The Company may terminate this Agreement immediately and without notice in the event of:</p>
+        <p class="clause-subsub">- Gross misconduct, dishonesty, fraud, or wilful neglect of duties.</p>
+        <p class="clause-subsub">- Serious or repeated breach of confidentiality or data security obligations.</p>
+        <p class="clause-subsub">- Conviction of a criminal offence relevant to the Employee's role or reputation.</p>
+        <p class="clause-subsub">- Any act or omission constituting a fundamental breach of this Agreement.</p>
+        <p class="clause-subsub">- Breach of the exclusive employment obligations set out in Clause 15 of this Agreement.</p>
+        <p class="clause-sub"><strong>16.3 Full and Final Settlement (FnF)</strong></p>
+        <p class="clause-subsub">Upon termination for any reason, the Company shall process the Employee's FnF settlement within thirty (30) days, including:</p>
+        <p class="clause-subsub">- Outstanding salary up to the last working day.</p>
+        <p class="clause-subsub">- Encashment of accrued but untaken annual leave.</p>
+        <p class="clause-subsub">- Any other statutory entitlements due under Indian law.</p>
+        <p class="clause-subsub">The Company may deduct from the FnF any amounts owed by the Employee to the Company, including the value of unreturned Company assets as per the Fixed Assets Declaration.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">17. LEAVE &mdash; ADDITIONAL CONDITIONS</p>
+        <p class="clause-sub">17.1 All leave must be applied for and approved in advance by the Employee's reporting manager. Any leave taken without prior approval will be treated as Leave Without Pay (LWP) and will result in a salary deduction of one day's pay per day of unapproved absence. The Employee shall not be eligible to avail any leave during the probationary period, except for sick leave, which shall accrue from the date of commencement of employment. All other leave accrual shall commence from the date of confirmation of employment.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">18. NOTICE PERIOD &mdash; ADDITIONAL CONDITIONS</p>
+        <p class="clause-sub">18.1 The Employee does not have the right to buy out or unilaterally shorten the notice period. The Company may permit an early release at its discretion, but the effective notice period will in no case be less than forty-five (45) calendar days. Regardless of which party initiates termination, the Employee must satisfactorily complete all pending duties, client work, and project responsibilities, and provide a proper handover before the last working day. The Employee shall not be entitled to any allowance, benefit, or payment beyond what is expressly stated in this Agreement unless separately agreed in writing.</p>
+        <p class="clause-sub">18.2 Consequences of Immediate Resignation Without Notice: If the Employee resigns with immediate effect and refuses or fails to serve the contractually required notice period without the prior written consent of the Company, the following consequences shall apply:</p>
+        <p class="clause-subsub">- The Company shall be entitled to withhold and forfeit salary equivalent to the unserved portion of the notice period from the Employee's Full and Final Settlement, as compensation for the shortfall.</p>
+        <p class="clause-subsub">- Any accrued but untaken annual leave that would otherwise be encashed at the time of separation shall not be paid out if the Employee fails to serve the required notice period.</p>
+        <p class="clause-subsub">- The Company reserves the right to recover from the Employee any additional costs, losses, or damages suffered as a direct result of the abrupt departure, including but not limited to costs of emergency replacement, client disruption, or project delays.</p>
+        <p class="clause-subsub">- The Company may initiate appropriate legal proceedings to recover such losses, and the Employee's breach of notice obligations may be reported to prospective employers upon reference checks, to the extent permitted by applicable law.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">19. REMEDY FOR BREACH</p>
+        <p class="clause-sub">In the event of a breach of any obligation under this Agreement, the Employee shall be liable to indemnify the Company for all costs, losses, and damages caused, including those arising from breach of confidentiality or misuse of intellectual property. The Employee acknowledges that such breaches may not be adequately compensated by monetary damages alone, and accordingly the Company shall be entitled to seek an immediate injunction or other equitable relief from a court of competent jurisdiction, in addition to any other remedies available under this Agreement or applicable law.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">20. MISCELLANEOUS</p>
+        <p class="clause-sub">20.1 No Waiver: The rights of the Company under this Agreement are cumulative and may be exercised as often as the Company considers appropriate, and are in addition to its rights under the general laws applicable in India. Any failure to exercise or any delay in exercising any of the Company's rights under this Agreement shall not operate as a waiver or variation of that or any other such right. No act, course of conduct, or negotiation on the part of the Company or on its behalf shall in any way preclude it from exercising any such right or constitute a suspension or variation of any such rights.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">21. DISPUTE RESOLUTION</p>
+        <p class="clause-sub">In the event of a dispute arising from this Agreement, the parties shall first attempt resolution through good-faith discussions within thirty (30) days. If unresolved, either party may refer the matter to the appropriate labour authority or court under Indian law.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">22. GOVERNING LAW &amp; JURISDICTION</p>
+        <p class="clause-sub">This Agreement is governed by and construed in accordance with the general laws applicable in India. The courts at New Delhi shall have exclusive jurisdiction over any disputes arising from or in connection with this Agreement. Nothing in this Agreement shall limit the Company's right to seek urgent or interim relief from any court of competent jurisdiction.</p>
+        <p class="clause-sub">This Agreement operates subject to applicable Indian labour legislation including but not limited to: the Code on Wages 2019, Code on Social Security 2020, Occupational Safety Health and Working Conditions Code 2020, and the Payment of Gratuity Act 1972.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">23. ENTIRE AGREEMENT &amp; AMENDMENTS</p>
+        <p class="clause-sub">This Agreement (including any attached Schedules) constitutes the entire understanding between the parties regarding the Employee's employment and supersedes all prior communications, representations, or agreements. Any variation must be made in writing and signed by both parties.</p>
+    </div>
+
+    <div class="clause">
+        <p class="clause-title">24. EXECUTION</p>
+        <p class="clause-sub">This Agreement is entered into on this _______ day of _____________ {{ doc.letter_year }}. By signing below, both parties confirm they have read, understood, and agree to be bound by the terms of this Agreement.</p>
+        <div class="sig-pair">
+            <div class="sig-block">
+                <p class="sig-rule">{{ doc.company_name }}<br><strong>{{ doc.signatory }}</strong><br><small>{{ doc.signatory_title }}</small></p>
+            </div>
+            <div class="sig-block">
+                <p class="sig-rule">{{ doc.employee.username }}<br><small>Employee</small></p>
+            </div>
+        </div>
+    </div>
+</div>

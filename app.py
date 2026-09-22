@@ -33,6 +33,27 @@ SICK_LEAVE_MONTHLY_CREDIT = 7.36     # 7.36 hours per month (88.32 hours/year)
 # annual leave; the normal company-wide accrual starts once they cross it.
 PROBATION_MONTHS = 6
 
+# Company details used on HR letters. Kept in one place so the letterhead can't
+# drift between documents.
+COMPANY = {
+    'name': 'Ace Bookkeeping Private Limited',
+    'cin': 'U69201DC2026FTC469983',
+    'address': '1/27, 1st Floor, Mall Road, Tilak Nagar (West Delhi), New Delhi, West Delhi - 110018, Delhi',
+    'phone': '98110 08636',
+    'email': 'info.acebookkeeping@gmail.com',
+    'signatory': 'Ankit Kulshrestha',
+    'signatory_title': 'Director',
+}
+
+# doc_type -> (title shown to the employee, needs an active Salary record)
+DOC_TYPES = {
+    'offer': ('Offer Letter', True),
+    'agreement': ('Employment Agreement', True),
+    'assets': ('Assets Declaration', False),
+    'increment': ('Increment Letter', True),
+    'experience': ('Experience Letter', False),
+}
+
 def months_since(start_date, on_date=None):
     """Whole months elapsed since start_date (a partial month doesn't count)."""
     if on_date is None:
@@ -126,6 +147,11 @@ login_manager.login_message_category = 'info'
 
 # CSRF Protection
 csrf = CSRFProtect(app)
+
+@app.context_processor
+def inject_company():
+    """Company details are needed by every letterhead, so expose them globally."""
+    return {'company': COMPANY}
 
 # Session timeout handler
 @app.before_request
@@ -1787,6 +1813,57 @@ def employees():
     users = User.query.all()
     return render_template('employees.html', users=users)
 
+@app.route('/employees/add', methods=['POST'])
+@login_required
+@admin_required
+def add_employee():
+    """Create a new employee straight from the Employee Management page."""
+    username = (request.form.get('username') or '').strip()
+    email = (request.form.get('email') or '').strip()
+    password = request.form.get('password') or ''
+    role = request.form.get('role', 'employee')
+    date_of_joining = request.form.get('date_of_joining')
+
+    if not username or not email:
+        flash('Name and email are required.', 'error')
+        return redirect(url_for('employees'))
+
+    is_valid, error_msg = validate_password(password)
+    if not is_valid:
+        flash(error_msg, 'error')
+        return redirect(url_for('employees'))
+
+    if User.query.filter_by(username=username).first():
+        flash(f'An employee named "{username}" already exists.', 'error')
+        return redirect(url_for('employees'))
+
+    if User.query.filter_by(email=email).first():
+        flash(f'{email} is already registered.', 'error')
+        return redirect(url_for('employees'))
+
+    if role not in ['employee', 'manager', 'admin']:
+        role = 'employee'
+
+    user = User(
+        username=username,
+        email=email,
+        password=generate_password_hash(password),
+        role=role,
+        department=(request.form.get('department') or '').strip() or None,
+        designation=(request.form.get('designation') or '').strip() or None,
+        reporting_manager=(request.form.get('reporting_manager') or '').strip() or None,
+        date_of_joining=datetime.strptime(date_of_joining, '%Y-%m-%d').date() if date_of_joining else None
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    # Give them a leave balance row so the probation rule and accrual apply
+    db.session.add(LeaveBalance(user_id=user.id, year=datetime.now().year))
+    db.session.commit()
+
+    flash(f'{username} added successfully.', 'success')
+    return redirect(url_for('employees'))
+
 @app.route('/employee/<int:user_id>/delete', methods=['POST'])
 @login_required
 @admin_required
@@ -1955,6 +2032,12 @@ def view_employee_profile(user_id):
     # Emergency contacts
     emergency_contacts = EmergencyContact.query.filter_by(user_id=user_id).all()
 
+    # Company assets issued in this employee's name, newest first
+    assets = EmployeeAsset.query.filter_by(user_id=user_id).order_by(
+        EmployeeAsset.issue_date.desc().nullslast(),
+        EmployeeAsset.id.desc()
+    ).all()
+
     current_year = datetime.now().year
 
     return render_template('admin_employee_profile.html',
@@ -1966,6 +2049,7 @@ def view_employee_profile(user_id):
         leave_records=leave_records,
         deductions=deductions,
         emergency_contacts=emergency_contacts,
+        assets=assets,
         current_year=current_year
     )
 
@@ -3124,12 +3208,101 @@ def employee_onboarding():
     return render_template('employee_onboarding.html',
         employees=employees,
         departments=departments,
-        company_name='Ace Bookkeeping Private Limited',
-        company_cin='U69201DC2026FTC469983',
-        company_address='1/27, 1st Floor, Mall Road, Tilak Nagar (West Delhi), New Delhi, West Delhi - 110018, Delhi',
-        company_phone='98110 08636',
-        company_email='info.acebookkeeping@gmail.com'
+        doc_types=DOC_TYPES,
+        today=date.today().isoformat()
     )
+
+
+@app.route('/api/employee/<int:user_id>/onboarding-profile')
+@login_required
+@admin_required
+def employee_onboarding_profile(user_id):
+    """Employee details for prefilling the HR letter forms."""
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({'ok': False, 'error': 'Employee not found'}), 404
+
+    address = ', '.join(part for part in [
+        user.address, user.city, user.state, user.postal_code, user.country
+    ] if part)
+
+    salary = Salary.query.filter_by(user_id=user_id, is_active=True).first()
+    salary_info = {'has_salary': False}
+    if salary:
+        breakdown = salary_breakdown(salary.monthly_salary)
+        salary_info = {'has_salary': True, **breakdown}
+
+    return jsonify({
+        'ok': True,
+        'employee': {
+            'username': user.username,
+            'email': user.email,
+            'designation': user.designation or '',
+            'department': user.department or '',
+            'reporting_manager': user.reporting_manager or '',
+            'gender': user.gender or '',
+            'phone': user.phone or '',
+            'address': address,
+            'pan_number': user.pan_number or '',
+            'bank_account': user.bank_account or '',
+            'date_of_joining': user.date_of_joining.isoformat() if user.date_of_joining else '',
+        },
+        'salary': salary_info
+    })
+
+def salary_breakdown(monthly):
+    """Split a monthly salary into its components: basic is half the gross,
+    HRA is half of basic, and the remainder is special allowance."""
+    monthly = round(monthly or 0)
+    basic = round(monthly * 0.5)
+    hra = round(basic * 0.5)
+    return {
+        'monthly': monthly,
+        'annual': monthly * 12,
+        'basic': basic,
+        'hra': hra,
+        'special': monthly - basic - hra
+    }
+
+
+def amount_in_words_inr(amount):
+    """Indian-format amount in words, e.g. 'Indian Rupees Four Lakh Twenty
+    Thousand Only'. Used on letters that state a figure in words."""
+    amount = int(round(amount or 0))
+    if amount == 0:
+        return 'Indian Rupees Zero Only'
+
+    ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+            'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
+            'Seventeen', 'Eighteen', 'Nineteen']
+    tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+
+    def convert(n):
+        if n < 20:
+            return ones[n]
+        if n < 100:
+            return tens[n // 10] + (' ' + ones[n % 10] if n % 10 else '')
+        if n < 1000:
+            return ones[n // 100] + ' Hundred' + (' and ' + convert(n % 100) if n % 100 else '')
+        if n < 100000:
+            return convert(n // 1000) + ' Thousand' + (' ' + convert(n % 1000) if n % 1000 else '')
+        if n < 10000000:
+            return convert(n // 100000) + ' Lakh' + (' ' + convert(n % 100000) if n % 100000 else '')
+        return convert(n // 10000000) + ' Crore' + (' ' + convert(n % 10000000) if n % 10000000 else '')
+
+    return f'Indian Rupees {convert(amount)} Only'
+
+
+def pronouns(gender):
+    """Pronoun set for letters written about an employee. Anything other than a
+    recorded male/female falls back to they/them so the wording still reads."""
+    g = (gender or '').strip().lower()
+    if g.startswith('m'):
+        return {'subj': 'he', 'obj': 'him', 'poss': 'his', 'has': 'has', 'was': 'was'}
+    if g.startswith('f'):
+        return {'subj': 'she', 'obj': 'her', 'poss': 'her', 'has': 'has', 'was': 'was'}
+    return {'subj': 'they', 'obj': 'them', 'poss': 'their', 'has': 'have', 'was': 'were'}
+
 
 def to_ddmmyyyy(iso_date_str):
     """Convert a 'YYYY-MM-DD' form value to 'DD/MM/YYYY' for display; leaves
@@ -3154,38 +3327,43 @@ def generate_onboarding_document():
             flash('Please select employee and document type', 'error')
             return redirect(url_for('employee_onboarding'))
 
+        if doc_type not in DOC_TYPES:
+            flash('Unknown document type', 'error')
+            return redirect(url_for('employee_onboarding'))
+
         employee_id = int(employee_id)
         employee = User.query.get_or_404(employee_id)
         salary = Salary.query.filter_by(user_id=employee_id, is_active=True).first()
 
-        if not salary:
-            flash('Salary not configured for this employee', 'error')
+        # Only the letters that actually state a salary figure need one on file
+        doc_title, needs_salary = DOC_TYPES[doc_type]
+        if needs_salary and not salary:
+            flash(f'{doc_title} shows salary figures, so please configure a salary for {employee.username} first.', 'error')
             return redirect(url_for('employee_onboarding'))
     except Exception as e:
         flash(f'Error loading employee data: {str(e)}', 'error')
         return redirect(url_for('employee_onboarding'))
 
-    # Calculate salary components (assuming 50% basic, 50% of basic as HRA, rest special)
-    monthly = salary.monthly_salary
-    basic = round(monthly * 0.5)
-    hra = round(basic * 0.5)
-    special = monthly - basic - hra
+    pay = salary_breakdown(salary.monthly_salary) if salary else salary_breakdown(0)
 
     doc_data = {
         'doc_type': doc_type,
+        'doc_title': doc_title,
         'employee': employee,
         'salary': salary,
-        'monthly_salary': monthly,
-        'basic': basic,
-        'hra': hra,
-        'special': special,
-        'company_name': 'Ace Bookkeeping Private Limited',
-        'company_cin': 'U69201DC2026FTC469983',
-        'company_address': '1/27, 1st Floor, Mall Road, Tilak Nagar (West Delhi), New Delhi, West Delhi - 110018, Delhi',
-        'company_phone': '98110 08636',
-        'company_email': 'info.acebookkeeping@gmail.com',
-        'signatory': request.form.get('signatory_name', 'Ankit Kulshrestha'),
-        'signatory_title': request.form.get('signatory_title', 'Director'),
+        'monthly_salary': pay['monthly'],
+        'annual_salary': pay['annual'],
+        'basic': pay['basic'],
+        'hra': pay['hra'],
+        'special': pay['special'],
+        'annual_in_words': amount_in_words_inr(pay['annual']),
+        'company_name': COMPANY['name'],
+        'company_cin': COMPANY['cin'],
+        'company_address': COMPANY['address'],
+        'company_phone': COMPANY['phone'],
+        'company_email': COMPANY['email'],
+        'signatory': request.form.get('signatory_name', COMPANY['signatory']),
+        'signatory_title': request.form.get('signatory_title', COMPANY['signatory_title']),
     }
 
     if doc_type == 'offer':
@@ -3197,6 +3375,10 @@ def generate_onboarding_document():
     elif doc_type == 'agreement':
         doc_data.update({
             'address': request.form.get('employee_address', ''),
+            'job_title': request.form.get('job_title') or employee.designation or '',
+            'commencement_date': to_ddmmyyyy(request.form.get('commencement_date', '')),
+            'employee_status': request.form.get('employee_status', 'New'),
+            'letter_year': date.today().year,
             'probation_period': request.form.get('probation_period', 'six (6) months'),
             'work_location': request.form.get('work_location', 'Office – Tilak Nagar, Delhi'),
             'hours_per_week': request.form.get('hours_per_week', '38'),
@@ -3215,11 +3397,27 @@ def generate_onboarding_document():
             'assets': assets
         })
     elif doc_type == 'increment':
+        old_annual = float(request.form.get('old_annual') or pay['annual'])
+        new_annual = float(request.form.get('new_annual') or pay['annual'])
         doc_data.update({
             'letter_date': to_ddmmyyyy(request.form.get('letter_date', date.today().isoformat())),
             'effective_from': to_ddmmyyyy(request.form.get('effective_from', date.today().isoformat())),
-            'old_annual': request.form.get('old_annual', salary.monthly_salary * 12),
-            'new_annual': request.form.get('new_annual', salary.monthly_salary * 12),
+            'old_annual': old_annual,
+            'new_annual': new_annual,
+            'old_pay': salary_breakdown(old_annual / 12),
+            'new_pay': salary_breakdown(new_annual / 12),
+            'hike_percent': round((new_annual - old_annual) / old_annual * 100, 1) if old_annual else 0,
+        })
+    elif doc_type == 'experience':
+        currently_working = request.form.get('employment_status', 'current') == 'current'
+        doc_data.update({
+            'letter_date': to_ddmmyyyy(request.form.get('letter_date', date.today().isoformat())),
+            'address': request.form.get('employee_address', ''),
+            'job_title': request.form.get('job_title') or employee.designation or '',
+            'joining_date': to_ddmmyyyy(request.form.get('joining_date', '')),
+            'currently_working': currently_working,
+            'last_working_day': to_ddmmyyyy(request.form.get('last_working_day', '')),
+            'pronoun': pronouns(request.form.get('gender') or employee.gender),
         })
 
     return render_template('onboarding_document_preview.html', doc=doc_data)
@@ -3261,9 +3459,64 @@ def assign_onboarding_document():
         )
         db.session.add(onboarding_doc)
 
+    # The Assets Declaration is the record of what the employee holds, so keep
+    # EmployeeAsset in step with it - that is what the profile page reads.
+    if doc_type == 'assets':
+        record_declared_assets(employee_id, request.form.get('assets_json', '[]'))
+
     db.session.commit()
     flash(f'✅ {doc_title} assigned to {employee.username}!', 'success')
     return redirect(url_for('employee_onboarding'))
+
+
+def record_declared_assets(user_id, assets_json):
+    """Save the assets from an Assets Declaration against the employee.
+
+    Matches on serial number (falling back to the asset name) so re-assigning a
+    corrected declaration updates the existing rows instead of duplicating them.
+    Nothing is deleted - an asset that drops off a later declaration stays on
+    file and is marked returned by hand.
+    """
+    try:
+        declared = json.loads(assets_json or '[]')
+    except (ValueError, TypeError):
+        # Don't fail silently - the document still saves, but the admin needs to
+        # know the asset register was not updated from it
+        flash('The document was saved, but its asset list could not be read, so '
+              'the employee\'s asset register was left unchanged.', 'warning')
+        return
+
+    existing = EmployeeAsset.query.filter_by(user_id=user_id).all()
+    by_serial = {a.serial_number: a for a in existing if a.serial_number}
+    by_name = {a.asset_name: a for a in existing if not a.serial_number}
+
+    for item in declared:
+        if not isinstance(item, dict):
+            continue
+        name = (item.get('description') or '').strip()
+        serial = (item.get('serial') or '').strip()
+        if not name and not serial:
+            continue
+
+        asset = by_serial.get(serial) if serial else by_name.get(name)
+        if asset is None:
+            asset = EmployeeAsset(user_id=user_id, issue_date=date.today(), status='active')
+            db.session.add(asset)
+            if serial:
+                by_serial[serial] = asset
+            else:
+                by_name[name] = asset
+
+        # The declaration has no asset_type field, and its "condition" is not a
+        # type, so it rides along in remarks rather than being mislabelled.
+        remarks = ' - '.join(part for part in [
+            (item.get('condition') or '').strip(),
+            (item.get('notes') or '').strip()
+        ] if part)
+
+        asset.asset_name = name
+        asset.serial_number = serial
+        asset.remarks = remarks
 
 
 # Admin: HR Reports & Analytics

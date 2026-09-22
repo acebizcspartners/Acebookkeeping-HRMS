@@ -1,0 +1,39 @@
+{# Wraps a document body in the company letterhead.
+
+   The footer sits in <tfoot> *before* <tbody> so the browser repeats it on
+   every printed page (see .print-table tfoot in letterhead.css).
+
+   Usage:
+     {% import 'documents/_letterhead.html' as lh %}
+     {% call lh.letterhead(company) %}  ...document body...  {% endcall %}
+#}
+{% macro letterhead(company) %}
+<div class="letter-preview">
+    <table class="print-table">
+        <tfoot>
+            <tr><td>
+                <div class="lh-footer">
+                    <div class="footer-line">Regd. Office: {{ company.address }}</div>
+                    <div class="footer-line">Phone: {{ company.phone }} &nbsp;&nbsp;|&nbsp;&nbsp; Email: {{ company.email }}</div>
+                </div>
+                <div class="lh-bottom-bar"></div>
+            </td></tr>
+        </tfoot>
+        <tbody>
+            <tr><td>
+                <div class="letter-main">
+                    <div class="lh-top-bar"></div>
+                    <div class="lh-header">
+                        <div class="lh-company">
+                            <h2>{{ company.name|upper }}</h2>
+                            <p>CIN: {{ company.cin }}</p>
+                        </div>
+                    </div>
+
+                    {{ caller() }}
+                </div>
+            </td></tr>
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
