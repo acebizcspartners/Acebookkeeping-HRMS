@@ -1320,10 +1320,29 @@ table td button {
 /* Responsive */
 @media (max-width: 768px) {
     .navbar {
-        flex-wrap: wrap;
+        /* nowrap: .nav-links is an off-canvas sidebar at every width, so the old
+           wrap only pushed the user section onto a second row */
+        flex-wrap: nowrap;
         height: auto;
-        padding: 1rem;
-        gap: 1rem;
+        min-height: 60px;
+        padding: 0.5rem 0.75rem;
+        gap: 0.75rem;
+    }
+
+    /* let the brand give way instead of forcing the row wider than the screen */
+    .nav-brand-container {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .brand-text {
+        min-width: 0;
+    }
+
+    .brand-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .nav-links {
@@ -1825,13 +1844,21 @@ body.modal-open .sidebar-overlay {
         height: 32px;
     }
 
+    /* narrow enough that "Ace Bookkeeping" stacks onto two lines, but wide
+       enough to hold "Bookkeeping" so it never spills over the user section */
     .brand-text {
         gap: 0;
+        max-width: 92px;
     }
 
+    /* on a phone the name wraps onto two lines rather than being cut off */
     .brand-title {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 600;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.15;
     }
 
     .brand-subtitle {
@@ -1846,23 +1873,35 @@ body.modal-open .sidebar-overlay {
     }
 
     .nav-user-section {
-        gap: 0.75rem;
-        padding-left: 0.75rem;
+        gap: 0.5rem;
+        padding-left: 0.5rem;
         border-left: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .user-details {
         gap: 0.25rem;
+        min-width: 0;
+    }
+
+    /* the role is already obvious inside the app; on a phone the chip only
+       costs the width the name needs */
+    .user-role {
+        display: none;
     }
 
     .user-name {
         font-size: 0.75rem;
+        max-width: 92px;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.15;
     }
 
+    /* the avatar is a generic icon - dropping it buys the width the name and
+       the brand need to sit side by side without either being cut */
     .user-avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 0.95rem;
+        display: none;
     }
 
     .role-badge {

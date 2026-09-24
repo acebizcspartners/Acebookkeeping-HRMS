@@ -437,11 +437,12 @@
     </div>
     {% endif %}
 
-    <!-- Main Content Grid -->
+    <!-- Assigned Documents Section (if any) -->
+    {# Kept in its own row: alongside Recent Leaves (8) and Quick Actions (4)
+       the three columns came to 16, so Quick Actions wrapped and left a gap #}
+    {% if assigned_documents %}
     <div class="row g-4 mb-4">
-        <!-- Assigned Documents Section (if any) -->
-        {% if assigned_documents %}
-        <div class="col-lg-8">
+        <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0"><i class="fas fa-file-contract text-info"></i> Assigned Documents</h5>
@@ -480,10 +481,13 @@
                 </div>
             </div>
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
 
+    <!-- Main Content Grid -->
+    <div class="row g-4 mb-4">
         <!-- Recent Leaves -->
-        <div class="col-lg-{% if assigned_documents %}4{% else %}8{% endif %}">
+        <div class="col-lg-8">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0"><i class="fas fa-history text-primary"></i> Recent Leave Applications</h5>

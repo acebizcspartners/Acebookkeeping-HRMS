@@ -114,13 +114,21 @@
                             <th>Net Amount</th>
                             <th>Status</th>
                             <th>Generated On</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for invoice in invoices %}
                         <tr>
-                            <td><strong>{{ current_user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</strong></td>
+                            {# View sits beside the name so it stays reachable on a
+                               phone - as the last column it was off-screen #}
+                            <td>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <strong>{{ current_user.username }}_{{ ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][invoice.month-1] }}_{{ invoice.year }}</strong>
+                                    <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-sm btn-info text-nowrap" title="View Slip">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </div>
+                            </td>
                             <td>{{ ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][invoice.month-1] }} {{ invoice.year }}</td>
                             <td>₹{{ "%.2f"|format(invoice.salary_amount) }}</td>
                             <td>
@@ -148,11 +156,6 @@
                                 {% endif %}
                             </td>
                             <td>{{ invoice.generated_on.strftime('%d/%m/%Y') }}</td>
-                            <td>
-                                <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-sm btn-info" title="View Slip">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
