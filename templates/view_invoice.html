@@ -124,6 +124,16 @@
                                 <td class="fw-bold" style="padding-top: 15px; font-size: 15px; font-weight: 900;">NET PAY</td>
                                 <td class="text-end fw-bold" style="padding-top: 15px; font-size: 16px; font-weight: 900;">₹{{ "%.2f"|format(invoice.net_amount) }}</td>
                             </tr>
+                            <!-- seal sits directly under the net pay figure, right-aligned with it -->
+                            <tr>
+                                <td></td>
+                                <td class="text-end payslip-seal" style="padding: 0;">
+                                    <img src="{{ url_for('static', filename='images/ACE_Round_Mohar.png') }}"
+                                         alt="{{ company.name }} seal"
+                                         style="width: 105px; height: auto; display: block; margin-left: auto;">
+                                    <div style="font-size: 9px; color: #666; font-weight: 400;">For ACE BOOKKEEPING PVT LTD</div>
+                                </td>
+                            </tr>
                         </table>
                     </div>
 
@@ -236,6 +246,23 @@
         .card-body {
             padding: 0;
             margin: 0;
+        }
+
+        /* the blank * rule above strips every margin, so the seal needs its
+           own sizing, and colour-adjust keeps the ink from being dropped */
+        .payslip-seal {
+            text-align: right !important;
+            page-break-inside: avoid !important;
+        }
+
+        .payslip-seal img {
+            width: 95px !important;
+            display: block;
+            /* the blanket margin:0 above would shove the seal to the left edge */
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
         table {
