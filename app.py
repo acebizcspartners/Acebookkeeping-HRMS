@@ -105,6 +105,11 @@ if DATABASE_URL:
     # Use psycopg2 driver for PostgreSQL (works with Neon)
     if DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    # Name the driver explicitly. SQLAlchemy 2.1 changed the default for a bare
+    # postgresql:// URL from psycopg2 to psycopg (v3), which we don't install -
+    # an unpinned build then dies at import with ModuleNotFoundError: psycopg
+    if DATABASE_URL.startswith('postgresql://'):
+        DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg2://', 1)
     DB_URI = DATABASE_URL
 elif IS_VERCEL:
     DB_URI = 'sqlite:////tmp/leave_management.db'
