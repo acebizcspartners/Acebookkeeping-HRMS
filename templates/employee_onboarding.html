@@ -45,6 +45,16 @@
 
                 <input type="hidden" name="doc_type" id="doc_type" value="offer">
 
+                {# deliberately NOT class "alert": main.js deletes every .alert on
+                   the page 5s after load, which would take this banner with it #}
+                <div id="existingDocNotice"
+                     class="d-none align-items-center justify-content-between py-2 px-3 mb-3 rounded border border-warning bg-warning-subtle text-dark">
+                    <span id="existingDocText"></span>
+                    <button type="button" class="btn btn-sm btn-outline-dark ms-3 flex-shrink-0" onclick="startFresh()">
+                        Start blank instead
+                    </button>
+                </div>
+
                 <ul class="nav nav-pills mb-3" id="docTabs">
                     <li class="nav-item"><button type="button" class="nav-link active" data-doc="offer">Offer Letter</button></li>
                     <li class="nav-item"><button type="button" class="nav-link" data-doc="agreement">Employment Agreement</button></li>
@@ -311,6 +321,7 @@ function selectDocType(docType) {
     document.querySelectorAll('#docTabs .nav-link').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.doc === docType);
     });
+    loadExistingDocument();
 
     // Several panes reuse the same field names (work_location, letter_date,
     // job_title...). Hidden panes still submit, so disable them - otherwise the
@@ -327,6 +338,99 @@ function selectDocType(docType) {
             if (el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = !isActive;
         });
     });
+}
+
+// If this employee already has this document, reopen it with the details the
+// admin used last time, so a correction is an edit rather than a retype.
+async function loadExistingDocument() {
+    const empId = document.getElementById('employee_id').value;
+    const docType = document.getElementById('doc_type').value;
+    const notice = document.getElementById('existingDocNotice');
+    const text = document.getElementById('existingDocText');
+
+    notice.classList.add('d-none');
+    notice.classList.remove('d-flex');
+    if (!empId) return;
+
+    let data;
+    try {
+        const res = await fetch(`/api/employee/${empId}/assigned-document/${docType}`);
+        data = await res.json();
+    } catch (err) {
+        return;
+    }
+    if (!data.exists) return;
+
+    notice.classList.remove('d-none');
+    notice.classList.add('d-flex');
+
+    if (data.has_form_data) {
+        applyFormData(data.form_data);
+        text.innerHTML = `<strong>${data.doc_title}</strong> was already assigned on
+            ${data.assigned_at}. Its details are loaded below — change what you need and
+            assign again to replace it.`;
+    } else {
+        text.innerHTML = `<strong>${data.doc_title}</strong> was already assigned on
+            ${data.assigned_at}, but it was created before details were saved, so the form
+            below is blank. Filling it in and assigning will replace that document.`;
+    }
+}
+
+function applyFormData(form) {
+    const pane = document.getElementById(document.getElementById('doc_type').value + '-fields');
+    if (!pane) return;
+
+    pane.querySelectorAll('input, select, textarea').forEach(el => {
+        if (!el.name || !(el.name in form)) return;
+        el.value = form[el.name];
+        // the visible flatpickr field has to be told about the new value
+        if (el._flatpickr) el._flatpickr.setDate(form[el.name], false);
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    if (form.assets) restoreAssetRows(form.assets);
+}
+
+function restoreAssetRows(assetsJson) {
+    let assets;
+    try {
+        assets = JSON.parse(assetsJson);
+    } catch (err) {
+        return;
+    }
+    if (!Array.isArray(assets) || !assets.length) return;
+
+    const container = document.getElementById('assets-container');
+    container.querySelectorAll('.asset-row').forEach((row, i) => { if (i) row.remove(); });
+
+    assets.forEach((asset, i) => {
+        if (i) addAssetRow();
+        const row = container.querySelectorAll('.asset-row')[i];
+        row.querySelector('.asset-desc').value = asset.description || '';
+        row.querySelector('.asset-serial').value = asset.serial || '';
+        row.querySelector('.asset-condition').value = asset.condition || 'New';
+        const notes = row.querySelector('.asset-notes');
+        if (notes) notes.value = asset.notes || '';
+    });
+}
+
+function startFresh() {
+    const docType = document.getElementById('doc_type').value;
+    const pane = document.getElementById(docType + '-fields');
+    if (pane) {
+        pane.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.tagName === 'SELECT') el.selectedIndex = 0;
+            else el.value = '';
+            if (el._flatpickr) el._flatpickr.clear();
+        });
+    }
+    if (docType === 'assets') {
+        const container = document.getElementById('assets-container');
+        container.querySelectorAll('.asset-row').forEach((row, i) => { if (i) row.remove(); });
+        container.querySelectorAll('input').forEach(el => { el.value = ''; });
+    }
+    document.getElementById('existingDocNotice').classList.add('d-none');
+    fillEmployeeData();
 }
 
 async function fillEmployeeData() {
@@ -362,6 +466,9 @@ async function fillEmployeeData() {
     } catch (err) {
         summary.textContent = 'Could not load employee details';
     }
+
+    // after the profile defaults, so a previously assigned document wins
+    await loadExistingDocument();
 }
 
 function addAssetRow() {

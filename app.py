@@ -554,6 +554,9 @@ class OnboardingDocument(db.Model):
     assigned_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Admin who assigned it
     assigned_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='assigned')  # assigned, acknowledged, rejected
+    # The form the admin filled in, as JSON. doc_content is only the rendered
+    # HTML, so without this a document could never be reopened and corrected.
+    form_data = db.Column(db.Text)
 
     user = db.relationship('User', foreign_keys=[user_id], backref='onboarding_documents')
     admin = db.relationship('User', foreign_keys=[assigned_by])
@@ -3425,6 +3428,11 @@ def generate_onboarding_document():
             'pronoun': pronouns(request.form.get('gender') or employee.gender),
         })
 
+    # Carried through the preview into assign, so the document can be reopened
+    # and corrected later instead of being retyped from scratch
+    doc_data['form_data'] = {k: v for k, v in request.form.items()
+                             if k not in ('csrf_token', 'doc_type', 'employee_id')}
+
     return render_template('onboarding_document_preview.html', doc=doc_data)
 
 @app.route('/admin/assign-onboarding-document', methods=['POST'])
@@ -3445,6 +3453,8 @@ def assign_onboarding_document():
         doc_type=doc_type
     ).first()
 
+    form_data = request.form.get('form_data') or None
+
     if existing_doc:
         # Update existing document
         existing_doc.doc_title = doc_title
@@ -3452,6 +3462,7 @@ def assign_onboarding_document():
         existing_doc.assigned_at = datetime.now()
         existing_doc.assigned_by = current_user.id
         existing_doc.status = 'assigned'
+        existing_doc.form_data = form_data
     else:
         # Create new document record
         onboarding_doc = OnboardingDocument(
@@ -3460,7 +3471,8 @@ def assign_onboarding_document():
             doc_title=doc_title,
             doc_content=doc_html,
             assigned_by=current_user.id,
-            status='assigned'
+            status='assigned',
+            form_data=form_data
         )
         db.session.add(onboarding_doc)
 
@@ -3472,6 +3484,33 @@ def assign_onboarding_document():
     db.session.commit()
     flash(f'✅ {doc_title} assigned to {employee.username}!', 'success')
     return redirect(url_for('employee_onboarding'))
+
+
+@app.route('/api/employee/<int:user_id>/assigned-document/<doc_type>')
+@login_required
+@admin_required
+def assigned_onboarding_document(user_id, doc_type):
+    """Whether this employee already has this document, and the form behind it,
+    so the admin can reopen and correct it instead of starting again."""
+    doc = OnboardingDocument.query.filter_by(user_id=user_id, doc_type=doc_type).first()
+    if not doc:
+        return jsonify({'exists': False})
+
+    try:
+        form_data = json.loads(doc.form_data) if doc.form_data else {}
+    except (ValueError, TypeError):
+        form_data = {}
+
+    return jsonify({
+        'exists': True,
+        'doc_id': doc.id,
+        'doc_title': doc.doc_title,
+        'status': doc.status,
+        'assigned_at': doc.assigned_at.strftime('%d/%m/%Y') if doc.assigned_at else '',
+        # documents assigned before this feature have no saved form
+        'has_form_data': bool(form_data),
+        'form_data': form_data,
+    })
 
 
 def record_declared_assets(user_id, assets_json):
@@ -3710,6 +3749,16 @@ def init_db():
                     print('Added manual_deduction column to payment_invoice table')
             except Exception as e:
                 print(f'PaymentInvoice table migration: {e}')
+
+            # Remember the form behind each onboarding document so it can be reopened
+            try:
+                od_columns = [col['name'] for col in inspector.get_columns('onboarding_document')]
+                if 'form_data' not in od_columns:
+                    db.session.execute(text('ALTER TABLE onboarding_document ADD COLUMN form_data TEXT'))
+                    db.session.commit()
+                    print('Added form_data column to onboarding_document table')
+            except Exception as e:
+                print(f'OnboardingDocument table migration: {e}')
 
             # Add new columns to training table if missing
             try:

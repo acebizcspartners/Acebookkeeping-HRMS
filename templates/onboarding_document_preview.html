@@ -32,6 +32,7 @@
        would be cut short at the first key and submit broken JSON #}
     <input type="hidden" name="assets_json" value='{{ doc.assets | tojson }}'>
     {% endif %}
+    <input type="hidden" name="form_data" value='{{ doc.form_data | tojson }}'>
     <input type="hidden" name="doc_html" id="docHtml">
 </form>
 {% endblock %}
