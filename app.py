@@ -1371,7 +1371,9 @@ def dashboard():
     if current_user.role in ['admin', 'manager']:
         # Admins: Don't fetch data here, load via AJAX after page renders
         # This prevents blocking the page load for 5+ minutes
-        all_employees = User.query.filter_by(role='employee').all()
+        # Every role is listed - a promotion to manager or admin used to drop the
+        # person out of this table entirely, so their hours were never requested
+        all_employees = User.query.order_by(User.username).all()
         all_employees_hours = [
             {
                 'user_id': emp.id,
@@ -1382,14 +1384,15 @@ def dashboard():
             }
             for emp in all_employees
         ]
-        print(f"[Dashboard] Admin view: {len(all_employees_hours)} employees (data will load async)")
+        print(f"[Dashboard] Admin view: {len(all_employees_hours)} staff (data will load async)")
+
+    # Everyone sees their own working hours, admins and managers included - this
+    # is one API call for the logged-in user, not the whole team
+    working_hours_summary = get_activtrak_working_hours(current_user.email, month_start, month_end)
+    if working_hours_summary:
+        print(f"[Dashboard] Working hours for {current_user.email}: {working_hours_summary}")
     else:
-        # Employees see only their own working hours
-        working_hours_summary = get_activtrak_working_hours(current_user.email, month_start, month_end)
-        if working_hours_summary:
-            print(f"[Dashboard] Working hours for {current_user.email}: {working_hours_summary}")
-        else:
-            print(f"[Dashboard] No working hours data found for {current_user.email} ({month_start} to {month_end})")
+        print(f"[Dashboard] No working hours data found for {current_user.email} ({month_start} to {month_end})")
 
     return render_template('dashboard.html',
                          balance=balance,
